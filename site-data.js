@@ -1,7 +1,4 @@
-/* ============================================================================
-   Your Path — public site content
-   Plain data only. Rendering lives in site.js.
-   ========================================================================== */
+
 window.YourPathData = (function () {
   "use strict";
 
@@ -29,8 +26,7 @@ window.YourPathData = (function () {
       blurb: "Keep communities safe, informed and functioning." }
   ];
 
-  /* Career names grouped by cluster. The detail for each pathway is held once,
-     in the adaptive pathway library, so there is a single source of truth. */
+  
   const clusterMembers = {
     tech: ["Computer Science", "Information Technology", "Information Systems",
       "Software Engineering", "Data Science & Analytics", "Cybersecurity"],
@@ -61,8 +57,7 @@ window.YourPathData = (function () {
       "Forensic Science", "Sports Science / Exercise Science"]
   };
 
-  /* The five signals the questionnaire tracks. Used to turn a pathway's
-     weighting into a plain sentence instead of a match percentage. */
+ 
   const signals = {
     Analytical: "working through problems with logic, data and evidence",
     Creative: "making, designing or inventing something original",
@@ -71,7 +66,6 @@ window.YourPathData = (function () {
     Curiosity: "investigating how and why things work"
   };
 
-  /* ------------------------------------------------------------- home content */
 
   const stats = [
     { value: "78", label: "career pathways, each with a first test you can run" },
