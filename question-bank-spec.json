@@ -1,0 +1,33 @@
+{
+  "total_questions": 1000,
+  "dimensions": 10,
+  "stems_per_dimension": 20,
+  "contexts_per_stem": 5,
+  "questions_per_dimension": 100,
+  "selection_method": "weighted sampling without replacement using an exponential-race key; category weights are normalized to 100",
+  "category_weights": {
+    "interests": 14,
+    "subjects": 10,
+    "problem": 12,
+    "creativity": 9,
+    "communication": 10,
+    "workstyle": 11,
+    "motivation": 9,
+    "learning": 8,
+    "pressure": 9,
+    "values": 8
+  },
+  "first_draw_probability_per_question_percent": {
+    "interests": 0.14,
+    "subjects": 0.1,
+    "problem": 0.12,
+    "creativity": 0.09,
+    "communication": 0.1,
+    "workstyle": 0.11,
+    "motivation": 0.09,
+    "learning": 0.08,
+    "pressure": 0.09,
+    "values": 0.08
+  },
+  "note": "First-draw probabilities are selection mechanics only, not psychological confidence or career-match probabilities."
+}

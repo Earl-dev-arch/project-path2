@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="description" content="Your Path — an explainable career exploration platform built for students. Discover what fits you.">
+<title>Your Path.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="page-noise"></div>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<header class="topbar">
+  <a class="brand" href="#home"><span class="brand-mark" aria-label="Your Path"><svg class="brand-svg" viewBox="0 0 28 28" width="22" height="22" fill="none"><circle cx="14" cy="14" r="11" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-dasharray="2 3"/><path d="M14 3v4M14 21v4M3 14h4M21 14h4" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/><polygon points="14,6 17.5,12 23.5,14 17.5,16 14,22 10.5,16 4.5,14 10.5,12" fill="#ffffff"/><circle cx="14" cy="14" r="2.2" fill="#6c5ce7"/></svg></span><span><strong>Your Path</strong><small>Discover what fits you.</small></span></a>
+  <nav><a href="#home" data-page="home">Home</a><a href="#explore" data-page="explore">Explore Careers</a><a href="#roadmap" data-page="roadmap">Roadmaps</a><a href="#resources" data-page="resources">Resources</a><a href="#blog" data-page="blog">Blog & Safety</a><a href="#about" data-page="about">About</a></nav>
+ <div class="top-actions">
+  <button class="btn ghost btn-large" id="loginBtn">Log in</button>
+  <button class="btn primary btn-large" id="signupBtn">Sign up free</button>
+
+  <div id="userMenu" class="user-menu" style="display:none;">
+    <span id="userGreeting"></span>
+    <button class="btn ghost" id="topLogout">Log out</button>
+  </div>
+
+  <button class="hamb" id="hamb" aria-label="Open menu">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+  </button>
+</div>
+</header>
+<div class="mobile-nav" id="mobileNav"><a href="#home" data-page="home">Home</a><a href="#explore" data-page="explore">Explore Careers</a><a href="#roadmap" data-page="roadmap">Roadmaps</a><a href="#resources" data-page="resources">Resources</a><a href="#blog" data-page="blog">Blog & Safety</a><a href="#about" data-page="about">About</a></div>
+
+<main>
+<section class="page active" id="home">
+  <div class="hero shell">
+    <div class="hero-copy reveal"><span class="eyebrow">FOR STUDENTS · BY PURPOSE · NOT PRESSURE</span>
+      <h1>Your future is <span>yours to explore.</span></h1>
+      <p>Understand your genuine interests, test realistic career directions, and turn curiosity into an education roadmap — without pretending one quiz can decide your life.</p>
+      <div class="actions"><button class="btn primary big" id="heroStart">Get Started <b>➪</b></button><button class="btn soft big" data-scroll="#how">Learn More About YourPath.</button></div>
+      <div class="trust"><span>| Explore Your Potential</span><span>| Explainable pathways</span><span>| Welcome To YourPath.</span></div>
+    </div>
+    <div class="hero-art reveal delay-1"><div class="hero-photo-wrap"><img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=85" alt="Students exploring career and education paths" class="hero-photo" loading="eager"><div class="hero-photo-overlay"></div></div></div>
+  </div>
+
+  <div class="active-session-banner shell hidden" id="activeSessionBanner">
+    <div class="active-session-content">
+      <div>
+        <span class="eyebrow">ACTIVE STUDENT WORKSPACE</span>
+        <h3 id="activeSessionGreeting">Welcome back!</h3>
+        <p>You are currently logged in. Your 20-question session, AI analysis, pathways, and roadmaps are ready.</p>
+      </div>
+      <div class="active-session-actions">
+        <button class="btn primary" onclick="showPage('dashboard');goTab('overview')">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
+          <span>Go to Main Dashboard</span>
+        </button>
+        <button class="btn soft" onclick="showPage('dashboard');goTab('questionnaire')">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <span>Continue Questionnaire</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="starting-menu shell reveal delay-2" id="startingMenu">
+    <div class="starting-menu-head">
+      <span class="eyebrow">GET STARTED · STUDENT PORTAL</span>
+      <h2>Choose how you want to start</h2>
+      <p>Sign in to continue your saved journey, register a new student account, or explore the career library as a guest.</p>
+    </div>
+    <div class="starting-menu-grid">
+      <div class="starting-card">
+        <div class="starting-badge">EXISTING STUDENTS</div>
+        <div class="starting-icon starting-icon-svg-wrap">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <h3>Log In to Your Space</h3>
+        <p>Continue your 20-question session, review AI patterns, and access your saved pathways, roadmaps, and previous analyses.</p>
+        <button class="btn ghost btn-full" onclick="openLogin()" style="border:1.5px solid #dcd8ee">Log In to Account ➪</button>
+      </div>
+
+      <div class="starting-card highlight-card">
+        <div class="starting-badge highlight-badge">NEW STUDENTS</div>
+        <div class="starting-icon starting-icon-svg-wrap">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
+        </div>
+        <h3>Create Student Account</h3>
+        <p>Set up your student profile with a password, and start fresh.</p>
+        <button class="btn primary btn-full" onclick="openSignup()">Sign Up Free ➪</button>
+      </div>
+
+      <div class="starting-card">
+        <div class="starting-badge">GUEST PREVIEW</div>
+        <div class="starting-icon starting-icon-svg-wrap">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+        </div>
+        <h3>Explore Career Library</h3>
+        <p>Browse all 16 career clusters, university guides, scholarships, entrance tests, and alternative education routes.</p>
+        <button class="btn soft btn-full" data-page="explore">Explore Library ➪</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="section shell" id="how"><div class="heading reveal"><span class="eyebrow">HOW IT WORKS</span><h2>A journey, not a personality label.</h2><p>Each session draws 20 questions from a weighted bank of 1,000. The selection is designed to cover different dimensions instead of asking the same kind of question twenty times.</p></div>
+    <div class="steps"><article class="reveal"><span>01</span><h3>Deep questions</h3><p>Scenarios, ranking, scales, multiple choice and reflection prompts.</p></article><article class="reveal delay-1"><span>02</span><h3>Pattern analysis</h3><p>Looks for repeated signals, contradictions and uncertainty.</p></article><article class="reveal delay-2"><span>03</span><h3>Several pathways</h3><p>Shows plausible directions with reasoning, skills and trade-offs.</p></article><article class="reveal delay-3"><span>04</span><h3>Action roadmap</h3><p>Turns a pathway into practical next steps based on grade.</p></article></div>
+  </section>
+  <section class="section shell feature-grid"><div class="feature purple reveal"><span class="eyebrow"></span><h2></h2><p>Selection probabilities only control which questions appear. They are not psychological probabilities and they never become a “career score.”</p><div class="chips"><span>Reasoned</span><span>Transparent</span><span>Uncertain when needed</span></div></div><div class="feature dark reveal delay-1"><span class="eyebrow">PRESSURE CHECK</span><h2>Your own voice matters.</h2><p>The system can identify response patterns that deserve reflection around parents, peers, status, salary or limited career knowledge.</p><div class="bars"><i style="width:72%"></i><i style="width:47%"></i><i style="width:29%"></i></div></div></section>
+</section>
+
+<section class="page" id="dashboard">
+<div class="dashboard shell">
+<aside class="sidebar">
+  <div class="side-logo">
+    <span class="brand-mark" aria-label="Your Path Logo">
+      <svg class="brand-svg" viewBox="0 0 28 28" width="20" height="20" fill="none">
+        <circle cx="14" cy="14" r="11" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-dasharray="2 3"/>
+        <path d="M14 3v4M14 21v4M3 14h4M21 14h4" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/>
+        <polygon points="14,6 17.5,12 23.5,14 17.5,16 14,22 10.5,16 4.5,14 10.5,12" fill="#ffffff"/>
+        <circle cx="14" cy="14" r="2.2" fill="#6c5ce7"/>
+      </svg>
+    </span>
+    <div class="side-logo-text">
+      <b>Your Path</b>
+      <small>Student space</small>
+    </div>
+  </div>
+
+  <div class="side-group">
+    <div class="side-group-label">WORKSPACE</div>
+    <button class="side active" data-tab="overview">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
+      </span>
+      <span class="side-label">Dashboard</span>
+    </button>
+    <button class="side" data-tab="questionnaire">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      </span>
+      <span class="side-label">Questionnaire</span>
+    </button>
+    <button class="side" data-tab="analysis">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><circle cx="18" cy="7" r="2"></circle></svg>
+      </span>
+      <span class="side-label">Analysis</span>
+    </button>
+  </div>
+
+  <div class="side-group">
+    <div class="side-group-label">EXPLORATION</div>
+    <button class="side" data-tab="pathways">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+      </span>
+      <span class="side-label">Pathways</span>
+    </button>
+    <button class="side" data-tab="compare">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h18"></path></svg>
+      </span>
+      <span class="side-label">Compare</span>
+    </button>
+    <button class="side" data-tab="education">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+      </span>
+      <span class="side-label">Universities</span>
+    </button>
+    <button class="side" data-tab="roadmaps">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>
+      </span>
+      <span class="side-label">Roadmaps</span>
+    </button>
+  </div>
+
+  <div class="side-group">
+    <div class="side-group-label">MY VAULT</div>
+    <button class="side" data-tab="saved">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+      </span>
+      <span class="side-label">Saved Careers</span>
+      <span class="side-badge" id="sideSavedBadge">0</span>
+    </button>
+    <button class="side" data-tab="history">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      </span>
+      <span class="side-label">Previous Analyses</span>
+      <span class="side-badge" id="sideHistoryBadge">0</span>
+    </button>
+    <button class="side side-motivation" onclick="openMotivationModal()">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path></svg>
+      </span>
+      <span class="side-label">Motivation</span>
+      <span class="side-badge side-spark-badge">Daily</span>
+    </button>
+  </div>
+
+  <div class="side-group">
+    <div class="side-group-label">ACCOUNT</div>
+    <button class="side" data-tab="profile">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </span>
+      <span class="side-label">Profile</span>
+    </button>
+    <button class="side" data-tab="feedback">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      </span>
+      <span class="side-label">Feedback</span>
+    </button>
+    <button class="side admin" data-tab="admin">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      </span>
+      <span class="side-label">Admin</span>
+    </button>
+    <button class="side side-logout" id="logout">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </span>
+      <span class="side-label">Log out</span>
+    </button>
+  </div>
+</aside>
+<section class="dash-main">
+<div class="dash-head"><div><span class="eyebrow">STUDENT DASHBOARD · HONEST DECISION SUPPORT</span><h1 id="welcome">Welcome back!</h1><p>You're not here to fit in. You're here to figure out your path.</p></div><div class="quote quote-interactive" id="dailyQuoteCard" onclick="openMotivationModal()" title="Click for famous quotes & inspiration"><span class="quote-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path></svg>DAILY MOTIVATION · CLICK TO VIEW</span><blockquote id="headerQuoteText">“The best way to predict your future is to create it.”</blockquote><small id="headerQuoteAuthor">Often attributed to Abraham Lincoln ✦</small></div></div>
+<div class="journey-board" id="journeyBoard">
+  <div class="journey-title"><span>HOW IT WORKS</span><b>STUDENT JOURNEY</b></div>
+  <div class="journey-steps">
+    <article class="journey-step complete" id="journeyRegister"><div class="step-num">1</div><div><small>REGISTER</small><h3>Create your account</h3><p id="journeyProfileText">Your profile is ready.</p><button class="journey-btn" data-tab="profile">Edit profile</button></div></article>
+    <div class="journey-arrow">→</div>
+    <article class="journey-step" id="journeyQuestionnaire"><div class="step-num">2</div><div><small>DEEP QUESTIONNAIRE</small><h3 id="journeyQTitle">20 questions</h3><p id="journeyQText">Explore your genuine interests, preferences and motivations.</p><button class="journey-btn primary" data-tab="questionnaire">Start questionnaire</button></div></article>
+    <div class="journey-arrow">→</div>
+    <article class="journey-step" id="journeyAnalysis"><div class="step-num">3</div><div><small>AI ANALYSIS</small><h3 id="journeyATitle">Waiting for answers</h3><p id="journeyAText">Your responses will be checked for patterns, contradictions and uncertainty.</p><button class="journey-btn" data-tab="analysis">View analysis</button></div></article>
+    <div class="journey-arrow">→</div>
+    <article class="journey-step" id="journeyPathways"><div class="step-num">4</div><div><small>PATHWAYS</small><h3>Several directions</h3><p>Explore multiple possible education and career routes.</p><button class="journey-btn" data-tab="pathways">Explore pathways</button></div></article>
+    <div class="journey-arrow">→</div>
+    <article class="journey-step" id="journeyRoadmap"><div class="step-num">5</div><div><small>ROADMAP</small><h3>Your next steps</h3><p>School → skills → education → career, based on your stage.</p><button class="journey-btn" data-tab="roadmaps">Build roadmap</button></div></article>
+    <div class="journey-arrow">→</div>
+    <article class="journey-step" id="journeyAction"><div class="step-num">6</div><div><small>TAKE ACTION & TRACK</small><h3>Today’s action</h3><p id="journeyActionText">Start with one small experiment and keep track of what you learn.</p><button class="journey-btn" data-tab="roadmaps">View actions</button></div></article>
+  </div>
+</div>
+<div class="tab active" id="tab-overview">
+  <div class="stats"><div><b id="completion">0%</b><small>Questionnaire</small></div><div><b>16</b><small>Pathways to explore</small></div><div><b id="savedCount">0</b><small>Saved pathways</small></div><div><b id="historyCount">0</b><small>Completed analyses</small></div></div>
+  <div class="dash-grid"><div class="card"><div class="card-title"><h3>Your pathway set</h3><button class="link" data-tab="pathways">View all →</button></div><div id="topPaths"></div></div><div class="card"><div class="interest-head"><h3>Your interest map</h3><span id="interestStatus" class="interest-status">Complete the questionnaire</span></div><div class="radar" id="interestRadar"><div class="radar-grid"></div><div class="radar-fill" id="radarFill"></div><span>Analytical</span><span>Creative</span><span>People</span><span>Learning</span><span>Curiosity</span></div><div class="interest-bars" id="interestBars"></div></div><div class="card"><h3>External pressure check</h3><p class="muted">This is a reflection indicator, not a claim about what you think.</p><div class="pressure"><p><span>Parental expectations</span><b>Medium</b></p><p><span>Peer influence</span><b>Low</b></p><p><span>Status / salary</span><b>Low</b></p></div></div></div>
+  <div class="quick">
+    <button onclick="retakeQuestionnaire()">
+      <span class="quick-icon-wrap">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+      </span>
+      <b>Retake questionnaire<small>Archive current & draw 20 new</small></b>
+    </button>
+    <button data-tab="compare">
+      <span class="quick-icon-wrap">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h18"></path></svg>
+      </span>
+      <b>Compare pathways<small>Side-by-side analysis</small></b>
+    </button>
+    <button data-tab="education">
+      <span class="quick-icon-wrap">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+      </span>
+      <b>Universities & Ed<small>Degrees, tests & scholarships</small></b>
+    </button>
+    <button data-tab="history">
+      <span class="quick-icon-wrap">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      </span>
+      <b>Previous analyses<small>Track interest evolution</small></b>
+    </button>
+  </div>
+</div>
+
+<div class="tab" id="tab-questionnaire"><div class="tab-head"><div><span class="eyebrow">1,000-QUESTION BANK · ADAPTIVE EXPLORATION</span><h2>Deep Interest Questionnaire</h2><p>20 questions are selected without replacement using category weights. Every session can be different.</p></div><div class="pill" id="qCount">1 / 20</div></div>
+  <div class="q-progress-bar-wrap"><div class="q-progress-bar" id="qProgressBar" style="width:5%"></div></div>
+  <div class="question-shell"><div id="question"></div><aside class="selection-info"><b>Why this question?</b><p id="selectionInfo">Weighted selection keeps the session balanced.</p><div class="mini-stat"><span>Bank size</span><b id="bankSize">1,000</b></div><div class="mini-stat"><span>Questions this session</span><b>20</b></div><div class="mini-stat"><span>Question types</span><b>Scenarios, Scales, Multi & Rank</b></div><small>Selection probability is about question appearance, not your personality.</small></aside></div>
+</div>
+
+<div class="tab" id="tab-analysis"><div class="tab-head"><div><span class="eyebrow">ANALYSIS</span><h2>Patterns, not a verdict.</h2><p id="analysisIntro"></p></div></div><div id="analysis"></div></div>
+<div class="tab" id="tab-pathways"><div class="tab-head"><div><span class="eyebrow">PATHWAYS</span><h2>Several directions worth testing.</h2><p>Matches are explained in words, not fake percentages.</p></div></div><div class="path-grid" id="pathGrid"></div></div>
+
+<div class="tab" id="tab-compare">
+  <div class="tab-head"><div><span class="eyebrow">PATHWAY COMPARISON</span><h2>Compare without declaring a winner.</h2><p>Examine multiple pathways side-by-side across skills, education routes, daily reality, and challenges. No fake percentage scores.</p></div></div>
+  <div id="compare"></div>
+</div>
+
+<div class="tab" id="tab-education">
+  <div class="tab-head"><div><span class="eyebrow">UNIVERSITIES & EDUCATION ROUTES</span><h2>Education is contextual, not one-size-fits-all.</h2><p>Explore degrees, admission criteria, entrance tests, scholarships, application timelines, and alternative learning paths.</p></div></div>
+  <div id="educationContainer"></div>
+</div>
+
+<div class="tab" id="tab-roadmaps"><div class="tab-head"><div><span class="eyebrow">ROADMAP</span><h2>School → skills → education → career.</h2><p id="roadmapGrade"></p></div></div><div id="roadmap"></div></div>
+
+<div class="tab" id="tab-saved">
+  <div class="tab-head"><div><span class="eyebrow">SAVED CAREERS</span><h2>Your saved pathways & research notes.</h2><p>Track the directions you are actively exploring and test each with small experiments.</p></div></div>
+  <div id="saved"></div>
+</div>
+
+<div class="tab" id="tab-history">
+  <div class="tab-head"><div><span class="eyebrow">PREVIOUS ANALYSES & SESSION LOG</span><h2>Revisit past results & track your growth.</h2><p>Interests evolve as you experience new subjects and projects. Review your previous questionnaire sessions here.</p></div></div>
+  <div id="historyContainer"></div>
+</div>
+
+<div class="tab" id="tab-feedback"><div class="tab-head"><div><span class="eyebrow">FEEDBACK</span><h2>Help improve Your Path.</h2></div></div><form class="form-card" id="feedback"><label>Was this useful?<select name="useful"><option>Yes</option><option>Somewhat</option><option>Not really</option></select></label><label>Did you discover something new?<select name="new"><option>Yes</option><option>A little</option><option>No</option></select></label><label>Which pathway interested you most?<input name="favorite"></label><label>What was missing?<textarea name="missing" rows="3"></textarea></label><label>Would you use it again?<select name="again"><option>Yes</option><option>Maybe</option><option>No</option></select></label><label>Open feedback<textarea name="feedback" rows="5"></textarea></label><button class="btn primary">Submit feedback</button></form></div>
+
+<div class="tab" id="tab-profile"><div class="tab-head"><div><span class="eyebrow">PROFILE</span><h2>Your student profile & goals.</h2><p>Update your details, academic grade, target country, budget preferences, and primary aspirations.</p></div></div><form class="form-card" id="profile"><div class="form-grid"><label>Full name<input name="name" required></label><label>Email<input name="email" type="email" required></label><label>Phone<input name="phone"></label><label>Country + code<select name="country"><option>Philippines (+63)</option><option>United States (+1)</option><option>United Kingdom (+44)</option><option>India (+91)</option><option>Canada (+1)</option><option>Australia (+61)</option><option>Other</option></select></label><label>Grade/Class<select name="grade"><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>Grade 12</option><option>College</option></select></label><label>Age<input name="age" type="number"></label><label class="wide">School / Location<input name="school"></label><label>Target Study Country<select name="targetCountry"><option value="Domestic / Home Country">Domestic / Home Country</option><option value="United States">United States</option><option value="United Kingdom">United Kingdom</option><option value="Canada">Canada</option><option value="Australia / New Zealand">Australia / New Zealand</option><option value="Europe (Germany, Netherlands, etc.)">Europe (Germany, Netherlands, etc.)</option><option value="Asia (Singapore, Japan, etc.)">Asia (Singapore, Japan, etc.)</option></select></label><label>Budget & Financial Aid Priority<select name="budget"><option value="Full scholarship needed">Full scholarship / Financial aid needed</option><option value="Partial scholarship preferred">Partial scholarship preferred</option><option value="Public state university budget">Public state university tuition budget</option><option value="Flexible / Self-funded">Flexible / Self-funded</option></select></label><label class="wide">Primary personal goal or dream projects<textarea name="goals" rows="3" placeholder="e.g. Build apps that help people, study marine biology, start a social enterprise, learn robotics..."></textarea></label></div><button class="btn primary">Save & update profile</button></form></div>
+
+<div class="tab" id="tab-admin"><div class="tab-head"><div><span class="eyebrow">LOCAL AI ADMIN</span><h2>Live platform overview.</h2><p id="adminScopeText">The from-scratch AI only counts student sessions that are currently active. No fake users or hard-coded totals.</p></div></div><div class="admin-stats"><div><b id="adminTotalUsers">0</b><small>Students active now</small></div><div><b id="adminCompleted">0</b><small>Completed now</small></div><div><b id="adminProgress">0</b><small>In progress now</small></div><div><b id="adminToday">0</b><small>Active signups today</small></div></div><div class="admin-grid"><div class="card"><h3>Local AI activity</h3><p id="adminAIInsight" class="muted">Waiting for active student sessions.</p><div id="adminInterestBars" class="bars"></div></div><div class="card"><h3>AI admin explanation</h3><ul id="adminAINotes" class="security"><li>No fabricated platform numbers are used.</li><li>Inactive sessions automatically disappear after their heartbeat expires.</li><li>Only the local browser's active sessions are visible in this from-scratch version.</li><li>For a real multi-user deployment, these same metrics should come from an authorized server database.</li></ul></div></div><div class="card admin-live-card"><div class="admin-live-head"><h3>Active student sessions</h3><span id="adminLiveBadge" class="ai-status ready"><span class="ai-dot"></span>Local AI live</span></div><div id="adminActiveList" class="admin-active-list"><p class="muted">No active student sessions.</p></div></div></div>
+</section></div></section>
+<section class="page" id="blog">
+  <div class="shell public">
+    <span class="eyebrow">BLOG & SAFETY</span>
+    <h1>Blog, Safety & Support</h1>
+    <p>Everything you need to know about the Your Path platform, its community, and how your information is handled.</p>
+
+    <div class="blog-feature">
+      <div class="blog-feature-body">
+        <span class="eyebrow">GENERAL INFORMATION</span>
+        <h2>What Your Path actually is.</h2>
+        <p>Your Path is an AI-powered career exploration platform designed for students. Instead of matching you to a job title with a static quiz, it asks adaptive questions about your genuine interests, working style, motivation and the pressure around you — then explains the reasoning behind every pathway it suggests.</p>
+        <p>It is decision support, not a verdict. There is no “97% career match” here. Every pathway comes with its skills, education routes, trade-offs, alternatives, and one small real-world experiment you can run this month.</p>
+        <div class="blog-feature-facts">
+          <div><b>20</b><small>questions per session</small></div>
+          <div><b>10</b><small>dimensions explored</small></div>
+          <div><b>15+</b><small>career pathways</small></div>
+        </div>
+      </div>
+      <aside class="blog-feature-side">
+        <h3>Quick links</h3>
+        <button type="button" class="blog-link" data-page="explore">Explore careers</button>
+        <button type="button" class="blog-link" data-page="roadmap">Build a roadmap</button>
+        <button type="button" class="blog-link" data-page="resources">Research resources</button>
+        <button type="button" class="blog-link" onclick="openModal('privacyModal')">Privacy Policy</button>
+        <button type="button" class="blog-link" onclick="openModal('termsModal')">Terms & Conditions</button>
+      </aside>
+    </div>
+
+    <div class="blog-grid">
+      <article class="card blog-card">
+        <span class="blog-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 16.5v-5"></path><path d="M12 8h.01"></path></svg></span>
+        <h3>General Information</h3>
+        <p>Your Path is an AI-powered career exploration platform for students. Adaptive questioning surfaces the interests, working styles and motivations that actually appear in your answers — then turns them into pathways you can test in the real world.</p>
+        <p>Every session draws 20 questions from a weighted bank of 1,000, covering ten dimensions from genuine interests to external pressure. Selection weights describe how questions are chosen; they are never a personality score.</p>
+      </article>
+
+      <article class="card blog-card safe-card">
+        <span class="blog-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-3z"></path><path d="M9.2 12.2l2 2 3.6-4"></path></svg></span>
+        <h3>Is YourPath safe to use?</h3>
+        <p><b>Short answer: yes.</b> This prototype stores everything in your own browser's local storage — your profile, answers and saved pathways never leave your device, and no server receives them.</p>
+        <ul class="blog-list">
+          <li>No third-party trackers, advertising pixels, or resale of student data.</li>
+          <li>No AI provider keys or student records are exposed in the frontend.</li>
+          <li>You can clear everything at any time from <b>Cookie settings</b> in the footer, or by clearing this site's browser storage.</li>
+          <li>Pathways are explained as hypotheses to test, never as diagnoses or guarantees.</li>
+        </ul>
+        <p class="blog-note">For a real multi-user deployment the same data would be protected with server-side sessions, encryption in transit and at rest, role-based access control, and documented retention and deletion rules.</p>
+      </article>
+
+      <article class="card blog-card">
+        <span class="blog-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2.5"></rect><path d="M3.8 7.2l7.4 5.3a1.4 1.4 0 0 0 1.6 0l7.4-5.3"></path></svg></span>
+        <h3>Contact Info</h3>
+        <p>Questions, bug reports, school partnerships, or feedback — reach us any time.</p>
+        <ul class="blog-contact">
+          <li><b>Support email</b><a href="mailto:support@yourpath.demo">support@yourpath.demo</a></li>
+          <li><b>Feedback & partnerships</b><a href="mailto:hello@yourpath.demo">hello@yourpath.demo</a></li>
+          <li><b>Support hours</b><span>Monday – Friday, 9:00 – 17:00 GMT</span></li>
+          <li><b>In the app</b><span>Dashboard ➪ Feedback</span></li>
+        </ul>
+        <p class="blog-note">For an urgent safety concern about a student, contact your school or a local support service first — Your Path is not an emergency service.</p>
+      </article>
+
+      <article class="card blog-card community-card">
+        <span class="blog-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 2.5.9-4.2A7.5 7.5 0 1 1 20 12.5z"></path><path d="M8.8 11h.01"></path><path d="M12 11h.01"></path><path d="M15.2 11h.01"></path></svg></span>
+        <h3>Join our Discord</h3>
+        <p>Connect with other students, share your roadmap, and get tips from the community.</p>
+        <ul class="blog-list">
+          <li>Share your 30-day experiments and what you learned.</li>
+          <li>Ask about subjects, degrees and application routes.</li>
+          <li>Weekly prompts to keep your roadmap moving.</li>
+        </ul>
+        <a href="https://discord.gg/yourpath" target="_blank" rel="noopener" class="btn primary btn-xl discord-btn">Join the Discord community</a>
+      </article>
+    </div>
+
+    <section class="blog-faq">
+      <div class="heading"><span class="eyebrow">FAQ</span><h2>Common questions.</h2><p>Short answers about how Your Path works, what it stores, and what it will never claim to know.</p></div>
+      <div class="faq-grid">
+        <details class="faq" open><summary>Does Your Path tell me which career to choose?</summary><p>No. It shows several plausible directions with their reasoning, trade-offs and alternatives, plus one small experiment for each. The decision stays yours — and “I don’t know yet” is a normal, honest answer.</p></details>
+        <details class="faq"><summary>Where is my data stored?</summary><p>In this prototype, entirely in your browser’s local storage. Nothing is uploaded. Clearing this site’s storage removes your profile, answers, saved pathways and preferences.</p></details>
+        <details class="faq"><summary>Can one questionnaire decide my future?</summary><p>No, and any platform that claims otherwise is overselling. A 20-question session is one sample of evidence. Retaking it later and running real experiments gives better information.</p></details>
+        <details class="faq"><summary>How do I delete my account or my answers?</summary><p>Log out, then clear this site’s data in your browser settings, or use <b>Cookie settings</b> in the footer. A production deployment would also provide an in-app deletion request flow.</p></details>
+        <details class="faq"><summary>Is this a replacement for a school counselor?</summary><p>No. Your Path is decision support. Teachers, counselors, parents and professionals should stay part of the conversation.</p></details>
+        <details class="faq"><summary>How do I report a problem?</summary><p>Email <a href="mailto:support@yourpath.demo">support@yourpath.demo</a> or post in the Discord community. Include the page you were on and what you expected to happen.</p></details>
+      </div>
+    </section>
+  </div>
+</section>
+<section class="page" id="explore"><div class="shell public"><span class="eyebrow">EXPLORE CAREERS</span><h1>Curiosity has more than one destination.</h1><p>Start with clusters, then research specific roles, degrees and universities.</p><div class="path-grid" id="publicPaths"></div></div></section>
+<section class="page" id="roadmap"><div class="shell public"><span class="eyebrow">ROADMAPS</span><h1>Make the next step visible.</h1><p>A real roadmap changes with your grade, country, budget and goals.</p><div class="roadmap-flow"><div><b>School</b><small>Subjects / stream</small></div><i>→</i><div><b>Skills</b><small>Projects / practice</small></div><i>→</i><div><b>Education</b><small>Degrees / routes</small></div><i>→</i><div><b>Career</b><small>Experience / options</small></div></div><button class="btn primary" id="roadmapStart">Build my roadmap</button></div></section>
+<section class="page" id="resources"><div class="shell public"><span class="eyebrow">RESOURCES</span><h1>Research beyond the chatbot.</h1><p>Production versions should show current, attributable information with dates and sources.</p><div class="resources"><a href="https://www.bls.gov/ooh/" target="_blank">U.S. Bureau of Labor Statistics <small>Occupational outlook, pay and employment projections.</small>↗</a><a href="https://www.weforum.org/publications/the-future-of-jobs-report-2025/" target="_blank">World Economic Forum <small>Global employer perspectives on jobs and skills.</small>↗</a><a href="https://www.oecd.org/education/" target="_blank">OECD Education <small>Education research and comparative data.</small>↗</a><a href="https://www.unesco.org/en/education" target="_blank">UNESCO Education <small>International education resources.</small>↗</a></div></div></section>
+<section class="page" id="about"><div class="shell public about"><div><span class="eyebrow">ABOUT YOUR PATH</span><h1>For students, by purpose.</h1><p>Your Path is decision support, not a replacement for teachers, counselors, parents or professional advice.</p><div class="credits"><b>Founder / Concept</b><span>Madhu</span><b>Website Development</b><span>Earl & Hemang</span></div></div><div class="privacy-card"><h3>Privacy by design</h3><p>Real deployment should use a secure backend, encrypted storage, access controls, consent flows, retention rules and deletion controls.</p><button class="btn soft" id="privacyBtn">Privacy notice</button></div></div></section>
+</main>
+<footer><div class="shell foot"><span>© 2026 Your Path — Built by Madhu ✦</span><span><button class="footer-link" id="privacyFoot">Privacy</button> · <button class="footer-link" id="termsFoot">Terms</button> · <button class="footer-link" id="cookieSettings">Cookie settings</button></span></div></footer>
+<div class="auth-loader-backdrop hidden" id="authLoader" aria-live="polite" role="status">
+  <div class="auth-loader-card">
+    <div class="auth-loader-glow"></div>
+    <div class="auth-loader-spinner">
+      <div class="auth-loader-ring"></div>
+      <div class="auth-loader-ring outer"></div>
+      <span class="brand-mark loader-brand-mark" id="loaderBrandMark" aria-label="Your Path"><svg class="brand-svg" viewBox="0 0 28 28" width="22" height="22" fill="none"><circle cx="14" cy="14" r="11" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-dasharray="2 3"/><path d="M14 3v4M14 21v4M3 14h4M21 14h4" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/><polygon points="14,6 17.5,12 23.5,14 17.5,16 14,22 10.5,16 4.5,14 10.5,12" fill="#ffffff"/><circle cx="14" cy="14" r="2.2" fill="#6c5ce7"/></svg></span>
+    </div>
+    <span class="loader-badge" id="loaderBadge">AUTHENTICATING</span>
+    <h3 id="loaderTitle">Preparing your student space...</h3>
+    <p id="loaderSub">Setting up your personalized career exploration environment</p>
+    
+    <div class="loader-steps" id="loaderSteps">
+      <!-- Steps populated dynamically by showAuthSequence -->
+    </div>
+
+    <div class="loader-progress-info">
+      <span id="loaderStepText">Starting up...</span>
+      <b id="loaderPercent">0%</b>
+    </div>
+    <div class="loader-bar-wrap">
+      <div class="loader-bar" id="loaderBar"></div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop hidden" id="loginModal">
+  <div class="modal auth-modal auth-modal-login" role="dialog" aria-modal="true" aria-label="Log in to Your Path">
+    <button class="close" data-close="loginModal" aria-label="Close">×</button>
+    <div class="auth-brand"><span class="brand-mark auth-brand-mark" aria-label="Your Path"><svg class="brand-svg" viewBox="0 0 28 28" width="22" height="22" fill="none"><circle cx="14" cy="14" r="11" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-dasharray="2 3"/><path d="M14 3v4M14 21v4M3 14h4M21 14h4" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/><polygon points="14,6 17.5,12 23.5,14 17.5,16 14,22 10.5,16 4.5,14 10.5,12" fill="#ffffff"/><circle cx="14" cy="14" r="2.2" fill="#6c5ce7"/></svg></span><div><b>Your Path</b><small>Discover what fits you.</small></div></div>
+
+    <div id="loginBox" class="auth-pane">
+      <div class="auth-pane-head"><span class="eyebrow">WELCOME BACK</span><h2>Log in to Your Path.</h2><p>Continue your journey — your answers, pathways and roadmap are waiting for you.</p></div>
+      <form class="auth-form auth-form-lg" id="loginForm">
+        <label>Email<input name="email" type="email" required placeholder="you@example.com"></label>
+        <label>Password<input name="password" type="password" required placeholder="••••••••"></label>
+        <button class="btn primary btn-full btn-xl" type="submit">Log in</button>
+        <small class="auth-alt">Don't have an account? <button type="button" class="link-inline" onclick="openSignup()">Sign up free</button></small>
+        <small class="demo-hint">Demo admin login — admin@yourpath.demo / admin123</small>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="signupModal">
+  <div class="modal auth-modal auth-modal-lg" role="dialog" aria-modal="true" aria-label="Create student account">
+    <button class="close" data-close="signupModal" aria-label="Close">×</button>
+    <div class="auth-brand"><span class="brand-mark auth-brand-mark" aria-label="Your Path"><svg class="brand-svg" viewBox="0 0 28 28" width="22" height="22" fill="none"><circle cx="14" cy="14" r="11" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-dasharray="2 3"/><path d="M14 3v4M14 21v4M3 14h4M21 14h4" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/><polygon points="14,6 17.5,12 23.5,14 17.5,16 14,22 10.5,16 4.5,14 10.5,12" fill="#ffffff"/><circle cx="14" cy="14" r="2.2" fill="#6c5ce7"/></svg></span><div><b>Your Path</b><small>Discover what fits you.</small></div></div>
+
+    <div id="signupBox" class="auth-pane">
+      <div class="auth-step" id="consentStep">
+        <div class="auth-pane-head"><span class="eyebrow">STEP 1 OF 2 · REQUIRED</span><h2>Before you create an account.</h2><p>Your Path is built for students. Read and accept both policies below — you cannot create an account until you do.</p></div>
+        <div class="consent-docs">
+          <article class="consent-doc">
+            <h3>Privacy Policy</h3>
+            <div class="consent-scroll">
+              <p><b>What this prototype stores.</b> Your name, email, phone (optional), country, grade, age, school, questionnaire answers, saved pathways and feedback are saved in your own browser's local storage. Nothing is uploaded to a server.</p>
+              <p><b>What we never do.</b> We do not sell student data, run third-party advertising trackers, or expose AI provider keys in the frontend.</p>
+              <p><b>Your control.</b> You can remove everything at any time by clearing this site's storage in your browser settings or through Cookie settings in the footer.</p>
+              <p><b>Before a real launch.</b> Production must use server-side sessions or a vetted authentication provider, encryption in transit and at rest, role-based access control, audit logs, age and guardian consent rules for every country served, and documented retention, correction and deletion procedures.</p>
+              <p><b>Safety note.</b> Your Path is decision support, not medical, psychological, legal or financial advice, and it is not an emergency service.</p>
+            </div>
+            <button type="button" class="link-inline" onclick="openModal('privacyModal')">Open the full Privacy Policy</button>
+          </article>
+          <article class="consent-doc">
+            <h3>Terms & Conditions</h3>
+            <div class="consent-scroll">
+              <p><b>Using Your Path.</b> Your Path is a career exploration tool for students. It helps you compare plausible directions and next steps. It does not guarantee admission, employment, income or any outcome.</p>
+              <p><b>Honest answers.</b> Results are only useful if your answers are honest. There is no socially correct answer, and results describe patterns in your responses — not your worth, ability or fixed personality.</p>
+              <p><b>Your responsibilities.</b> Keep your account details accurate, do not enter another person's private information, and do not misuse or attempt to disrupt the platform.</p>
+              <p><b>Third-party information.</b> Career, salary, university and job-market details change and must always be verified against current official sources before you rely on them.</p>
+              <p><b>Changes.</b> These terms may be updated as the platform evolves; continued use means you accept the current version.</p>
+            </div>
+            <button type="button" class="link-inline" onclick="openModal('termsModal')">Open the full Terms & Conditions</button>
+          </article>
+        </div>
+        <label class="check consent-check"><input type="checkbox" id="consentPolicies"><span>I have read and agree to the <b>Privacy Policy</b> and the <b>Terms & Conditions</b>.</span></label>
+        <label class="check consent-check"><input type="checkbox" id="consentAge"><span>I am 13 or older, or I have a parent or guardian's permission to use Your Path.</span></label>
+        <div class="consent-actions"><button type="button" class="btn soft btn-xl" id="consentCancel">Cancel</button><button type="button" class="btn primary btn-xl" id="consentAccept" disabled>I agree — Continue</button></div>
+        <small class="auth-alt" style="display:block;margin-top:12px;text-align:center;">Already have an account? <button type="button" class="link-inline" onclick="openLogin()">Log in</button></small>
+        <small class="consent-footnote">Both boxes are required. You can review these policies any time from the Blog & Safety page.</small>
+      </div>
+
+      <div class="auth-step hidden" id="signupStep">
+        <div class="auth-pane-head"><span class="eyebrow">STEP 2 OF 2</span><h2>Create your profile.</h2><p>Tell us where you are now so your roadmap matches your stage.</p></div>
+        <form class="auth-form auth-form-lg" id="signupForm">
+          <div class="signup-grid">
+            <label>Full name<input name="name" required placeholder="Your name"></label>
+            <label>Email<input name="email" type="email" required placeholder="you@example.com"></label>
+            <label>Password<input name="password" type="password" required minlength="6" placeholder="Choose a password (min 6 chars)"></label>
+            <label>Phone<input name="phone" placeholder="Optional"></label>
+            <label>Country + code<select name="country"><option>Philippines (+63)</option><option>United States (+1)</option><option>United Kingdom (+44)</option><option>India (+91)</option><option>Canada (+1)</option><option>Australia (+61)</option><option>Other</option></select></label>
+            <label>Grade/Class<select name="grade"><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>Grade 12</option><option>College</option></select></label>
+            <label>Age<input name="age" type="number" min="10" max="30" required placeholder="e.g. 16"></label>
+          </div>
+          <label>School/location (optional)<input name="school" placeholder="Optional"></label>
+          <label class="check"><input type="checkbox" required>I understand this demo stores information in this browser and is not production-secure.</label>
+          <button class="btn primary btn-full btn-xl" type="submit">Create account</button>
+          <small class="auth-alt">Already have an account? <button type="button" class="link-inline" onclick="openLogin()">Log in</button></small>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop hidden" id="privacyModal">
+  <div class="modal wide legal-modal" role="dialog" aria-modal="true" aria-label="Privacy Policy">
+    <button class="close" data-close="privacyModal" aria-label="Close">×</button>
+    <span class="eyebrow">PRIVACY POLICY</span>
+    <h2>How Your Path handles your information.</h2>
+    <p>This prototype is privacy-by-design: everything you enter stays on your own device. This notice explains exactly what that means, and what a production deployment must add before real students use it.</p>
+
+    <h3>1. What we collect</h3>
+    <ul class="security">
+      <li><b>Account details</b> you type in: name, email, optional phone, country, grade, age and optional school.</li>
+      <li><b>Questionnaire answers</b>, saved pathways, comparison choices and feedback you submit.</li>
+      <li><b>Preferences</b> such as your cookie choice and login state.</li>
+      <li>We do <b>not</b> collect location data, contacts, camera or microphone access, or advertising identifiers.</li>
+    </ul>
+
+    <h3>2. Where it is stored</h3>
+    <p>All of the above is written to your browser's <b>local storage</b> under keys prefixed <code>yp_</code>. Nothing is transmitted to a server, and no third party receives it. If you clear this site's data, everything listed above is permanently removed.</p>
+
+    <h3>3. What we never do</h3>
+    <ul class="security">
+      <li>No selling, renting or sharing of student data.</li>
+      <li>No third-party advertising or cross-site tracking pixels.</li>
+      <li>No AI provider keys, secrets or server credentials in the frontend.</li>
+      <li>No presenting a questionnaire result as a diagnosis or a guaranteed outcome.</li>
+    </ul>
+
+    <h3>4. Your rights and controls</h3>
+    <ul class="security">
+      <li><b>Access</b> — your data is visible in the Profile and Dashboard screens at any time.</li>
+      <li><b>Correction</b> — edit your profile from Dashboard → Profile and save.</li>
+      <li><b>Deletion</b> — use Cookie settings, or clear this site's storage in your browser.</li>
+      <li><b>Withdrawal of consent</b> — log out; no further data is collected until you sign in again.</li>
+    </ul>
+
+    <h3>5. Students and age</h3>
+    <p>Your Path is intended for students aged 13 and over. Where a country requires guardian consent, that requirement must be implemented before launch. Do not enter sensitive personal, medical or family information into this demo.</p>
+
+    <h3>6. Before a real launch</h3>
+    <ul class="security">
+      <li>Use server-side sessions or a vetted authentication provider — never browser-only auth.</li>
+      <li>Encrypt data in transit (HTTPS/TLS) and at rest; minimize what is collected in the first place.</li>
+      <li>Use role-based access control and audit logs for any staff access.</li>
+      <li>Implement age and guardian consent rules for every country served.</li>
+      <li>Document retention, correction and deletion procedures, and honour deletion requests.</li>
+      <li>Keep AI provider keys server-side and document the model provider's data-retention policy.</li>
+      <li>Use aggregated analytics rather than exposing identifiable student records.</li>
+      <li>Have student-facing guidance reviewed by qualified humans before publication.</li>
+    </ul>
+
+    <h3>7. Contact</h3>
+    <p>Privacy questions or requests: <a href="mailto:support@yourpath.demo">support@yourpath.demo</a>. See the <button type="button" class="link-inline" onclick="closeModal('privacyModal');openModal('termsModal')">Terms & Conditions</button> for how the service may be used.</p>
+    <small class="legal-note">Last updated: 2026. This is a prototype notice and is not legal advice.</small>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="termsModal">
+  <div class="modal wide legal-modal" role="dialog" aria-modal="true" aria-label="Terms and Conditions">
+    <button class="close" data-close="termsModal" aria-label="Close">×</button>
+    <span class="eyebrow">TERMS & CONDITIONS</span>
+    <h2>Terms of use.</h2>
+    <p>By creating an account you agree to these terms. They exist to keep Your Path honest about what it can and cannot do for you.</p>
+
+    <h3>1. What Your Path is</h3>
+    <ul class="security">
+      <li>A career exploration and decision-support tool built for students.</li>
+      <li>Not a guarantee of admission, employment, income or any other outcome.</li>
+      <li>Not medical, psychological, legal or financial advice, and not an emergency service.</li>
+      <li>Not a replacement for teachers, counselors, parents or qualified professionals.</li>
+    </ul>
+
+    <h3>2. Your account</h3>
+    <ul class="security">
+      <li>Provide accurate details and keep your login credentials private.</li>
+      <li>Do not enter another person's private information.</li>
+      <li>Do not attempt to disrupt, scrape, reverse-engineer or misuse the platform.</li>
+      <li>You are responsible for activity carried out through your account.</li>
+    </ul>
+
+    <h3>3. Results and how to read them</h3>
+    <ul class="security">
+      <li>Question selection weights describe how questions are chosen. They are never a personality score or a career match percentage.</li>
+      <li>Pathways are hypotheses to test through real experience, not verdicts about you.</li>
+      <li>Career, salary, university and job-market details change and must be verified against current official sources before you rely on them.</li>
+      <li>Results depend on honest answers. There is no socially correct answer.</li>
+    </ul>
+
+    <h3>4. Intellectual property</h3>
+    <p>The platform design, question bank, pathway library and written content belong to the Your Path project. You may use your own results and roadmap for personal, educational and career-planning purposes.</p>
+
+    <h3>5. Availability and changes</h3>
+    <ul class="security">
+      <li>This is a prototype: features may change, break or be withdrawn without notice.</li>
+      <li>These terms may be updated as the platform evolves; continued use means you accept the current version.</li>
+      <li>Where a term is unenforceable, the remaining terms continue to apply.</li>
+    </ul>
+
+    <h3>6. Contact</h3>
+    <p>Questions about these terms: <a href="mailto:support@yourpath.demo">support@yourpath.demo</a>. See the <button type="button" class="link-inline" onclick="closeModal('termsModal');openModal('privacyModal')">Privacy Policy</button> for how your information is handled.</p>
+    <small class="legal-note">Last updated: 2026. This is a prototype agreement and is not legal advice.</small>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="motivationModal" role="dialog" aria-modal="true" aria-label="Famous Motivation and Wisdom">
+  <div class="modal motivation-modal">
+    <button class="close" data-close="motivationModal" aria-label="Close">×</button>
+    <div class="motivation-glow"></div>
+    <div class="motivation-head">
+      <span class="motivation-badge">✨ WORDS OF WISDOM</span>
+      <span class="motivation-field" id="motField">INNOVATION & VISION</span>
+    </div>
+
+    <div class="motivation-body">
+      <div class="motivation-quote-icon">“</div>
+      <blockquote class="motivation-quote-text" id="motQuote">The only way to do great work is to love what you do. If you haven't found it yet, keep looking. Don't settle.</blockquote>
+      
+      <div class="motivation-author-card">
+        <div class="motivation-avatar" id="motAvatar">💡</div>
+        <div class="motivation-author-info">
+          <h3 id="motAuthor">Steve Jobs</h3>
+          <p id="motRole">Co-founder of Apple · Pioneer of Personal Computing</p>
+        </div>
+      </div>
+
+      <div class="motivation-takeaway">
+        <b>| Key takeaway for your journey:</b>
+        <p id="motTakeawayText">Don't rush to settle on a single fixed label early. Genuine fulfillment comes from experimenting with ideas until you discover what truly sparks your curiosity.</p>
+      </div>
+    </div>
+
+    <div class="motivation-actions">
+      <button type="button" class="btn primary" onclick="nextMotivationQuote()">🎲 Next Quote ➪</button>
+      <button type="button" class="btn soft" onclick="copyMotivationQuote()">📋 Copy Quote</button>
+      <button type="button" class="btn ghost" onclick="closeModal('motivationModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<button type="button" class="floating-motivation-btn" id="floatingMotivation" onclick="openMotivationModal()" title="Get inspiration from famous thinkers">
+  <span class="mot-spark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path></svg></span>
+  <span>Daily Motivation</span>
+</button>
+
+<div class="cookie" id="cookie"><div><b>Your Path uses browser storage.</b><p>This prototype uses local storage for login state, questionnaire progress and your cookie preference. Nothing is sent to a server.</p></div><div><button class="btn soft" id="essential">Essential only</button><button class="btn primary" id="accept">Accept</button></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="app_scratch.js"></script>
+</body>
+</html>
