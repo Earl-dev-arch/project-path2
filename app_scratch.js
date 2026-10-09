@@ -265,19 +265,13 @@ function makeQuestionBank(){
  }
  return bank;
 }
-/* 10 dimensions x 20 stems x 5 contexts = 1,000 curated prompts.
-   The count is a build characteristic, not a selling point: the student sees
-   only the 20 questions their session selected. */
-const QUESTION_BANK=makeQuestionBank();
+const QUESTION_BANK=makeQuestionBank(); // exactly 1,000 carefully curated deep prompts
 const TOTAL_BANK=QUESTION_BANK.length;
 
 function weightedSession(){
- // Weighted sampling without replacement using an exponential-race key.
- // Each question has the category's configured first-draw weight.
  const candidates=QUESTION_BANK.map(q=>({q,key:-Math.log(Math.max(Math.random(),1e-12))/q.weight}));
  candidates.sort((a,b)=>a.key-b.key);
  let selected=candidates.slice(0,20).map(x=>x.q);
- // Ensure every dimension can appear at least once; replace the weakest duplicate-category picks if needed.
  const present=new Set(selected.map(q=>q.category));
  for(const cfg of categoryConfig){
    if(present.has(cfg.id)) continue;
@@ -2639,15 +2633,13 @@ function evidenceSummary(){
   syncConsentButton();
 })();
 
-/* Footer legal links */
+
 (function initLegalLinks(){
   const termsFoot=document.getElementById('termsFoot');
   termsFoot&&(termsFoot.onclick=()=>openModal('termsModal'));
 })();
 
-/* ================================================================
-   MOTION: reveal-on-scroll + softer modal handling
-   ================================================================ */
+
 (function initScrollReveal(){
   const targets=document.querySelectorAll('.reveal');
   if(!targets.length)return;
@@ -2665,7 +2657,7 @@ function evidenceSummary(){
   },{rootMargin:'0px 0px -6% 0px',threshold:0.06});
   targets.forEach(el=>observer.observe(el));
 
-  // Anything already visible on first paint should not wait for a scroll.
+  
   requestAnimationFrame(()=>{
     targets.forEach(el=>{
       const box=el.getBoundingClientRect();
@@ -2674,14 +2666,14 @@ function evidenceSummary(){
   });
 })();
 
-/* Click the dimmed backdrop to dismiss a dialog */
+
 document.querySelectorAll('.modal-backdrop').forEach(backdrop=>{
   backdrop.addEventListener('click',event=>{
     if(event.target===backdrop)backdrop.classList.add('hidden');
   });
 });
 
-/* Keep the newest reveal targets animating after each tab change */
+
 (function revealAfterTabChange(){
   const originalGoTab=window.goTab;
   if(typeof originalGoTab!=='function')return;
