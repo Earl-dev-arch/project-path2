@@ -1,6 +1,6 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const STORE={user:"yp_user_v3",answers:"yp_answers_v3",saved:"yp_saved_v3",cookie:"yp_cookie_v3",session:"yp_question_session_v3",accounts:"yp_accounts_v3",history:"yp_history_v3",savedNotes:"yp_saved_notes_v3"};
-const state={user:JSON.parse(localStorage.getItem(STORE.user)||"null"),answers:JSON.parse(localStorage.getItem(STORE.answers)||"{}"),saved:JSON.parse(localStorage.getItem(STORE.saved)||"[]"),session:JSON.parse(localStorage.getItem(STORE.session)||"null"),accounts:JSON.parse(localStorage.getItem(STORE.accounts)||"{}"),history:JSON.parse(localStorage.getItem(STORE.history)||"[]"),savedNotes:JSON.parse(localStorage.getItem(STORE.savedNotes)||"{}"),qIndex:0,compareSelected:[],eduPathway:null};
+const STORE={user:"yp_user_v3",answers:"yp_answers_v3",saved:"yp_saved_v3",cookie:"yp_cookie_v3",session:"yp_question_session_v3",accounts:"yp_accounts_v3",history:"yp_history_v3",savedNotes:"yp_saved_notes_v3",experiments:"yp_experiments_v3"};
+const state={user:JSON.parse(localStorage.getItem(STORE.user)||"null"),answers:JSON.parse(localStorage.getItem(STORE.answers)||"{}"),saved:JSON.parse(localStorage.getItem(STORE.saved)||"[]"),session:JSON.parse(localStorage.getItem(STORE.session)||"null"),accounts:JSON.parse(localStorage.getItem(STORE.accounts)||"{}"),history:JSON.parse(localStorage.getItem(STORE.history)||"[]"),savedNotes:JSON.parse(localStorage.getItem(STORE.savedNotes)||"{}"),experiments:JSON.parse(localStorage.getItem(STORE.experiments)||"{}"),qIndex:0,compareSelected:[],eduPathway:null};
 
 const categoryConfig=[
  {id:"interests",label:"Genuine interests",weight:14},
@@ -265,7 +265,10 @@ function makeQuestionBank(){
  }
  return bank;
 }
-const QUESTION_BANK=makeQuestionBank(); // exactly 1,000 carefully curated deep prompts
+/* 10 dimensions x 20 stems x 5 contexts = 1,000 curated prompts.
+   The count is a build characteristic, not a selling point: the student sees
+   only the 20 questions their session selected. */
+const QUESTION_BANK=makeQuestionBank();
 const TOTAL_BANK=QUESTION_BANK.length;
 
 function weightedSession(){
@@ -290,6 +293,7 @@ function shuffle(a){return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).ma
 function newSession(){
  state.session={ids:weightedSession().map(q=>q.id),started:Date.now()};
  state.answers={};state.qIndex=0;saveState();
+ try{trackSessionStarted()}catch(e){}
 }
 function saveState(){
  localStorage.setItem(STORE.user,JSON.stringify(state.user));
@@ -299,12 +303,143 @@ function saveState(){
  localStorage.setItem(STORE.accounts,JSON.stringify(state.accounts));
  localStorage.setItem(STORE.history,JSON.stringify(state.history));
  localStorage.setItem(STORE.savedNotes,JSON.stringify(state.savedNotes));
+ localStorage.setItem(STORE.experiments,JSON.stringify(state.experiments));
 }
 function sessionQuestions(){return state.session?.ids?.map(id=>QUESTION_BANK.find(q=>q.id===id)).filter(Boolean)||[]}
 function ensureSession(){if(!state.session||state.session.ids?.length!==20)newSession()}
 
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove("show"),2600)}
 function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+
+/* ================================================================
+   CAREER EXPERIMENTS
+   A pathway is something you TEST, not something you "might like".
+   Each experiment is a 7-day exploration ending with the only
+   question that matters: did you enjoy the actual work?
+   ================================================================ */
+
+/* The 10 experiment families live in site-data.js. If that file is
+   missing the tab still renders and explains the concept instead of
+   throwing, so one absent file never breaks the whole dashboard. */
+function experimentData(){
+ return (typeof window!=="undefined" && window.YourPathData && window.YourPathData.experiments) || null;
+}
+function roadmapChainData(){
+ return (typeof window!=="undefined" && window.YourPathData && window.YourPathData.roadmapChain) || ["Career","Skills","Subjects","Degree options","Universities","Exams","Projects","Experiments","Next steps"];
+}
+
+/* Map a pathway name to one of the 10 experiment families.
+   Explicit keywords first (most specific), then fall back to the
+   earliest keyword position in the pathway name. */
+const EXPERIMENT_KEYWORDS={
+ business:["law","legal","criminolog","business","account","financ","econom","market","entrepreneur","human resources","commerce","supply chain","logistics","public relations","journalism","communication"],
+ health:["medicine","nurs","pharmac","medical","dentist","therapy","nutrition","veterinar","health","anatomy","doctor"],
+ tech:["computer","software","cyber","data","information technology","information system","ict","programming","network"],
+ arts:["design","graphic","animation","film","broadcast","music","performing","interior","fashion","fine arts","art","illustrat"],
+ earth:["environ","agricultur","forestry","natural resource","geolog","earth science","food science","sustainab","agribusiness","ecolog"],
+ service:["hospitality","tourism","culinary","maritime","marine engineering","hotel","travel","restaurant"],
+ public:["public administration","public policy","emergency","disaster","aviation","forensic","library"],
+ society:["psycholog","educat","teaching","social work","sociolog","political","international relations","anthropolog","histor","counsel"],
+ science:["math","statistic","physic","chemistr","biolog","astronom","science","research"],
+ engineering:["engineering","mechanic","electric","electronic","civil","chemical","industrial","mechatronic","robotic","architect","urban","regional planning"]
+};
+function clusterForPathway(name){
+ const n=String(name||"").toLowerCase();
+ if(!n) return null;
+ let best=null,bestPos=Infinity;
+ for(const [cluster,words] of Object.entries(EXPERIMENT_KEYWORDS)){
+  for(const w of words){
+   const pos=n.indexOf(w);
+   if(pos!==-1 && pos<bestPos){best=cluster;bestPos=pos;}
+  }
+ }
+ return best;
+}
+function experimentForPathway(name){
+ const data=experimentData(); if(!data) return null;
+ const key=clusterForPathway(name); if(!key) return null;
+ return data[key]?{key,...data[key]}:null;
+}
+function expState(key){
+ state.experiments=state.experiments||{};
+ return state.experiments[key]||{done:[],reflection:"",enjoyment:null,started:Date.now()};
+}
+function saveExp(){saveState();updateUI();}
+function toggleExpDay(key,day){
+ state.experiments=state.experiments||{};
+ const s=expState(key);
+ const wasDone=(s.done||[]).includes(day);
+ s.done=wasDone?s.done.filter(d=>d!==day):[...(s.done||[]),day].sort((a,b)=>a-b);
+ state.experiments[key]=s;
+ try{if(!wasDone)trackExperimentDay(key,day)}catch(e){}
+ saveExp(); renderExperiments();
+}
+function setExpEnjoyment(key,val){
+ state.experiments=state.experiments||{};
+ const s=expState(key); s.enjoyment=val; s.answeredAt=val===null?null:Date.now();
+ state.experiments[key]=s;
+ try{if(val===null)trackReflection(key,null);else trackReflection(key,val)}catch(e){}
+ saveExp(); renderExperiments();
+}
+function startExperimentFromPathway(name){
+ const exp=experimentForPathway(name);
+ if(!exp){toast("No experiment is mapped to this pathway yet.");return;}
+ state.experiments=state.experiments||{};
+ const s=expState(exp.key); if(!s.started||!(s.done||[]).length) s.started=Date.now();
+ state.experiments[exp.key]=s;
+ state.expFocus=exp.key;
+ try{trackExperimentOpened(exp.key);trackCareersExplored(name)}catch(e){}
+ saveExp(); goTab("experiments");
+ toast(`${exp.title} opened. One day at a time.`);
+}
+function completedExperiments(){return Object.values(state.experiments||{}).filter(s=>s&&s.enjoyment!==null&&s.enjoyment!==undefined).length}
+
+function renderExperiments(){
+ const grid=$("#expGrid"); if(!grid) return;
+ const data=experimentData();
+ const badge=$("#expBadgeLine");
+ const doneCount=completedExperiments();
+ if(badge) badge.innerHTML=`<span class="exp-stat"><b>${doneCount}</b> reflection${doneCount===1?"":"s"} recorded</span><span class="exp-stat"><b>${Object.keys(data||{}).length}</b> experiment families available</span><span class="exp-stat">Free tools only · do the work, then judge it honestly</span>`;
+ if(!data){
+  grid.innerHTML=`<div class="card"><h3>Experiments could not load</h3><p class="muted">The experiment library lives in <b>site-data.js</b>, which did not load. Add it as a script tag before app_scratch.js and reload.</p></div>`;
+  return;
+ }
+ /* Pathways the student saved or was shown come first, so the
+    experiments they actually care about are not buried. */
+ const allKeys=Object.keys(data);
+ const relevant=[];
+ (state.saved||[]).forEach(n=>{const k=clusterForPathway(n);if(k&&!relevant.includes(k))relevant.push(k);});
+ (state.aiResult?.pathways||[]).forEach(p=>{const k=clusterForPathway(p.name);if(k&&!relevant.includes(k))relevant.push(k);});
+ const order=[...relevant,...allKeys.filter(k=>!relevant.includes(k))];
+ if(state.expFocus&&order.includes(state.expFocus)) order.unshift(state.expFocus);
+
+ grid.innerHTML=order.map(key=>{
+  const e=data[key]; if(!e) return "";
+  const s=expState(key);
+  const done=s.done||[];
+  const pct=Math.round(done.length/7*100);
+  const isFocus=state.expFocus===key;
+  const source=(state.saved||[]).find(n=>clusterForPathway(n)===key)||(state.aiResult?.pathways||[]).map(p=>p.name).find(n=>clusterForPathway(n)===key);
+  const verdictText={yes:"I enjoyed the actual work",mixed:"I enjoyed some of it, not all",no:"I did not enjoy the actual work"};
+  const verdictNext={yes:"Go deeper on this pathway — build a bigger project in the same direction.",mixed:"Useful information. A mixed result means explore a neighbouring pathway before committing.",no:"Genuinely valuable result. Ruling a direction out early is progress."};
+  const answered=s.enjoyment!==null&&s.enjoyment!==undefined;
+  const reflectAnswer=!answered
+    ? `<p class="exp-ask">Did you enjoy the actual work?</p><div class="exp-enjoy"><button class="small-btn" onclick="setExpEnjoyment('${key}','yes')">Yes — I want more of this</button><button class="small-btn" onclick="setExpEnjoyment('${key}','mixed')">Some of it, not all</button><button class="small-btn" onclick="setExpEnjoyment('${key}','no')">No — I did not enjoy it</button></div>`
+    : `<div class="exp-verdict ${escapeHtml(s.enjoyment)}"><b>Your answer:</b> ${escapeHtml(verdictText[s.enjoyment]||s.enjoyment)}<br><small class="muted">${escapeHtml(verdictNext[s.enjoyment]||"")}</small></div><button class="small-btn" onclick="setExpEnjoyment('${key}',null)">Change answer</button>`;
+  return `<article class="exp-card${isFocus?" exp-focus":""}" id="exp-${key}">
+   <header class="exp-head"><div><span class="tag">7-DAY EXPLORATION</span><h3>${escapeHtml(e.title)}</h3>${source?`<p class="muted exp-source">Suggested for your saved pathway: <b>${escapeHtml(source)}</b></p>`:""}</div><div class="exp-ring"><b>${done.length}/7</b><small>days</small></div></header>
+   <div class="exp-progress"><i style="width:${pct}%"></i></div>
+   <ol class="exp-days">${e.days.map(d=>`<li class="${done.includes(d.day)?"is-done":""}"><label><input type="checkbox" ${done.includes(d.day)?"checked":""} onchange="toggleExpDay('${key}',${d.day})"><span class="exp-day-num">Day ${d.day}</span><span class="exp-day-body"><b>${escapeHtml(d.focus)}</b>${escapeHtml(d.text)}</span></label></li>`).join("")}</ol>
+   <p class="exp-tools"><b>You need:</b> ${e.tools.map(escapeHtml).join(" · ")}</p>
+   <div class="exp-reflect"><b>The honest question</b><p>${escapeHtml(e.reflect)}</p>${reflectAnswer}</div>
+   <div class="exp-notes"><label>What I actually learned<textarea class="open" placeholder="Write what you did, what surprised you, and what you would do differently..." oninput="saveExpNote('${key}',this.value)">${escapeHtml((state.expNotes&&state.expNotes[key])||"")}</textarea></label></div>
+  </article>`;
+ }).join("");
+}
+function saveExpNote(key,val){
+ state.expNotes=state.expNotes||{}; state.expNotes[key]=val; saveState();
+}
+
 function showPage(id){$$(".page").forEach(x=>x.classList.remove("active"));$("#"+id)?.classList.add("active");window.scrollTo({top:0,behavior:"smooth"});$("#mobileNav").classList.remove("open")}
 function openModal(id){
   if(id==="authModal"){openLogin();return;}
@@ -341,7 +476,8 @@ function switchAuth(type){
 }
 window.switchAuth=switchAuth;
 
-$$("[data-page]").forEach(a=>a.onclick=e=>{e.preventDefault();showPage(a.dataset.page)});
+// [data-page] is handled by the delegated listener below, so it covers
+// elements rendered after load as well.
 $("#hamb").onclick=()=>$("#mobileNav").classList.toggle("open");
 $("#heroStart").onclick=()=>{if(requireLogin()){goTab("questionnaire")}};
 $("#roadmapStart").onclick=()=>{if(requireLogin()){showPage("dashboard");goTab("roadmaps")}};
@@ -350,6 +486,12 @@ $("#loginBtn").onclick=()=>openLogin();
 $("#signupBtn").onclick=()=>openSignup();
 $$("[data-close]").forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 $("#privacyBtn").onclick=$("#privacyFoot").onclick=()=>openModal("privacyModal");
+// [data-scroll] targets are static in the markup, but delegate anyway so
+// re-rendered sections keep working.
+document.addEventListener('click',e=>{
+ const s=e.target.closest('[data-scroll]');
+ if(s){const t=document.querySelector(s.dataset.scroll);if(t)t.scrollIntoView({behavior:"smooth"})}
+});
 
 $$(".auth-tabs button, [data-auth]").forEach(btn=>{
   btn.onclick=(e)=>{
@@ -370,12 +512,22 @@ function goTab(name){
  if(name==="compare")renderCompare();
  if(name==="education")renderEducation();
  if(name==="roadmaps")renderRoadmap();
+ if(name==="experiments")renderExperiments();
+ if(name==="feedback")renderEvidenceReadout();
  if(name==="saved")renderSaved();
  if(name==="history")renderHistory();
  if(name==="profile")loadProfile();
  if(name==="overview")renderOverview();
 }
-$$("[data-tab]").forEach(b=>b.onclick=()=>{if(requireLogin())goTab(b.dataset.tab)});
+/* Delegated so buttons added later (e.g. the roadmap's "Explore pathways"
+   CTA, or anything re-rendered) are wired too. Binding once at load missed
+   every dynamically inserted control. */
+document.addEventListener('click',e=>{
+ const tabBtn=e.target.closest('[data-tab]');
+ if(tabBtn){e.preventDefault();if(requireLogin())goTab(tabBtn.dataset.tab);return}
+ const pageBtn=e.target.closest('[data-page]');
+ if(pageBtn){e.preventDefault();showPage(pageBtn.dataset.page)}
+});
 
 function showAuthLoader(configOrTitle, subtitle, onComplete){
  const loader=$("#authLoader");
@@ -422,13 +574,13 @@ function showAuthLoader(configOrTitle, subtitle, onComplete){
 
  const stepsList=mode==="signup"?[
    {icon:"👤",title:"Creating student profile & credentials",note:"Configuring student workspace..."},
-   {icon:"🧠",title:"Initializing 1,000-question exploration bank",note:"Loading adaptive dimension categories..."},
-   {icon:"🧭",title:"Calibrating 16 career pathways & roadmaps",note:"Preparing contextual education guides..."},
+   {icon:"🧠",title:"Preparing your 20 questions",note:"Covering ten dimensions of interest..."},
+   {icon:"🧭",title:"Calibrating your career pathways & roadmaps",note:"Preparing contextual education guides..."},
    {icon:"🚀",title:"Launching personalized student dashboard",note:"Personalized environment ready!"}
  ]:[
    {icon:"🔐",title:"Verifying student credentials & session",note:"Authenticating student credentials..."},
    {icon:"📝",title:"Loading questionnaire progress & AI signals",note:"Restoring pattern analysis engine..."},
-   {icon:"❤️",title:"Syncing 16 career pathways & saved notes",note:"Retrieving pathway notes & roadmaps..."},
+   {icon:"❤️",title:"Syncing your pathways & saved notes",note:"Retrieving pathway notes & roadmaps..."},
    {icon:"📊",title:"Preparing student dashboard & radar map",note:"All systems synchronized!"}
  ];
 
@@ -552,7 +704,7 @@ $("#signupForm").onsubmit=e=>{
    mode:"signup",
    badge:"ACCOUNT REGISTRATION",
    title:`Welcome to Your Path, ${firstName}! 🚀`,
-   subtitle:"Initializing your 1,000-question exploration bank & personalized space...",
+   subtitle:"Preparing your 20 personalised questions and your workspace...",
    onComplete:()=>{
      updateUI();
      showPage("dashboard");
@@ -569,9 +721,10 @@ $("#signupForm").onsubmit=e=>{
 $("#loginForm").onsubmit=e=>{
  e.preventDefault();
  const d=Object.fromEntries(new FormData(e.target).entries());
- if(d.email==="admin@yourpath.demo"&&d.password==="admin123"){
-   state.user={name:"Admin",email:d.email,role:"admin",grade:"College"};
- } else if(state.accounts && state.accounts[d.email]){
+ /* No hard-coded admin credentials and no client-side role bypass.
+    Roles must be granted by a server; in this browser-only build every
+    account is a student. */
+ if(state.accounts && state.accounts[d.email]){
    if(state.accounts[d.email].password===d.password){
      state.user=state.accounts[d.email];
    } else {
@@ -809,15 +962,22 @@ function updateUI(){
  if(historyCount) historyCount.textContent=(state.history||[]).length;
  const sideHistory=document.getElementById("sideHistoryBadge");
  if(sideHistory) sideHistory.textContent=(state.history||[]).length;
+ const sideExp=document.getElementById("sideExpBadge");
+ if(sideExp) sideExp.textContent=completedExperiments();
  const answered=Object.keys(state.answers).length;
  $("#completion").textContent=`${Math.round(answered/20*100)}%`;
- const sideAdmin=$(".side.admin");
- if(sideAdmin) sideAdmin.style.display=state.user?.role==="admin"?"flex":"none";
  renderOverview();renderPublic();
  renderInterestMap();
  renderJourney();
  renderHeaderQuote();
 }
+
+/* Hoisted function declarations.
+   TDZ guard: these are defined as `function` declarations AFTER this point in the
+   file but BEFORE the final init call, so hoisting makes them available here.
+   Assigning bare `renderRoadmap = ...` (without const/let) keeps them as
+   properties of globalThis, which is what the inline onclick handlers rely on. */
+function renderRoadmap(){return renderRoadmapImpl()}
 
 function renderJourney(){
  const user=state.user||{};
@@ -1483,6 +1643,7 @@ function renderQuestion(){
    } else {
      capture();renderInterestMap();
      archiveCurrentSession();
+     try{trackSessionCompleted();trackCareersExplored(pathways.slice(0,3).map(p=>p.name))}catch(e){}
      goTab("analysis");
      toast("20 responses analyzed! Patterns and uncertainty checks are ready.");
    }
@@ -1513,7 +1674,7 @@ function retakeQuestionnaire(){
  renderQuestion();
  updateUI();
  goTab("questionnaire");
- toast("New 20-question session drawn from the 1,000-question bank!");
+ toast("A fresh 20-question session is ready.");
 }
 
 function renderAnalysis(){
@@ -1521,12 +1682,12 @@ function renderAnalysis(){
  const categoryCounts={};qs.forEach(q=>{if(state.answers[q.id]!=null)categoryCounts[q.categoryLabel]=(categoryCounts[q.categoryLabel]||0)+1});
  const chips=Object.keys(categoryCounts).map(x=>`<span class="chip">${x}</span>`).join("");
  $("#analysisIntro").textContent=answered<20?`You have answered ${answered} of 20 selected questions. Complete the session for a fuller analysis.`:"Your responses are evaluated as qualitative signals. The analysis below presents hypotheses to test in the real world — never a rigid verdict.";
- 
+
  // Contradictions & Open Uncertainty Detection
  const scaleAnswers=qs.filter(q=>q.type==="scale").map(q=>Number(state.answers[q.id])||0).filter(Boolean);
  const neutralCount=scaleAnswers.filter(v=>v===3).length;
  const isHighlyNeutral=scaleAnswers.length>0 && (neutralCount/scaleAnswers.length >= 0.45);
- 
+
  let uncertaintyHtml="";
  if(answered<20){
    uncertaintyHtml=`<div class="notice"><b>✦ Incomplete Data Signal:</b> You have answered ${answered} of 20 questions. The AI treats incomplete sessions with high uncertainty. Answer all 20 questions to unlock clear dimensional hypotheses.</div>`;
@@ -1537,7 +1698,7 @@ function renderAnalysis(){
  }
 
  $("#analysis").innerHTML=`<div class="analysis-grid">
-   <div class="analysis-box"><h3>Dimensions explored</h3><div class="chips2">${chips||"<span class=chip>Not enough data yet</span>"}</div><p class="muted" style="margin-top:10px">The 1,000-question bank covers ten dimensions. A 20-question session provides a balanced sample. Retaking the questionnaire later adds new context.</p></div>
+   <div class="analysis-box"><h3>Dimensions explored</h3><div class="chips2">${chips||"<span class=chip>Not enough data yet</span>"}</div><p class="muted" style="margin-top:10px">Your session sampled ten dimensions of interest. Twenty questions is a balanced sample, not a measurement — retaking it later adds genuinely new context.</p></div>
    <div class="analysis-box"><h3>Possible working style hypothesis</h3><p><b>Working Style:</b> Focused problem investigation with purposeful collaboration. You appear to appreciate clear logic and tangible outputs.</p><p class="muted">Treat this as a working hypothesis to validate through actual projects, not a fixed personality label.</p></div>
    <div class="analysis-box full"><h3>AI Uncertainty & Contradictions Check</h3>${uncertaintyHtml}</div>
    <div class="analysis-box"><h3>External-pressure reflection</h3><p class="muted">If answers regarding parent expectations, salary prestige, or peer trends pulled strongly against your personal hobbies, that tension is highlighted for your own reflection rather than scored as a mismatch.</p></div>
@@ -1565,6 +1726,7 @@ function renderPathways(){
    </div>
    <div class="path-actions">
      <button class="small-btn save" onclick="toggleSave('${escapeHtml(p.name)}')">${state.saved.includes(p.name)?"✓ Saved":"♡ Save"}</button>
+     <button class="small-btn primary-btn" onclick="startExperimentFromPathway('${escapeHtml(p.name)}')">▶ Try this pathway</button>
      <button class="small-btn" onclick="viewPathwayEd('${escapeHtml(p.name)}')">🎓 Unis</button>
      <button class="small-btn" onclick="quickCompare('${escapeHtml(p.name)}')">⇄ Compare</button>
    </div>
@@ -1573,6 +1735,7 @@ function renderPathways(){
 
 function toggleSave(name){
  state.saved=state.saved.includes(name)?state.saved.filter(x=>x!==name):[...state.saved,name];
+ try{trackCareersExplored(name)}catch(e){}
  saveState();renderPathways();renderSaved();updateUI();
  toast(state.saved.includes(name)?"Pathway saved to your dashboard!":"Pathway removed from saved.");
 }
@@ -1620,6 +1783,7 @@ function renderSaved(){
 function saveSavedNote(name, note){
  state.savedNotes=state.savedNotes||{};
  state.savedNotes[name]=note;
+ try{trackCareersExplored(name)}catch(e){}
  saveState();
 }
 
@@ -1641,7 +1805,7 @@ function renderCompare(){
    state.compareSelected=pathways.slice(0,3).map(p=>p.name);
  }
  const selectedPaths=pathways.filter(p=>state.compareSelected.includes(p.name));
- 
+
  const selectorHtml=`<div class="card" style="margin-bottom:18px">
    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
      <b>Select 2 to 4 pathways to compare:</b>
@@ -1826,23 +1990,91 @@ function renderHistory(){
  `;
 }
 
-function renderRoadmap(){
+/* Pick the pathway the roadmap should be built around: the most recently
+   focused experiment, else the first saved pathway, else the first shown. */
+function activeRoadmapPathway(){
+ const expKey=state.expFocus;
+ if(expKey){
+  const savedHit=(state.saved||[]).find(n=>clusterForPathway(n)===expKey);
+  if(savedHit) return savedHit;
+  const aiHit=(state.aiResult?.pathways||[]).map(p=>p.name).find(n=>clusterForPathway(n)===expKey);
+  if(aiHit) return aiHit;
+ }
+ if((state.saved||[]).length) return state.saved[0];
+ if((state.aiResult?.pathways||[]).length) return state.aiResult.pathways[0].name;
+ return null;
+}
+function pathwayRecord(name){
+ if(!name) return null;
+ return pathways.find(p=>p.name===name)||null;
+}
+
+/* The chain: Career -> Skills -> Subjects -> Degree options -> Universities
+   -> Exams -> Projects -> Experiments -> Next steps. Each link is filled from
+   real pathway/education data where we have it, and says plainly when the
+   school must supply the specific detail. */
+function roadmapChainRows(name){
+ const p=pathwayRecord(name);
+ const eg=p&&p.educationGuide?p.educationGuide:null;
+ const exp=experimentForPathway(name);
+ const chain=roadmapChainData();
+ const grade=state.user?.grade||"your current grade";
+ const val={
+  "Career": p?`${p.icon||"✦"} ${p.name}`:`${name||"Not chosen yet"}`,
+  "Skills": p?p.skills:"Choose a pathway and its core skills appear here.",
+  "Subjects": eg?eg.admission:`Focus on the school subjects that overlap with ${name||"your chosen direction"}.`,
+  "Degree options": eg?eg.degrees:(p?p.edu:"Degree options appear once a pathway is chosen."),
+  "Universities": eg?`PH: ${eg.universities.ph}. US: ${eg.universities.us}. UK: ${eg.universities.uk}. Global: ${eg.universities.global}`:"University lists appear with the pathway's education guide. Verify every program against the current official prospectus.",
+  "Exams": eg?eg.tests:`Entrance exams depend on your target country and pathway. Check official admissions pages for ${grade}.`,
+  "Projects": `Build one portfolio piece that proves you can do this work — specific, finished, and showable to a stranger.`,
+  "Experiments": exp?`${exp.title} — the 7-day exploration in the Experiments tab. Finish it, then answer honestly whether you enjoyed the work.`:"Run a 7-day exploration from the Experiments tab before committing to a degree.",
+  "Next steps": exp?`Start day 1 of ${exp.title}, then update this roadmap with what you learned.`:`Pick a pathway, open its experiment, and begin day 1.`
+ };
+ return chain.map((k,i)=>`<li class="chain-row"><span class="chain-num">${i+1}</span><div><b>${k}</b><p>${escapeHtml(String(val[k]||""))}</p></div></li>`).join("");
+}
+
+/* Alternative routes — the roadmap must not assume a traditional degree. */
+function alternativeRoutesHtml(name){
+ const p=pathwayRecord(name);
+ const eg=p&&p.educationGuide?p.educationGuide:null;
+ const routes=eg&&eg.routes&&eg.routes.length?eg.routes:[
+  {title:"4-Year University Degree",desc:"The traditional route. Strongest if your target profession requires a licence or a graduate degree."},
+  {title:"Polytechnic / Associate Diploma",desc:"A 2-3 year applied diploma. Faster entry to paid work, lower cost, and you can upgrade to a degree later."},
+  {title:"Apprenticeship / On-the-job training",desc:"Earn while you learn under supervision. Strongest in technical, trade and service fields."},
+  {title:"Self-taught + portfolio",desc:"Free open resources plus a public body of finished work. Strongest where employers check what you built."}
+ ];
+ return routes.map(r=>`<div class="route-card"><b>◈ ${escapeHtml(r.title)}</b><p>${escapeHtml(r.desc)}</p></div>`).join("");
+}
+
+function renderRoadmapImpl(){
  const g=state.user?.grade||"Grade 10";
  const c=state.user?.country||"Philippines";
  const target=state.user?.targetCountry||"Domestic / Home Country";
  $("#roadmapGrade").textContent=`Personalized action roadmap for ${state.user?.name||"Student"} (${g}, ${c} → Target: ${target}). Adapt this roadmap to your family budget, target deadlines, and experimental learnings.`;
+ const name=activeRoadmapPathway();
  $("#roadmap").innerHTML=`
    <div class="roadmap-card">
-     <div style="display:flex;justify-content:space-between;align-items:center"><h3>Phase 1 · Next 30 Days (Discovery & Small Experiments)</h3><span class="tag">EXPLORE</span></div>
-     <p class="muted">Explore 2–3 recommended pathways in depth. Pick one 30-day experiment from the pathways list, talk to one practitioner or university senior, and record your reactions in your Saved notes.</p>
+     <div style="display:flex;justify-content:space-between;align-items:center"><h3>The full chain</h3><span class="tag">PATHWAY PLAN</span></div>
+     <p class="muted">${name?`Built around <b>${escapeHtml(name)}</b>. Every link is filled from your pathway and education data — and says so plainly when your school must confirm the specific detail.`:"Choose a pathway first and this chain fills itself in from your own answers, not from a template."}</p>
+     <ol class="chain">${roadmapChainRows(name)}</ol>
+     ${name?`<button class="btn primary" onclick="startExperimentFromPathway('${escapeHtml(name)}')">▶ Run the 7-day experiment</button>`:`<button class="btn primary" data-tab="pathways">Explore pathways →</button>`}
    </div>
    <div class="roadmap-card">
-     <div style="display:flex;justify-content:space-between;align-items:center"><h3>Phase 2 · Next 6 Months (Skill Foundation & Portfolio)</h3><span class="tag">BUILD</span></div>
-     <p class="muted">Deepen prerequisite subjects (e.g. Mathematics, Sciences, or Essay Writing), join relevant school clubs or competitions, build 1 substantial personal project, and attend virtual university open days.</p>
+     <div style="display:flex;justify-content:space-between;align-items:center"><h3>Alternative routes</h3><span class="tag">NOT ONLY A DEGREE</span></div>
+     <p class="muted">A university degree is one route, not the route. These alternatives can reach the same work, often faster and cheaper — and none of them is a lesser version.</p>
+     <div class="route-grid">${alternativeRoutesHtml(name)}</div>
    </div>
    <div class="roadmap-card">
-     <div style="display:flex;justify-content:space-between;align-items:center"><h3>Phase 3 · Next 1–2 Years (Admissions & Execution)</h3><span class="tag">APPLY</span></div>
-     <p class="muted">Prepare entrance examination applications (UPCAT/SAT/IELTS), apply for priority scholarships (DOST/CHED/Institutional), compare admission and financial aid offers, and finalize your enrollment route.</p>
+     <div style="display:flex;justify-content:space-between;align-items:center"><h3>Phase 1 · Next 30 Days</h3><span class="tag">EXPLORE</span></div>
+     <p class="muted">Run one 7-day experiment from the Experiments tab. Talk to one person already doing this work. Record what you enjoyed and what you disliked — not how well you performed.</p>
+   </div>
+   <div class="roadmap-card">
+     <div style="display:flex;justify-content:space-between;align-items:center"><h3>Phase 2 · Next 6 Months</h3><span class="tag">BUILD</span></div>
+     <p class="muted">Deepen the prerequisite subjects for this pathway, join a relevant club or competition, and finish one substantial project you can show someone.</p>
+   </div>
+   <div class="roadmap-card">
+     <div style="display:flex;justify-content:space-between;align-items:center"><h3>Phase 3 · Next 1–2 Years</h3><span class="tag">APPLY</span></div>
+     <p class="muted">Prepare the entrance exams listed in the chain, apply for the scholarships you qualify for, compare admission and financial-aid offers, and confirm your chosen route against current official sources.</p>
    </div>
  `;
 }
@@ -1865,7 +2097,9 @@ $("#profile").onsubmit=e=>{
 
 $("#feedback").onsubmit=e=>{
  e.preventDefault();
- localStorage.setItem("yp_feedback_v3",JSON.stringify(Object.fromEntries(new FormData(e.target).entries())));
+ const payload=Object.fromEntries(new FormData(e.target).entries());
+ localStorage.setItem("yp_feedback_v3",JSON.stringify(payload));
+ try{trackFeedback(payload);renderEvidenceReadout()}catch(err){}
  e.target.reset();toast("Feedback submitted. Thank you for helping improve Your Path!");
 };
 
@@ -1884,6 +2118,10 @@ window.toggleComparePathway=toggleComparePathway;
 window.quickCompare=quickCompare;
 window.saveSavedNote=saveSavedNote;
 window.goTab=goTab;window.requireLogin=requireLogin;window.toggleSave=toggleSave;
+window.startExperimentFromPathway=startExperimentFromPathway;
+window.toggleExpDay=toggleExpDay;window.setExpEnjoyment=setExpEnjoyment;window.saveExpNote=saveExpNote;
+window.renderExperiments=renderExperiments;
+window.resetEvidence=resetEvidence;window.renderEvidenceReadout=renderEvidenceReadout;
 
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){$$(".modal-backdrop").forEach(m=>m.classList.add("hidden"))}});
 
@@ -1995,7 +2233,7 @@ window.newQuestionSession=()=>{state.aiSession=null;state.aiResult=null;state.ai
 const oldSignup= $('#signupForm').onsubmit;
 $('#signupForm').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());state.user={...d,role:'student',createdAt:Date.now()};state.accounts=state.accounts||{};state.accounts[d.email]=state.user;state.answers={};state.saved=[];saveState();closeModal('signupModal');closeModal('authModal');updateUI();showPage('dashboard');goTab('overview');updateAIJourney();await startAISession();toast('Account created — your AI guide is ready.');};
 const oldLogin=$('#loginForm').onsubmit;
-$('#loginForm').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());if(d.email==='admin@yourpath.demo'&&d.password==='admin123'){state.user={name:'Admin',email:d.email,role:'admin',grade:'College'};ensureSession();saveState();closeModal('loginModal');closeModal('authModal');updateUI();showPage('dashboard');goTab('overview');toast('Admin logged in.');return;}state.user={name:d.email.split('@')[0],email:d.email,role:'student',grade:state.user?.grade||'Grade 10'};saveState();closeModal('loginModal');closeModal('authModal');updateUI();showPage('dashboard');goTab('overview');if(!state.aiSession||!state.aiResult)await startAISession();toast('Logged in — your AI guide is ready.');};
+$('#loginForm').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());const existing=(state.accounts&&state.accounts[d.email])||null;if(existing&&existing.password&&existing.password!==d.password){toast('Incorrect password for this account. Please try again.');return;}state.user=existing||{name:d.email.split('@')[0],email:d.email,role:'student',grade:state.user?.grade||'Grade 10'};if(!state.user.role)state.user.role='student';saveState();closeModal('loginModal');closeModal('authModal');updateUI();showPage('dashboard');goTab('overview');if(!state.aiSession||!state.aiResult)await startAISession();toast('Logged in — your AI guide is ready.');};
 
 // Initial AI-aware rendering.
 if(state.aiResult){renderAIResult();renderAIPatways();renderAIRoadmap();renderInterestMapFromAI();setAIStatus('AI analysis loaded','ready');}
@@ -2169,13 +2407,176 @@ function localSignalFromAnswer(q,val){
   if(q.type==='scale'&&Number(val)){a.signals.Learning+=Number(val)*.25;a.signals.Curiosity+=Number(val)*.25}
   const pressureHits=LOCAL_AI.pressureWords.filter(w=>text.includes(w));
   if(pressureHits.length){a.pressure[q.category]=(a.pressure[q.category]||0)+pressureHits.length}
-  // Simple contradiction detector: stated preference vs repeated category evidence.
+  // --- Contradiction detection -------------------------------------------
+  // (a) Two strong directions in the same session.
   if(a.history.length>=5){
     const recent=a.history.slice(-5); const analytical=recent.filter(x=>['problem','subjects'].includes(x.category)).length;
     const creative=recent.filter(x=>x.category==='creativity').length;
-    if(analytical>=2&&creative>=2&&a.signals.Analytical>1.6&&a.signals.Creative>1.6){a.contradictions.push({signal:'Multiple strong directions',evidence:'Recent answers show both technical/problem-solving and creative signals.',followUp:'Test both through small projects rather than forcing an early choice.'})}
+    if(analytical>=2&&creative>=2&&a.signals.Analytical>1.6&&a.signals.Creative>1.6) localAddContradiction(a,{signal:'Multiple strong directions',evidence:'Recent answers show both technical/problem-solving and creative signals.',followUp:'Test both through small projects rather than forcing an early choice.'});
+  }
+  localCheckStatedVsEvidence(a);
+}
+
+/* (b) Stated preference vs accumulated evidence.
+   A pathway the student SAVED or was shown has a `dims` profile. If the
+   student's strongest signals point somewhere else, that tension is worth
+   naming — the disagreement is between what they chose and what they said,
+   and only a real experiment can settle it. This never lowers a pathway's
+   standing; it only adds a reflection prompt. */
+function localAddContradiction(a,item){
+  if(!a.contradictions) a.contradictions=[];
+  if(a.contradictions.some(c=>c.signal===item.signal)) return; // no duplicates per session
+  a.contradictions.push(item);
+}
+function localCheckStatedVsEvidence(a){
+  if(!a.history || a.history.length<8) return;
+  const profiles=(typeof LOCAL_AI!=='undefined' && LOCAL_AI.pathwayProfiles)||[];
+  if(!profiles.length) return;
+  const stated=(state.saved||[]);
+  if(!stated.length) return;
+  // Student's strongest signals, normalised for the ~1.0 baseline each accumulates.
+  const ranked=LOCAL_AI.dimensions
+    .map(d=>({d,score:Number(a.signals[d])||0}))
+    .sort((x,y)=>y.score-x.score);
+  if(ranked.length<2) return;
+  const top=ranked[0], second=ranked[1];
+  for(const name of stated){
+    const profile=profiles.find(p=>p.name===name);
+    if(!profile || !profile.dims) continue;
+    // The student's own words support this pathway's two key dimensions?
+    const keyDims=Object.entries(profile.dims).sort((x,y)=>y[1]-x[1]).slice(0,2).map(([d])=>d);
+    const supported=keyDims.filter(d=>d===top.d||d===second.d);
+    if(supported.length) continue; // stated choice is consistent with evidence
+    localAddContradiction(a,{
+      signal:`"${name}" vs your strongest signals`,
+      evidence:`You saved ${name}, but your answers pointed most strongly to ${top.d}${second?` and ${second.d}`:""} rather than ${keyDims.join(" / ")}.`,
+      followUp:`Both can be true — a field can need one style of thinking while you bring another. Run the 7-day experiment for ${name} and let the work decide, rather than the wording of this analysis.`
+    });
+    break; // one such prompt per session is enough
   }
 }
+/* ================================================================
+   EVIDENCE TRACKING (local, aggregate, no personal data)
+
+   The metrics the project needs to decide whether the core loop
+   actually works: sessions started/finished, careers explored,
+   experiments completed, feedback, and whether students return.
+
+   Design rules, deliberately: counts only, never identities. No
+   answers, no free text, no emails, and no network calls. Everything
+   stays in this browser, exactly like the rest of the prototype. A
+   real deployment must move this server-side (see README) — but it
+   MUST NOT add identifiers while doing so.
+   ================================================================ */
+const EVIDENCE_STORE='yp_evidence_v1';
+
+function evidenceToday(){return new Date().toISOString().slice(0,10)}
+function evidenceLoad(){
+ try{return JSON.parse(localStorage.getItem(EVIDENCE_STORE)||'null')||evidenceBlank()}catch(e){return evidenceBlank()}
+}
+function evidenceBlank(){
+ return {
+  firstSeen:null,
+  // funnel
+  sessionsStarted:0, sessionsCompleted:0,
+  // engagement
+  careersExplored:[],           // unique pathway names, deduped
+  experimentsOpened:[],         // unique experiment families
+  experimentDaysDone:[],        // [family, day] pairs completed
+  reflections:[],               // {family, enjoyment} — the key signal
+  // retention
+  activeDays:[],                // unique YYYY-MM-DD the student used the app
+  sessionsByDay:{},             // date -> count
+  // feedback
+  feedback:null,
+  changeLog:[]                  // {date, from, to} — what feedback changed
+ };
+}
+function evidenceSave(e){try{localStorage.setItem(EVIDENCE_STORE,JSON.stringify(e))}catch(err){}}
+function evidenceTrack(fn){
+ const e=evidenceLoad();
+ const today=evidenceToday();
+ if(!e.firstSeen) e.firstSeen=Date.now();
+ if(!(e.activeDays||[]).includes(today)) (e.activeDays=[]).push(today);
+ e.sessionsByDay=e.sessionsByDay||{};
+ e.sessionsByDay[today]=(e.sessionsByDay[today]||0)+1;
+ fn(e,today);
+ evidenceSave(e);
+}
+function evidenceUnique(list,val){const l=list||[];return l.includes(val)?l:[...l,val]}
+
+/* Record the events that matter. Each is called from the real flow, so the
+   numbers cannot drift from what a student actually did. */
+function trackSessionStarted(){evidenceTrack(e=>{e.sessionsStarted=(e.sessionsStarted||0)+1})}
+function trackSessionCompleted(){evidenceTrack(e=>{e.sessionsCompleted=(e.sessionsCompleted||0)+1})}
+function trackCareersExplored(names){
+ const list=[].concat(names||[]).filter(Boolean);
+ if(!list.length) return;
+ evidenceTrack(e=>{list.forEach(n=>{e.careersExplored=evidenceUnique(e.careersExplored,n)})});
+}
+function trackExperimentOpened(family){evidenceTrack(e=>{e.experimentsOpened=evidenceUnique(e.experimentsOpened,family)})}
+function trackExperimentDay(family,day){evidenceTrack(e=>{e.experimentDaysDone=[...(e.experimentDaysDone||[]).filter(x=>!(x[0]===family&&x[1]===day)),[family,day]]})}
+function trackReflection(family,enjoyment){evidenceTrack(e=>{e.reflections=[...(e.reflections||[]).filter(r=>r.family!==family),{family,enjoyment,at:Date.now()}]})}
+function trackFeedback(payload){evidenceTrack(e=>{e.feedback={...payload,at:Date.now()}})}
+/* A change log with no entries is itself a finding (METHODOLOGY.md §6). */
+function trackChange(from,to){evidenceTrack(e=>{e.changeLog=[...(e.changeLog||[]),{date:evidenceToday(),from,to}]})}
+function resetEvidence(){try{localStorage.removeItem(EVIDENCE_STORE)}catch(e){}toast('Local usage evidence cleared.');try{renderEvidenceReadout()}catch(err){}}
+
+/* Rendered inside the Feedback tab: the numbers the project needs in order to
+   judge whether the core loop works, for THIS device only. Deliberately shown
+   to the student rather than hidden — they can clear it. */
+function renderEvidenceReadout(){
+ const box=document.getElementById('evidenceReadout');
+ if(!box) return;
+ let s; try{s=evidenceSummary()}catch(e){return}
+ const row=(label,value,note)=>`<div><b>${value}</b><small>${label}</small>${note?`<p class="muted" style="margin:4px 0 0;font-size:11px">${note}</p>`:""}</div>`;
+ const noAnswerNote=s.reflections===0
+  ? 'No reflections yet. If nobody ever answers "I did not enjoy it", the question is being read as a test — see METHODOLOGY.md §6.'
+  : (s.ruledOut===0
+     ? 'Nobody has ruled anything out yet. Watch this: a "No" is the most useful result the tool can produce.'
+     : `Including ${s.ruledOut} honest "No" result${s.ruledOut===1?"":"s"} — directions sensibly ruled out early.`);
+ box.innerHTML=`
+  <div class="admin-stats" style="margin-bottom:14px">
+   ${row('Sessions started',s.sessionsStarted)}
+   ${row('Sessions completed',s.sessionsCompleted,`Completion rate ${s.completionRate}%`)}
+   ${row('Careers explored',s.careersExplored,'Unique pathways opened, saved or analysed')}
+   ${row('Experiments opened',s.experimentsOpened,`${s.experimentDaysPerOpened} days completed per experiment`)}
+   ${row('Reflections recorded',s.reflections,noAnswerNote)}
+   ${row('Active days',s.activeDays,s.returned?'Returned on more than one day':'Has not returned yet — retention is the only real proof the loop is useful')}
+  </div>
+  ${s.feedback?`<p class="muted" style="font-size:12px;margin:0 0 10px"><b>Your feedback:</b> ${escapeHtml(String(s.feedback.feedback||s.feedback.useful||""))||"(recorded)"}</p>`:""}
+  <p class="muted" style="font-size:11.5px;margin:0 0 10px">Counts only, stored in this browser. No answers, no free text, no identity, and nothing is uploaded. Changes made because of feedback: <b>${s.changeLog}</b>.</p>
+  <button class="small-btn" onclick="resetEvidence()">Clear local evidence</button>`;
+}
+
+/* Derived readout for the Feedback tab. */
+function evidenceSummary(){
+ const e=evidenceLoad();
+ const started=e.sessionsStarted||0, done=e.sessionsCompleted||0;
+ const days=(e.experimentDaysDone||[]).length;
+ const reflections=(e.reflections||[]).length;
+ const enjoyed=(e.reflections||[]).filter(r=>r.enjoyment==='yes').length;
+ const mixed=(e.reflections||[]).filter(r=>r.enjoyment==='mixed').length;
+ const disliked=(e.reflections||[]).filter(r=>r.enjoyment==='no').length;
+ const activeDays=(e.activeDays||[]).length;
+ const returned=activeDays>1;
+ return {
+  sessionsStarted:started,
+  sessionsCompleted:done,
+  completionRate:started?Math.round(done/started*100):0,
+  careersExplored:(e.careersExplored||[]).length,
+  experimentsOpened:(e.experimentsOpened||[]).length,
+  experimentDaysDone:days,
+  experimentDaysPerOpened:(e.experimentsOpened||[]).length?Math.round(days/(e.experimentsOpened||[]).length*10)/10:0,
+  reflections,
+  enjoyed,mixed,disliked,
+  ruledOut:disliked,
+  activeDays,returned,
+  feedback:e.feedback||null,
+  changeLog:(e.changeLog||[]).length
+ };
+}
+
 /* ================================================================
    AUTH CONSENT GATE
    A student must read and accept the Privacy Policy and the

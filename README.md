@@ -14,12 +14,14 @@ The questionnaire engine creates exactly 1,000 deep prompts at runtime:
 
 The probability is ONLY a question-selection mechanism. It is not a psychological probability, confidence score, or career-match score.
 
-## Demo login
-Admin:
-admin@yourpath.demo
-admin123
+## Accounts
+Create an account from the Sign up dialog. Accounts are stored only in this
+browser's localStorage, so they are local to this device.
 
-Any other email/password can enter the demo as a student.
+There is **no admin account and no privilege escalation** in this build. Roles
+and any elevated access must be granted by a server; a browser cannot be
+trusted to decide them. Adding a hard-coded administrator credential to a
+frontend would expose it to every visitor, so none exists here.
 
 ## Production requirements
 This frontend stores demo data in localStorage. Do NOT use it for real student records.

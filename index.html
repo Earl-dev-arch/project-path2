@@ -7,6 +7,9 @@
 <meta name="description" content="Your Path — an explainable career exploration platform built for students. Discover what fits you.">
 <title>Your Path.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
 <link rel="stylesheet" href="styles.css">
@@ -15,7 +18,7 @@
 <div class="page-noise"></div>
 <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
 <header class="topbar">
-  <a class="brand" href="#home"><span class="brand-mark" aria-label="Your Path"><svg class="brand-svg" viewBox="0 0 28 28" width="22" height="22" fill="none"><circle cx="14" cy="14" r="11" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-dasharray="2 3"/><path d="M14 3v4M14 21v4M3 14h4M21 14h4" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/><polygon points="14,6 17.5,12 23.5,14 17.5,16 14,22 10.5,16 4.5,14 10.5,12" fill="#ffffff"/><circle cx="14" cy="14" r="2.2" fill="#6c5ce7"/></svg></span><span><strong>Your Path</strong><small>Discover what fits you.</small></span></a>
+  <a class="brand" href="#home"><span><strong>Your Path</strong><small>Discover what fits you.</small></span></a>
   <nav><a href="#home" data-page="home">Home</a><a href="#explore" data-page="explore">Explore Careers</a><a href="#roadmap" data-page="roadmap">Roadmaps</a><a href="#resources" data-page="resources">Resources</a><a href="#blog" data-page="blog">Blog & Safety</a><a href="#about" data-page="about">About</a></nav>
  <div class="top-actions">
   <button class="btn ghost btn-large" id="loginBtn">Log in</button>
@@ -98,13 +101,13 @@
           <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
         </div>
         <h3>Explore Career Library</h3>
-        <p>Browse all 16 career clusters, university guides, scholarships, entrance tests, and alternative education routes.</p>
+        <p>Browse the full career library, university guides, scholarships, entrance tests, and alternative education routes — with no account needed.</p>
         <button class="btn soft btn-full" data-page="explore">Explore Library ➪</button>
       </div>
     </div>
   </div>
 
-  <section class="section shell" id="how"><div class="heading reveal"><span class="eyebrow">HOW IT WORKS</span><h2>A journey, not a personality label.</h2><p>Each session draws 20 questions from a weighted bank of 1,000. The selection is designed to cover different dimensions instead of asking the same kind of question twenty times.</p></div>
+  <section class="section shell" id="how"><div class="heading reveal"><span class="eyebrow">HOW IT WORKS</span><h2>A journey, not a personality label.</h2><p>Every session asks 20 questions across ten dimensions of interest. The set is chosen for you rather than fixed, so it covers different areas instead of asking the same kind of question twenty times.</p></div>
     <div class="steps"><article class="reveal"><span>01</span><h3>Deep questions</h3><p>Scenarios, ranking, scales, multiple choice and reflection prompts.</p></article><article class="reveal delay-1"><span>02</span><h3>Pattern analysis</h3><p>Looks for repeated signals, contradictions and uncertainty.</p></article><article class="reveal delay-2"><span>03</span><h3>Several pathways</h3><p>Shows plausible directions with reasoning, skills and trade-offs.</p></article><article class="reveal delay-3"><span>04</span><h3>Action roadmap</h3><p>Turns a pathway into practical next steps based on grade.</p></article></div>
   </section>
   <section class="section shell feature-grid"><div class="feature purple reveal"><span class="eyebrow"></span><h2></h2><p>Selection probabilities only control which questions appear. They are not psychological probabilities and they never become a “career score.”</p><div class="chips"><span>Reasoned</span><span>Transparent</span><span>Uncertain when needed</span></div></div><div class="feature dark reveal delay-1"><span class="eyebrow">PRESSURE CHECK</span><h2>Your own voice matters.</h2><p>The system can identify response patterns that deserve reflection around parents, peers, status, salary or limited career knowledge.</p><div class="bars"><i style="width:72%"></i><i style="width:47%"></i><i style="width:29%"></i></div></div></section>
@@ -114,14 +117,6 @@
 <div class="dashboard shell">
 <aside class="sidebar">
   <div class="side-logo">
-    <span class="brand-mark" aria-label="Your Path Logo">
-      <svg class="brand-svg" viewBox="0 0 28 28" width="20" height="20" fill="none">
-        <circle cx="14" cy="14" r="11" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-dasharray="2 3"/>
-        <path d="M14 3v4M14 21v4M3 14h4M21 14h4" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/>
-        <polygon points="14,6 17.5,12 23.5,14 17.5,16 14,22 10.5,16 4.5,14 10.5,12" fill="#ffffff"/>
-        <circle cx="14" cy="14" r="2.2" fill="#6c5ce7"/>
-      </svg>
-    </span>
     <div class="side-logo-text">
       <b>Your Path</b>
       <small>Student space</small>
@@ -176,6 +171,13 @@
       </span>
       <span class="side-label">Roadmaps</span>
     </button>
+    <button class="side" data-tab="experiments">
+      <span class="side-icon-box">
+        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v5l4 9a2 2 0 0 1-1.8 3H6.8A2 2 0 0 1 5 17l4-9z"></path><line x1="9" y1="3" x2="15" y2="3"></line><line x1="7.5" y1="14" x2="16.5" y2="14"></line></svg>
+      </span>
+      <span class="side-label">Experiments</span>
+      <span class="side-badge" id="sideExpBadge">0</span>
+    </button>
   </div>
 
   <div class="side-group">
@@ -216,12 +218,6 @@
         <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
       </span>
       <span class="side-label">Feedback</span>
-    </button>
-    <button class="side admin" data-tab="admin">
-      <span class="side-icon-box">
-        <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-      </span>
-      <span class="side-label">Admin</span>
     </button>
     <button class="side side-logout" id="logout">
       <span class="side-icon-box">
@@ -282,7 +278,7 @@
 
 <div class="tab" id="tab-questionnaire"><div class="tab-head"><div><span class="eyebrow"> ADAPTIVE EXPLORATION</span><h2>Deep Interest Questionnaire</h2><p>20 questions are selected without replacement using category weights. Every session can be different.</p></div><div class="pill" id="qCount">1 / 20</div></div>
   <div class="q-progress-bar-wrap"><div class="q-progress-bar" id="qProgressBar" style="width:5%"></div></div>
-  <div class="question-shell"><div id="question"></div><aside class="selection-info"><b>Why this question?</b><p id="selectionInfo">Weighted selection keeps the session balanced.</p><div class="mini-stat"><span>Bank size</span><b id="bankSize">1,000</b></div><div class="mini-stat"><span>Questions this session</span><b>20</b></div><div class="mini-stat"><span>Question types</span><b>Scenarios, Scales, Multi & Rank</b></div><small>Selection probability is about question appearance, not your personality.</small></aside></div>
+  <div class="question-shell"><div id="question"></div><aside class="selection-info"><b>Why this question?</b><p id="selectionInfo">Weighted selection keeps the session balanced.</p><div class="mini-stat"><span>Dimensions covered</span><b id="bankSize">10</b></div><div class="mini-stat"><span>Questions this session</span><b>20</b></div><div class="mini-stat"><span>Question types</span><b>Scenarios, Scales, Multi & Rank</b></div><small>Selection probability is about question appearance, not your personality.</small></aside></div>
 </div>
 
 <div class="tab" id="tab-analysis"><div class="tab-head"><div><span class="eyebrow">ANALYSIS</span><h2>Patterns, not a verdict.</h2><p id="analysisIntro"></p></div></div><div id="analysis"></div></div>
@@ -300,6 +296,12 @@
 
 <div class="tab" id="tab-roadmaps"><div class="tab-head"><div><span class="eyebrow">ROADMAP</span><h2>School ➪ skills ➪ education ➪ career.</h2><p id="roadmapGrade"></p></div></div><div id="roadmap"></div></div>
 
+<div class="tab" id="tab-experiments">
+  <div class="tab-head"><div><span class="eyebrow">CAREER EXPERIMENTS</span><h2>Try the work before you commit to it.</h2><p>A pathway is not something you "might like" — it is something you test. Each experiment below is a 7-day exploration you can finish this month, using free tools, ending with the only question that matters: <b>did you enjoy the actual work?</b></p></div></div>
+  <div id="expBadgeLine" class="exp-badge-line"></div>
+  <div class="exp-grid" id="expGrid"></div>
+</div>
+
 <div class="tab" id="tab-saved">
   <div class="tab-head"><div><span class="eyebrow">SAVED CAREERS</span><h2>Your saved pathways & research notes.</h2><p>Track the directions you are actively exploring and test each with small experiments.</p></div></div>
   <div id="saved"></div>
@@ -310,11 +312,10 @@
   <div id="historyContainer"></div>
 </div>
 
-<div class="tab" id="tab-feedback"><div class="tab-head"><div><span class="eyebrow">FEEDBACK</span><h2>Help improve Your Path.</h2></div></div><form class="form-card" id="feedback"><label>Was this useful?<select name="useful"><option>Yes</option><option>Somewhat</option><option>Not really</option></select></label><label>Did you discover something new?<select name="new"><option>Yes</option><option>A little</option><option>No</option></select></label><label>Which pathway interested you most?<input name="favorite"></label><label>What was missing?<textarea name="missing" rows="3"></textarea></label><label>Would you use it again?<select name="again"><option>Yes</option><option>Maybe</option><option>No</option></select></label><label>Open feedback<textarea name="feedback" rows="5"></textarea></label><button class="btn primary">Submit feedback</button></form></div>
+<div class="tab" id="tab-feedback"><div class="tab-head"><div><span class="eyebrow">FEEDBACK</span><h2>Help improve Your Path.</h2><p>What you write here is stored only in this browser. Below the form you can see the anonymous usage counts this device has recorded.</p></div></div><div class="analysis-box full" style="margin-bottom:16px"><span class="tag">EVIDENCE</span><h3 style="margin-top:10px">Is this actually working?</h3><div id="evidenceReadout"></div></div><form class="form-card" id="feedback"><label>Was this useful?<select name="useful"><option>Yes</option><option>Somewhat</option><option>Not really</option></select></label><label>Did you discover something new?<select name="new"><option>Yes</option><option>A little</option><option>No</option></select></label><label>Which pathway interested you most?<input name="favorite"></label><label>What was missing?<textarea name="missing" rows="3"></textarea></label><label>Would you use it again?<select name="again"><option>Yes</option><option>Maybe</option><option>No</option></select></label><label>Open feedback<textarea name="feedback" rows="5"></textarea></label><button class="btn primary">Submit feedback</button></form></div>
 
 <div class="tab" id="tab-profile"><div class="tab-head"><div><span class="eyebrow">PROFILE</span><h2>Your student profile & goals.</h2><p>Update your details, academic grade, target country, budget preferences, and primary aspirations.</p></div></div><form class="form-card" id="profile"><div class="form-grid"><label>Full name<input name="name" required></label><label>Email<input name="email" type="email" required></label><label>Phone<input name="phone"></label><label>Country + code<select name="country"><option>Philippines (+63)</option><option>United States (+1)</option><option>United Kingdom (+44)</option><option>India (+91)</option><option>Canada (+1)</option><option>Australia (+61)</option><option>Other</option></select></label><label>Grade/Class<select name="grade"><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>Grade 12</option><option>College</option></select></label><label>Age<input name="age" type="number"></label><label class="wide">School / Location<input name="school"></label><label>Target Study Country<select name="targetCountry"><option value="Domestic / Home Country">Domestic / Home Country</option><option value="United States">United States</option><option value="United Kingdom">United Kingdom</option><option value="Canada">Canada</option><option value="Australia / New Zealand">Australia / New Zealand</option><option value="Europe (Germany, Netherlands, etc.)">Europe (Germany, Netherlands, etc.)</option><option value="Asia (Singapore, Japan, etc.)">Asia (Singapore, Japan, etc.)</option></select></label><label>Budget & Financial Aid Priority<select name="budget"><option value="Full scholarship needed">Full scholarship / Financial aid needed</option><option value="Partial scholarship preferred">Partial scholarship preferred</option><option value="Public state university budget">Public state university tuition budget</option><option value="Flexible / Self-funded">Flexible / Self-funded</option></select></label><label class="wide">Primary personal goal or dream projects<textarea name="goals" rows="3" placeholder="e.g. Build apps that help people, study marine biology, start a social enterprise, learn robotics..."></textarea></label></div><button class="btn primary">Save & update profile</button></form></div>
 
-<div class="tab" id="tab-admin"><div class="tab-head"><div><span class="eyebrow">LOCAL AI ADMIN</span><h2>Live platform overview.</h2><p id="adminScopeText">The from-scratch AI only counts student sessions that are currently active. No fake users or hard-coded totals.</p></div></div><div class="admin-stats"><div><b id="adminTotalUsers">0</b><small>Students active now</small></div><div><b id="adminCompleted">0</b><small>Completed now</small></div><div><b id="adminProgress">0</b><small>In progress now</small></div><div><b id="adminToday">0</b><small>Active signups today</small></div></div><div class="admin-grid"><div class="card"><h3>Local AI activity</h3><p id="adminAIInsight" class="muted">Waiting for active student sessions.</p><div id="adminInterestBars" class="bars"></div></div><div class="card"><h3>AI admin explanation</h3><ul id="adminAINotes" class="security"><li>No fabricated platform numbers are used.</li><li>Inactive sessions automatically disappear after their heartbeat expires.</li><li>Only the local browser's active sessions are visible in this from-scratch version.</li><li>For a real multi-user deployment, these same metrics should come from an authorized server database.</li></ul></div></div><div class="card admin-live-card"><div class="admin-live-head"><h3>Active student sessions</h3><span id="adminLiveBadge" class="ai-status ready"><span class="ai-dot"></span>Local AI live</span></div><div id="adminActiveList" class="admin-active-list"><p class="muted">No active student sessions.</p></div></div></div>
 </section></div></section>
 <section class="page" id="blog">
   <div class="shell public">
@@ -349,7 +350,7 @@
         <span class="blog-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 16.5v-5"></path><path d="M12 8h.01"></path></svg></span>
         <h3>General Information</h3>
         <p>Your Path is an AI-powered career exploration platform for students. Adaptive questioning surfaces the interests, working styles and motivations that actually appear in your answers — then turns them into pathways you can test in the real world.</p>
-        <p>Every session draws 20 questions from a weighted bank of 1,000, covering ten dimensions from genuine interests to external pressure. Selection weights describe how questions are chosen; they are never a personality score.</p>
+        <p>Every session asks 20 questions across ten dimensions, from genuine interests to external pressure. Selection weights describe how questions are chosen; they are never a personality score.</p>
       </article>
 
       <article class="card blog-card safe-card">
@@ -656,6 +657,7 @@
 
 <div class="cookie" id="cookie"><div><b>Your Path uses browser storage.</b><p>This prototype uses local storage for login state, questionnaire progress and your cookie preference. Nothing is sent to a server.</p></div><div><button class="btn soft" id="essential">Essential only</button><button class="btn primary" id="accept">Accept</button></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<script src="site-data.js"></script>
 <script src="app_scratch.js"></script>
 </body>
 </html>
