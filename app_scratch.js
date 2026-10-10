@@ -735,14 +735,20 @@ $("#loginForm").onsubmit=e=>{
      return;
    }
  } else {
-   if(state.user && state.user.email===d.email && (!state.user.password || state.user.password===d.password)){
-     state.user.password=d.password;
-     state.accounts=state.accounts||{};
-     state.accounts[d.email]=state.user;
-   } else {
-     toast("Account not found. Please click 'Sign up' to create an account.");
-     return;
-   }
+  /* The email is not a registered account, so login must refuse it. The only
+    exception is an account that exists in the current session but was never
+    written to state.accounts — made by a server or an older build — and even
+    then the password must match what that session already holds. */
+  const sessionUser=state.user;
+  const sameUnregistered=sessionUser&&sessionUser.email===d.email&&sessionUser.password&&sessionUser.password===d.password;
+  if(sameUnregistered){
+    state.accounts=state.accounts||{};
+    state.accounts[d.email]=sessionUser;
+  } else {
+    toast("No account found for that email. Please sign up first.");
+    openSignup();
+    return;
+  }
  }
  ensureSession();
  saveState();
@@ -2530,10 +2536,67 @@ const oldQuestionStart=window.newQuestionSession;
 window.newQuestionSession=()=>{state.aiSession=null;state.aiResult=null;state.aiQuestion=null;state.qIndex=0;localStorage.removeItem(AI_STORE.session);localStorage.removeItem(AI_STORE.result);startAISession();};
 
 // Update signup/login to start an AI-controlled journey.
+// Signup is the ONLY place an account is created, so it keeps the duplicate
+// check and the minimum password length. An email already in use goes to the
+// login form instead of silently overwriting the existing account.
 const oldSignup= $('#signupForm').onsubmit;
-$('#signupForm').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());state.user={...d,role:'student',createdAt:Date.now()};state.accounts=state.accounts||{};state.accounts[d.email]=state.user;state.answers={};state.saved=[];saveState();closeModal('signupModal');closeModal('authModal');updateUI();showPage('dashboard');goTab('overview');updateAIJourney();await startAISession();toast('Account created — your AI guide is ready.');};
+$('#signupForm').onsubmit=async e=>{
+ e.preventDefault();
+ const d=Object.fromEntries(new FormData(e.target).entries());
+ const email=String(d.email||'').trim().toLowerCase();
+ if(!email){toast('Please enter your email address.');return;}
+ if(!d.password||d.password.length<6){toast('Please choose a password with at least 6 characters.');return;}
+ state.accounts=state.accounts||{};
+ if(state.accounts[email]){
+  toast('An account with this email already exists. Please log in.');
+  openLogin();
+  return;
+ }
+ state.user={...d,email,role:'student',createdAt:Date.now()};
+ state.accounts[email]=state.user;
+ state.answers={};
+ state.saved=[];
+ saveState();
+ closeModal('signupModal');
+ closeModal('authModal');
+ updateUI();
+ showPage('dashboard');
+ goTab('overview');
+ updateAIJourney();
+ await startAISession();
+ toast('Account created — your AI guide is ready.');
+};
+// Login authenticates an EXISTING account only. It must never create one:
+// an unknown email is rejected rather than silently turned into a new user,
+// which would let anyone in by typing an address. The signup flow is the only
+// path that creates accounts.
 const oldLogin=$('#loginForm').onsubmit;
-$('#loginForm').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());const existing=(state.accounts&&state.accounts[d.email])||null;if(existing&&existing.password&&existing.password!==d.password){toast('Incorrect password for this account. Please try again.');return;}state.user=existing||{name:d.email.split('@')[0],email:d.email,role:'student',grade:state.user?.grade||'Grade 10'};if(!state.user.role)state.user.role='student';saveState();closeModal('loginModal');closeModal('authModal');updateUI();showPage('dashboard');goTab('overview');if(!state.aiSession||!state.aiResult)await startAISession();toast('Logged in — your AI guide is ready.');};
+$('#loginForm').onsubmit=async e=>{
+ e.preventDefault();
+ const d=Object.fromEntries(new FormData(e.target).entries());
+ const email=String(d.email||'').trim().toLowerCase();
+ const password=String(d.password||'');
+ const accounts=state.accounts||{};
+ const existing=accounts[email]||null;
+ if(!existing){
+  toast('No account found for that email. Please sign up first.');
+  return;
+ }
+ if(existing.password&&existing.password!==password){
+  toast('Incorrect password for this account. Please try again.');
+  return;
+ }
+ state.user={...existing};
+ if(!state.user.role)state.user.role='student';
+ saveState();
+ closeModal('loginModal');
+ closeModal('authModal');
+ updateUI();
+ showPage('dashboard');
+ goTab('overview');
+ if(!state.aiSession||!state.aiResult)await startAISession();
+ toast('Logged in — your AI guide is ready.');
+};
 
 // Initial AI-aware rendering.
 if(state.aiResult){renderAIResult();renderAIPatways();renderAIRoadmap();renderInterestMapFromAI();setAIStatus('AI analysis loaded','ready');}
