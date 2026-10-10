@@ -1,7 +1,7 @@
 // Drive real Chrome against the local file via DevTools Protocol.
 // No server, no localhost: the page is opened as a file:// URL.
 //
-// Usage: node .qa/drive.mjs "<file url>" <outJsonPath>
+// Usage: node tests/browser/drive.mjs "<file url>" <outJsonPath>
 import { spawn } from "node:child_process";
 import { writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";

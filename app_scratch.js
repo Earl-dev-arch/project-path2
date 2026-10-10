@@ -382,6 +382,12 @@ function startExperimentFromPathway(name){
  const s=expState(exp.key); if(!s.started||!(s.done||[]).length) s.started=Date.now();
  state.experiments[exp.key]=s;
  state.expFocus=exp.key;
+ /* Remember the exact pathway name that opened this experiment. Without it the
+    roadmap can only resolve a pathway from `saved` or the AI result, so a
+    student who never saved the pathway would finish an experiment and find
+    their verdict missing from the roadmap. */
+ state.expPathway=state.expPathway||{};
+ state.expPathway[exp.key]=name;
  try{trackExperimentOpened(exp.key);trackCareersExplored(name)}catch(e){}
  saveExp(); goTab("experiments");
  toast(`${exp.title} opened. One day at a time.`);
@@ -417,9 +423,12 @@ function renderExperiments(){
   const verdictText={yes:"I enjoyed the actual work",mixed:"I enjoyed some of it, not all",no:"I did not enjoy the actual work"};
   const verdictNext={yes:"Go deeper on this pathway — build a bigger project in the same direction.",mixed:"Useful information. A mixed result means explore a neighbouring pathway before committing.",no:"Genuinely valuable result. Ruling a direction out early is progress."};
   const answered=s.enjoyment!==null&&s.enjoyment!==undefined;
+  /* Closing the loop: the verdict becomes a roadmap next step, not a dead end.
+     Built with experimentChainLine/nextStepForExperiment so the plain-language
+     verdict is identical here and in the roadmap. */
   const reflectAnswer=!answered
     ? `<p class="exp-ask">Did you enjoy the actual work?</p><div class="exp-enjoy"><button class="small-btn" onclick="setExpEnjoyment('${key}','yes')">Yes — I want more of this</button><button class="small-btn" onclick="setExpEnjoyment('${key}','mixed')">Some of it, not all</button><button class="small-btn" onclick="setExpEnjoyment('${key}','no')">No — I did not enjoy it</button></div>`
-    : `<div class="exp-verdict ${escapeHtml(s.enjoyment)}"><b>Your answer:</b> ${escapeHtml(verdictText[s.enjoyment]||s.enjoyment)}<br><small class="muted">${escapeHtml(verdictNext[s.enjoyment]||"")}</small></div><button class="small-btn" onclick="setExpEnjoyment('${key}',null)">Change answer</button>`;
+    : `<div class="exp-verdict ${escapeHtml(s.enjoyment)}"><b>Your answer:</b> ${escapeHtml(verdictText[s.enjoyment]||s.enjoyment)}<br><small class="muted">${escapeHtml(verdictNext[s.enjoyment]||"")}</small></div><p class="exp-chain-next">${escapeHtml(nextStepForExperiment({key,title:e.title}))}</p><div class="exp-enjoy"><button class="small-btn" onclick="setExpEnjoyment('${key}',null)">Change answer</button>${source?`<button class="small-btn" onclick="goTab('roadmaps')">↻ Update my roadmap</button>`:""}</div>`;
   return `<article class="exp-card${isFocus?" exp-focus":""}" id="exp-${key}">
    <header class="exp-head"><div><span class="tag">7-DAY EXPLORATION</span><h3>${escapeHtml(e.title)}</h3>${source?`<p class="muted exp-source">Suggested for your saved pathway: <b>${escapeHtml(source)}</b></p>`:""}</div><div class="exp-ring"><b>${done.length}/7</b><small>days</small></div></header>
    <div class="exp-progress"><i style="width:${pct}%"></i></div>
@@ -1075,11 +1084,18 @@ const pathways=[
      ph:"University of the Philippines Diliman (BS Stat / CS), De La Salle University (BS Data Science), Ateneo de Manila (BS MIS / CS), UST",
      us:"UC Berkeley, MIT, Carnegie Mellon University, Stanford, University of Washington",
      uk:"University College London (UCL), University of Edinburgh, Imperial College London, Warwick",
-     global:"National University of Singapore (NUS), University of Toronto (Canada), IIT Bombay (India), ETH Zurich"
+     global:"National University of Singapore (NUS), University of Toronto (Canada), IIT Bombay (India), ETH Zurich",
+     india:"Indian Statistical Institute (Kolkata / Bengaluru / Chennai), IIT Bombay / Delhi / Madras (Minor in Data Science), Chennai Mathematical Institute, University of Delhi (Statistics)"
    },
    admission:"Strong STEM background (Calculus, Probability, Algebra), solid GPA (85%+ / 3.2+), logical problem-solving aptitude.",
-   tests:"Philippines: UPCAT, DCAT, ACET, USTET; International: SAT/ACT (Math 700+), IELTS (6.5+) / TOEFL (90+).",
-   scholarships:"DOST-SEI Merit & RA 7687 Priority STEM, CHED CoE Grants, University Academic Excellence Scholarships.",
+   tests:"Philippines: UPCAT, DCAT, ACET, USTET; India: JEE Main (for B.Tech Data Science / AI at IIITs and NITs), ISI Admission Test (B.Stat / B.Math), CUET-UG (for BSc Statistics at central universities); International: SAT/ACT (Math 700+), IELTS (6.5+) / TOEFL (90+).",
+   scholarships:"Philippines: DOST-SEI Merit & RA 7687 Priority STEM, CHED CoE Grants, University Academic Excellence Scholarships. India: INSPIRE-SHE (₹80,000/yr, DST), National Scholarship Portal (NSP) merit schemes, IIT / NIT institute merit-cum-means aid, Reliance Foundation UG Scholarships.",
+   indiaRoutes:[
+     {title:"B.Tech / BS Data Science or Statistics via JEE Main",desc:"Four-year technical degree at an IIIT, NIT or state university. JEE Main is the standard entry gate; a strong Class 12 board score can also qualify you for some state counselling rounds."},
+     {title:"B.Stat / B.Math at the Indian Statistical Institute",desc:"India's most research-oriented statistics and mathematics route, entered through the ISI Admission Test rather than JEE. Small cohort, very strong theoretical grounding."},
+     {title:"BSc Statistics / Mathematics via CUET-UG",desc:"Three-year degree at a central or state university. Lower entry barrier than IIT/ISI, and a common springboard to an MSc or an analytics job."},
+     {title:"IIIT / NSDC Data Analyst Certification",desc:"Vocational and short-course route (NSDC / NIELIT certified) in SQL, Python and dashboarding, aimed at junior analyst roles without a full degree."}
+   ],
    timeline:"Grade 11: Master math fundamentals & basic Python; Grade 12 (Aug–Dec): University entrance tests; (Jan–Mar): Scholarship filings; (Apr–Jun): Enrollment decisions.",
    routes:[
      {title:"4-Year University Degree",desc:"Rigorous foundation in mathematics, algorithm design, statistics, and campus recruitment pipelines."},
@@ -1107,11 +1123,18 @@ const pathways=[
      ph:"UP Diliman, University of Santo Tomas (Center of Excellence), DLSU Manila, Ateneo de Manila",
      us:"Stanford, Harvard, UCLA, Yale, University of Michigan Ann Arbor",
      uk:"Oxford, Cambridge, UCL, King's College London, Edinburgh",
-     global:"University of Melbourne (Australia), McGill University (Canada), NUS (Singapore)"
+     global:"University of Melbourne (Australia), McGill University (Canada), NUS (Singapore)",
+     india:"University of Delhi (Psychology), TISS Mumbai / Delhi, Christ University Bengaluru, Ashoka University (Psychology), Fergusson College Pune"
    },
    admission:"HUMSS, STEM, or General Academic Strand; reading comprehension, statistics foundation, strong interpersonal interest.",
-   tests:"UPCAT, ACET, DCAT, USTET; International: SAT/ACT, AP Psychology, IELTS/TOEFL.",
-   scholarships:"CHED Priority Programs, DOST-SEI (for BS Psych STEM tracks), University Institutional Aid.",
+   tests:"Philippines: UPCAT, ACET, DCAT, USTET; India: CUET-UG (BSc / BA Psychology at Delhi University and most central universities), TISS-BAT (TISS BA Social Sciences), Christ University Entrance Test, Ashoka Aptitude Assessment; International: SAT/ACT, AP Psychology, IELTS/TOEFL.",
+   scholarships:"Philippines: CHED Priority Programs, DOST-SEI (for BS Psych STEM tracks), University Institutional Aid. India: INSPIRE-SHE (science streams), NSP Post-Matric Scholarships, TISS Financial Aid, university merit waivers and state e-district schemes.",
+   indiaRoutes:[
+     {title:"BA / BSc Psychology via CUET-UG",desc:"The standard three-year route at a central or state university. Check whether the course is a BA or BSc — the BSc version is more statistics-heavy and better for research roles."},
+     {title:"TISS BA Social Sciences (5-year integrated)",desc:"Entered through TISS-BAT. A strong social-science foundation designed for research and policy work rather than clinical practice."},
+     {title:"BA Psychology + MA Clinical Psychology (RCI-recognised)",desc:"Clinical practice in India requires a postgraduate degree from an RCI-recognised programme. Plan the full route early — the bachelor's alone does not license you."},
+     {title:"Certificate / Diploma in Counselling Skills",desc:"Short vocational route for community support and helpline work. Useful experience, but not a licence to practise as a psychologist."}
+   ],
    timeline:"Grade 11: Volunteer in peer counseling or community projects; Grade 12 Fall: University admissions; Spring: Scholarship evaluations.",
    routes:[
      {title:"4-Year University Degree",desc:"Comprehensive training in experimental psychology, abnormal psychology, and psychometrics."},
@@ -1139,11 +1162,18 @@ const pathways=[
      ph:"Ateneo de Manila (BS Information Design), De La Salle-CSB (Multimedia Arts / Interaction), UP Diliman (Fine Arts / CS)",
      us:"Carnegie Mellon (HCI), University of Washington (HCDE), Stanford d.school, Georgia Tech",
      uk:"Royal College of Art, Loughborough University, Brunel University, UCL",
-     global:"TU Delft (Netherlands), Aalto University (Finland), NTU (Singapore)"
+     global:"TU Delft (Netherlands), Aalto University (Finland), NTU (Singapore)",
+     india:"National Institute of Design (NID) Ahmedabad / Bengaluru / Gandhinagar, IIT Bombay (IDC School of Design), Srishti Manipal Bengaluru, MIT Institute of Design Pune, Pearl Academy"
    },
    admission:"Creative portfolio, digital literacy, demonstrated empathy for user problems, design aptitude.",
-   tests:"University creative aptitude exam & portfolio evaluation; general college entrance exams.",
-   scholarships:"Design Talent Scholarships, Adobe Creative Grants, University Creative Merit Awards.",
+   tests:"Philippines: University creative aptitude exam & portfolio evaluation; general college entrance exams. India: UCEED (for IIT and IIIT design programmes), NID DAT (National Institute of Design), NIFT Entrance Exam (for design-adjacent programmes), UID / MITID studio tests; portfolio review at every stage.",
+   scholarships:"Philippines: Design Talent Scholarships, Adobe Creative Grants, University Creative Merit Awards. India: NSP Post-Matric Scholarships, NID / NIFT institute fee waivers, Aditya Birla and Sitaram Jindal Foundation scholarships, state e-district schemes.",
+   indiaRoutes:[
+     {title:"B.Des via UCEED (IIT / IIIT)",desc:"Four-year Bachelor of Design at an IIT or IIIT through the UCEED exam. Strongest technical-design crossover if you also like building."},
+     {title:"B.Des via NID DAT",desc:"India's flagship design institute route, entered through the Design Aptitude Test plus a studio and portfolio round at the National Institute of Design."},
+     {title:"B.Des / BA Design at a private design school",desc:"Srishti, MITID, Pearl and similar institutes run their own portfolio-based admissions. More expensive, and programme quality varies — check studio facilities and faculty first."},
+     {title:"Self-taught UX portfolio + certification",desc:"Short courses (Google UX via Coursera, local bootcamps) plus a public portfolio. India's product companies do interview on portfolio work, not degree name."}
+   ],
    timeline:"Grade 11: Build 2-3 case studies in Figma; Grade 12 (Fall): Submit portfolio & university applications; (Spring): Studio interviews.",
    routes:[
      {title:"4-Year Design / HCI Degree",desc:"In-depth grounding in design theory, ergonomics, cognitive ergonomics, and design systems."},
@@ -1171,11 +1201,18 @@ const pathways=[
      ph:"UP Los Baños (Top Forestry & Environmental Science), UP Diliman, Ateneo (BS ES), Silliman University",
      us:"UC Berkeley, Stanford (Doerr School), UC Davis, University of Colorado Boulder",
      uk:"Imperial College London, Oxford, University of Edinburgh, East Anglia",
-     global:"Wageningen University (Netherlands), UBC (Canada), Australian National University"
+     global:"Wageningen University (Netherlands), UBC (Canada), Australian National University",
+     india:"Indian Institute of Science Education and Research (IISER) Pune / Mohali, TERI School of Advanced Studies New Delhi, Fergusson College Pune, University of Delhi (Environmental Science), IIT Kanpur (Earth Sciences)"
    },
    admission:"STEM Strand; strong high school Biology, Chemistry, and Earth Science foundation.",
-   tests:"UPCAT, DOST-SEI Examination, SAT Subject Tests / AP Environmental Science.",
-   scholarships:"DOST-SEI Priority STEM (RA 7687), Global Environment Facility Grants, WWF Youth Fellowships.",
+   tests:"Philippines: UPCAT, DOST-SEI Examination, SAT Subject Tests / AP Environmental Science. India: CUET-UG (BSc Environmental Science), IISER Aptitude Test (IAT), JEE Main / Advanced for B.Tech Environmental Engineering, ICAR AIEEA for agriculture-linked programmes.",
+   scholarships:"Philippines: DOST-SEI Priority STEM (RA 7687), Global Environment Facility Grants, WWF Youth Fellowships. India: INSPIRE-SHE (DST), NSP Post-Matric Scholarships, IISER merit scholarships, TERI SAS aid, state e-district schemes.",
+   indiaRoutes:[
+     {title:"BS-MS dual degree at an IISER via IAT",desc:"Five-year science research programme combining a bachelor's and master's, with a strong research thesis. India's most research-oriented science route outside engineering."},
+     {title:"BSc Environmental Science via CUET-UG",desc:"Three-year degree at a central or state university, then an MSc in Environmental Science, Ecology or Climate Studies."},
+     {title:"B.Tech Environmental / Civil Engineering via JEE",desc:"Engineering route into water, sanitation, pollution control and environmental impact assessment work."},
+     {title:"Forest Ranger / IFS via state and UPSC exams",desc:"Government route into field conservation and forest management. Competitive and exam-driven, but a direct path to fieldwork responsibility."}
+   ],
    timeline:"Grade 11: Science fair investigation projects; Grade 12 (Fall): DOST exam & college admissions; (Spring): Scholarship confirmations.",
    routes:[
      {title:"4-Year Science Degree",desc:"Deep scientific preparation for environmental impact assessments, research labs, and policy careers."},
@@ -1203,11 +1240,18 @@ const pathways=[
      ph:"UP Diliman, De La Salle University, Mapúa University, Ateneo de Manila, UST",
      us:"MIT, Stanford, Carnegie Mellon University, UC Berkeley, UIUC",
      uk:"Cambridge, Oxford, Imperial College London, University of Manchester",
-     global:"NUS (Singapore), University of Waterloo (Canada), ETH Zurich, Tsinghua"
+     global:"NUS (Singapore), University of Waterloo (Canada), ETH Zurich, Tsinghua",
+     india:"IIT Bombay / Delhi / Madras (Computer Science), IIIT Hyderabad, BITS Pilani, NIT Trichy, VIT Vellore"
    },
    admission:"STEM track; high grade in Mathematics, logical reasoning, and algorithmic enthusiasm.",
-   tests:"UPCAT, DCAT, ACET; SAT (Math 750+), AP Computer Science A, IELTS/TOEFL.",
-   scholarships:"DOST-SEI Merit Scholarship, Google Student Fellowships, Mapúa Tech Excellence Grants.",
+   tests:"Philippines: UPCAT, DCAT, ACET; International: SAT (Math 750+), AP Computer Science A, IELTS/TOEFL. India: JEE Main (screening) then JEE Advanced (for the IITs), BITSAT (BITS Pilani), VITEEE, IIIT Hyderabad UGEE for the dual-degree research programme.",
+   scholarships:"Philippines: DOST-SEI Merit Scholarship, Google Student Fellowships, Mapúa Tech Excellence Grants. India: INSPIRE-SHE (DST), NSP Post-Matric Scholarships, IIT / NIT merit-cum-means aid, BITS merit scholarships, Reliance Foundation UG Scholarships.",
+   indiaRoutes:[
+     {title:"B.Tech Computer Science via JEE Advanced",desc:"The IIT route. Highly competitive and effectively a two-year exam-preparation commitment — plan for it deliberately rather than as a fallback."},
+     {title:"B.Tech at an NIT / IIIT / BITS via JEE Main or BITSAT",desc:"Strong technical degrees with meaningfully lower entry cut-offs than the top IITs, and solid placement outcomes."},
+     {title:"BCA then MCA",desc:"Three-year Bachelor of Computer Applications followed by a master's. A common and legitimate route when the engineering entrance exams do not work out."},
+     {title:"Self-taught development + open-source portfolio",desc:"Free curricula (NPTEL, freeCodeCamp, CS50) plus public GitHub work. Indian product companies do hire on demonstrated skill, though some large employers still screen on degree."}
+   ],
    timeline:"Grade 11: Build personal GitHub repositories; Grade 12 (Fall): University entrance tests & DOST filing; (Spring): Tech scholarships.",
    routes:[
      {title:"4-Year BS Computer Science",desc:"Complete algorithmic foundations, operating systems, compiler theory, and on-campus career fairs."},
@@ -1235,11 +1279,18 @@ const pathways=[
      ph:"Mapúa University, FEU Tech, DLSU Manila, CIIT College of Arts and Technology",
      us:"Purdue University, Carnegie Mellon, Georgia Tech, University of Maryland",
      uk:"Royal Holloway University of London, Warwick, King's College London",
-     global:"Edith Cowan (Australia), University of Toronto, SUTD (Singapore)"
+     global:"Edith Cowan (Australia), University of Toronto, SUTD (Singapore)",
+     india:"IIT Kanpur / Madras (Cybersecurity track), IIIT Delhi (Computer Science and Engineering with security focus), Amrita Vishwa Vidyapeetham, VIT Vellore, SRM Institute"
    },
    admission:"STEM/ICT background, basic networking familiarity, high ethical standard, computer literacy.",
-   tests:"College admissions exams; preparatory knowledge for CompTIA Security+.",
-   scholarships:"DOST Priority Tech Grants, (ISC)² Cybersecurity Undergraduate Aid, SANS CyberTalent.",
+   tests:"Philippines: College admissions exams; preparatory knowledge for CompTIA Security+. India: JEE Main / Advanced (for IIT and NIT computer engineering security tracks), VITEEE, SRMJEEE; industry certifications (CompTIA Security+, CEH) matter more than the exam once you are in.",
+   scholarships:"Philippines: DOST Priority Tech Grants, (ISC)² Cybersecurity Undergraduate Aid, SANS CyberTalent. India: INSPIRE-SHE (DST), NSP Post-Matric Scholarships, IIT / NIT merit-cum-means aid, (ISC)² and SANS diversity scholarship schemes.",
+   indiaRoutes:[
+     {title:"B.Tech Computer Science / CSE (Security) via JEE",desc:"Technical degree at an IIT, NIT, IIIT or private university with an information-security specialisation."},
+     {title:"BCA / BSc Computer Science + certifications",desc:"A general computing degree supplemented with CompTIA Security+, CEH or OSCP. Indian employers in this field lean heavily on certifications."},
+     {title:"NIELIT / NSDC Cyber Security certification",desc:"Government-recognised vocational certification (NIELIT CHM-O, Certified Cyber Security courses) aimed at technician and SOC analyst roles."},
+     {title:"CTF and bug-bounty track",desc:"Self-directed competitive practice through Indian CTF teams and bug-bounty programmes. Public, provable skill that some employers accept in place of a specialist degree."}
+   ],
    timeline:"Grade 11: Complete introductory TryHackMe rooms; Grade 12 (Fall): University exams; (Spring): Lab scholarships.",
    routes:[
      {title:"4-Year Degree in Cybersecurity",desc:"Theoretical and practical defense, digital forensics, security governance, and cryptography."},
@@ -1267,11 +1318,18 @@ const pathways=[
      ph:"UP Diliman (College of Engineering), Mapúa University, DLSU Manila, UST, Batangas State University",
      us:"MIT, Stanford, Caltech, Georgia Tech, University of Michigan",
      uk:"Imperial College London, Cambridge, Bristol, Manchester",
-     global:"TU Munich (Germany), KAIST (South Korea), NTU (Singapore), University of Tokyo"
+     global:"TU Munich (Germany), KAIST (South Korea), NTU (Singapore), University of Tokyo",
+     india:"IIT Bombay / Delhi / Kanpur / Madras (Engineering), BITS Pilani, NIT Trichy / Surathkal, Jadavpur University"
    },
    admission:"STEM Strand (Physics, Pre-Calculus, Calculus, Chemistry), high academic standing.",
-   tests:"UPCAT, Mapúa MPASS, DOST-SEI Examination; SAT Math, JEE / AP Physics.",
-   scholarships:"DOST-SEI Engineering Scholarship, Megaworld Foundation Grants, Aboitiz Future Leaders.",
+   tests:"Philippines: UPCAT, Mapúa MPASS, DOST-SEI Examination; International: SAT Math, AP Physics. India: JEE Main (screening) then JEE Advanced for the IITs, BITSAT, state CETs (MHT-CET, COMEDK, WBJEE) for state engineering colleges.",
+   scholarships:"Philippines: DOST-SEI Engineering Scholarship, Megaworld Foundation Grants, Aboitiz Future Leaders. India: INSPIRE-SHE (DST), NSP Post-Matric Scholarships, IIT / NIT merit-cum-means aid, AICTE Pragati and Saksham scholarships, state fee-waiver schemes.",
+   indiaRoutes:[
+     {title:"B.Tech via JEE Advanced (IIT)",desc:"India's most competitive engineering entry. Two years of dedicated preparation is the realistic norm, not an optional extra."},
+     {title:"B.Tech at an NIT / IIIT / state college via JEE Main or state CET",desc:"The mainstream engineering route. Lower cut-offs than the IITs, and admission through state counselling (JoSAA / CSAB or the state authority)."},
+     {title:"Diploma in Engineering then lateral-entry B.Tech",desc:"A three-year polytechnic diploma, then a lateral entry into the second year of a B.Tech. Practical, cheaper, and accessible without the IIT entrance pressure."},
+     {title:"SSC / RRB Junior Engineer government route",desc:"Public-sector technical roles recruited through staff-selection commission examinations. Exam-driven, stable, and respected in India."}
+   ],
    timeline:"Grade 11: Join math/physics competitions; Grade 12 (Fall): DOST & college applications; (Spring): Engineering lab confirmations.",
    routes:[
      {title:"4-5 Year Licensed Engineering Degree",desc:"Accredited curriculum leading to professional board licensure and high-level structural design."},
@@ -1299,12 +1357,19 @@ const pathways=[
      ph:"Ateneo de Manila (BS ME / MGT), UP Diliman (BS BAA), DLSU (RVR College of Business), AIM",
      us:"Wharton (University of Pennsylvania), Stanford GSB, Harvard, NYU Stern, UC Berkeley Haas",
      uk:"London School of Economics (LSE), Oxford Said, London Business School, Warwick",
-     global:"INSEAD, NUS Business School, Rotman (Toronto), Bocconi (Italy)"
+     global:"INSEAD, NUS Business School, Rotman (Toronto), Bocconi (Italy)",
+     india:"IIM Indore / Rohtak / Ranchi (5-year IPM), Shaheed Sukhdev College of Business Studies (Delhi University), NMIMS Mumbai, Christ University Bengaluru, Symbiosis Pune"
    },
    admission:"ABM or STEM strand; leadership track record, strong verbal and quantitative reasoning.",
-   tests:"UPCAT, ACET, DCAT; SAT/ACT, GMAT/GRE (postgraduate).",
-   scholarships:"Ayala Young Leaders Program, Gokongwei Brothers Foundation, University Leadership Grants.",
+   tests:"Philippines: UPCAT, ACET, DCAT; International: SAT/ACT, GMAT/GRE (postgraduate). India: IPMAT (for the IIM five-year integrated management programme), CUET-UG (BMS / B.Com at Delhi University), NPAT (NMIMS), SET (Symbiosis), Christ University Entrance Test.",
+   scholarships:"Philippines: Ayala Young Leaders Program, Gokongwei Brothers Foundation, University Leadership Grants. India: NSP Central Sector Scheme, IIM need-based financial aid, Aditya Birla and Sitaram Jindal Foundation scholarships, state e-district schemes.",
    timeline:"Grade 11: Launch a student enterprise or club; Grade 12 (Fall): Business school applications; (Spring): Scholarship interviews.",
+   indiaRoutes:[
+     {title:"5-year Integrated Programme in Management at an IIM",desc:"Entered straight after Class 12 through the IPMAT exam. A bachelor's plus MBA equivalent at an Indian Institute of Management without needing a separate CAT later."},
+     {title:"BMS / BBA via CUET-UG",desc:"Three-year management degree at Delhi University or another central university. Strong value for cost, and the standard route for most students."},
+     {title:"B.Com + CA / CS professional qualification",desc:"Commerce degree studied alongside the Chartered Accountancy or Company Secretary exams. Exam-heavy, but directly recognised by Indian employers."},
+     {title:"Family business or self-started venture",desc:"India has a large small-business sector where running something real teaches more than a classroom. Combine with a part-time BBA if you want the credential."}
+   ],
    routes:[
      {title:"4-Year Business Degree",desc:"Broad foundation in corporate finance, marketing management, operations, and organizational leadership."},
      {title:"Entrepreneurial Accelerator Track",desc:"Direct enrollment in venture creation incubators with seed funding and mentorship."},
@@ -1331,12 +1396,19 @@ const pathways=[
      ph:"UST (College of Architecture), UP Diliman, DLSU-CSB, Mapúa University, Far Eastern University",
      us:"Cornell University, Harvard GSD, MIT, Cooper Union, SCI-Arc",
      uk:"The Bartlett (UCL), Architectural Association (AA), Cambridge, Sheffield",
-     global:"Politecnico di Milano (Italy), NUS (Singapore), TU Delft, University of Sydney"
+     global:"Politecnico di Milano (Italy), NUS (Singapore), TU Delft, University of Sydney",
+     india:"School of Planning and Architecture (SPA) Delhi / Bhopal / Vijayawada, IIT Roorkee / Kharagpur, CEPT University Ahmedabad, Sir J.J. College of Architecture Mumbai, NIT Hamirpur"
    },
    admission:"Spatial aptitude, drawing ability, STEM or HUMSS background, creative portfolio.",
-   tests:"University Architecture Aptitude Exam & Drawing Test; national college exams.",
-   scholarships:"United Architects of the Philippines (UAP) Scholarships, NCCA Grants, Creative Talent Grants.",
+   tests:"Philippines: University entrance exam plus a drawing or design aptitude test. India: NATA (National Aptitude Test in Architecture, mandatory for B.Arch), JEE Main Paper 2 (for IIT / NIT and SPA architecture seats), plus the CEPT and Sir J.J. institute aptitude tests.",
+   scholarships:"Philippines: University architecture merit grants, institutional design scholarships. India: NSP Central Sector Scheme, AICTE Pragati scholarships, SPA / IIT institute merit aid, state fee-waiver schemes.",
    timeline:"Grade 11: Build architectural sketchbook; Grade 12 (Fall): Drawing aptitude tests; (Spring): Studio reviews.",
+   indiaRoutes:[
+     {title:"B.Arch via NATA or JEE Main Paper 2",desc:"Five-year professional architecture degree. NATA is the standard gate; JEE Main Paper 2 covers the IIT, NIT and SPA seats. Both require a qualifying Class 12 with Mathematics."},
+     {title:"B.Planning / B.Des at an SPA or IIT",desc:"Alternative built-environment degree focused on urban planning rather than building design, entered through the same aptitude tests."},
+     {title:"Diploma in Architecture then lateral entry",desc:"Three-year polytechnic architecture assistantship diploma, then lateral entry into a B.Arch. Practical and less exam-dependent."},
+     {title:"Interior design or construction supervision certification",desc:"Shorter vocational route into site supervision, drafting or interiors work without the full five-year degree or licence."}
+   ],
    routes:[
      {title:"5-Year Professional B.Arch (Licensure)",desc:"Required degree pathway for professional board licensure and registered architect practice."},
      {title:"Drafting & BIM Technical Diploma (TESDA)",desc:"2-year certification in Revit, AutoCAD drafting, and construction documentation."},
@@ -1363,12 +1435,19 @@ const pathways=[
      ph:"UP Diliman (NIMBB), UP Los Baños, UST, Ateneo de Manila (BS Health Sciences / Bio)",
      us:"Johns Hopkins University, Harvard, UC San Diego, MIT, UC Berkeley",
      uk:"Oxford, Cambridge, Imperial College London, King's College London",
-     global:"Karolinska Institute (Sweden), NUS, University of Melbourne, McGill University"
+     global:"Karolinska Institute (Sweden), NUS, University of Melbourne, McGill University",
+     india:"Indian Institute of Science Education and Research (IISER) Pune / Mohali / Thiruvananthapuram, IIT Madras / Delhi (Biotechnology), Jawaharlal Nehru University New Delhi, University of Hyderabad, Vellore Institute of Technology"
    },
    admission:"STEM Strand; high mastery in Biology, Organic Chemistry, and laboratory safety.",
-   tests:"UPCAT, DOST-SEI Examination, SAT Subject Tests / AP Biology.",
-   scholarships:"DOST-SEI MBB Priority Grants, PCHRD Health Research Awards, International Science Grants.",
+   tests:"Philippines: UPCAT, DOST-SEI Examination, SAT Subject Tests / AP Biology. India: CUET-UG (BSc Biotechnology / Life Sciences), IISER Aptitude Test (IAT) for the BS-MS research programme, JEE Main / Advanced for B.Tech Biotechnology, NEET-UG if the goal is medicine, ICAR AIEEA for agricultural biotechnology.",
+   scholarships:"Philippines: DOST-SEI MBB Priority Grants, PCHRD Health Research Awards, International Science Grants. India: INSPIRE-SHE (DST, ₹80,000/yr), NSP Post-Matric Scholarships, DBT Junior Research Fellowships, IISER merit aid.",
    timeline:"Grade 11: Conduct Science Investigative Project (SIP); Grade 12 (Fall): DOST exam; (Spring): Lab interviews.",
+   indiaRoutes:[
+     {title:"BS-MS dual degree at an IISER via IAT",desc:"Five-year research degree with a thesis. India's strongest route if the goal is a research career rather than a lab technician role."},
+     {title:"BSc Biotechnology / Life Sciences via CUET-UG",desc:"Three-year degree at a central or state university, usually followed by an MSc. The most common entry point."},
+     {title:"B.Tech Biotechnology via JEE",desc:"Engineering-oriented biotechnology degree covering bioprocess and downstream engineering, with better placement into industry than a plain BSc."},
+     {title:"BSc + DBT / CSIR research fellowship route",desc:"Bachelor's degree then a competitive junior research fellowship. Funded research training, and the usual path into a PhD."}
+   ],
    routes:[
      {title:"4-Year BS MBB / Biology Degree",desc:"Rigorous laboratory research preparation for biotech careers, pharmaceuticals, or medical school."},
      {title:"Medical Laboratory Technician Diploma",desc:"Vocational licensure track for hospital diagnostics and clinical sample testing."},
@@ -1395,12 +1474,19 @@ const pathways=[
      ph:"DLSU Manila, Ateneo de Manila, UST, De La Salle-CSB, San Beda University",
      us:"Northwestern (Medill), NYU Stern, USC Annenberg, UT Austin",
      uk:"London School of Economics, King's College London, Leeds, Manchester",
-     global:"University of Melbourne, Erasmus University Rotterdam, SMU (Singapore)"
+     global:"University of Melbourne, Erasmus University Rotterdam, SMU (Singapore)",
+     india:"IIM Indore / Rohtak / Ranchi (IPM), Shaheed Sukhdev College of Business Studies (Delhi University), MICA Ahmedabad, Symbiosis Institute of Media and Communication Pune, Xavier Institute of Communications Mumbai"
    },
    admission:"ABM or HUMSS strand; strong written English, psychological curiosity, analytical mindset.",
-   tests:"College entrance exams; Google Analytics / HubSpot certification readiness.",
-   scholarships:"Marketing Association of the Philippines Grants, Advertising Foundation Awards.",
+   tests:"Philippines: College entrance exams; Google Analytics / HubSpot certification readiness. India: IPMAT (IIM integrated management), CUET-UG (BMS / BA Journalism at Delhi University), MICAT (MICA), SET (Symbiosis), Xavier's entrance tests.",
+   scholarships:"Philippines: Marketing Association of the Philippines Grants, Advertising Foundation Awards. India: NSP Central Sector Scheme, MICA and Symbiosis merit aid, Aditya Birla and Sitaram Jindal Foundation scholarships.",
    timeline:"Grade 11: Manage social media for a student organization; Grade 12 (Fall): Admissions; (Spring): Portfolio submissions.",
+   indiaRoutes:[
+     {title:"BMS / BBA via CUET-UG",desc:"Three-year management degree at Delhi University or another central university, then specialise in digital marketing through internships and certifications."},
+     {title:"BA Journalism and Mass Communication via CUET-UG",desc:"Media-focused degree covering content, audience and campaign work. Closer to the creative side of marketing."},
+     {title:"MICA / Symbiosis communications programmes",desc:"India's more specialised media and communications institutes, with their own entrance tests (MICAT, SET). Portfolio and writing samples matter."},
+     {title:"Certifications + freelance campaign portfolio",desc:"Google, Meta and HubSpot certifications combined with real client work. Indian agencies hire on demonstrable campaign results."}
+   ],
    routes:[
      {title:"4-Year Marketing Degree",desc:"Comprehensive study of consumer behavior, global marketing, branding, and corporate communications."},
      {title:"Digital Marketing Institute (DMI) Diploma",desc:"Industry-certified credential in paid search, conversion rate optimization, and CRM."},
@@ -1427,12 +1513,19 @@ const pathways=[
      ph:"UP Diliman, DLSU Manila, Ateneo de Manila",
      us:"Carnegie Mellon (BS in AI), Stanford, MIT, UC Berkeley, University of Washington",
      uk:"Oxford, Cambridge, UCL, Imperial College London",
-     global:"University of Toronto (Vector Institute), ETH Zurich, NTU, KAIST"
+     global:"University of Toronto (Vector Institute), ETH Zurich, NTU, KAIST",
+     india:"IIT Bombay / Delhi / Madras / Kanpur (Computer Science and AI), IISc Bengaluru (BS Research), IIIT Hyderabad (Computer Science and AI), BITS Pilani"
    },
    admission:"STEM Strand (Calculus, Linear Algebra, Python, Statistics), high analytical aptitude.",
-   tests:"UPCAT, DOST Merit Exam, SAT (Math 780+), AP Calculus BC.",
-   scholarships:"DOST AI Priority Grants, DeepMind AI Scholarships, Google Research Fellowships.",
+   tests:"Philippines: UPCAT, DOST Merit Exam, SAT (Math 780+), AP Calculus BC. India: JEE Main then JEE Advanced (the IIT computer-science route), IIIT Hyderabad UGEE or its own entrance test, IISc Bachelor of Science Research admission test, BITSAT.",
+   scholarships:"Philippines: DOST AI Priority Grants, DeepMind AI Scholarships, Google Research Fellowships. India: INSPIRE-SHE (DST), NSP Post-Matric Scholarships, IIT / IISc merit-cum-means aid, Prime Minister's Research Fellowship for later stages.",
    timeline:"Grade 11: Study Python & Linear Algebra; Grade 12 (Fall): University AI programs; (Spring): Research lab interviews.",
+   indiaRoutes:[
+     {title:"B.Tech Computer Science with an AI / ML specialisation via JEE",desc:"The mainstream IIT, NIT and IIIT route. Choose institutions with actual machine-learning faculty and lab access, not just an AI-branded programme title."},
+     {title:"BS Research at IISc Bengaluru",desc:"A four-year research-focused undergraduate degree at India's leading science institute, entered through its own admission test plus a strong Class 12 record."},
+     {title:"BSc Computer Science / Mathematics then MSc AI",desc:"A three-year base degree, then a specialised master's. Slower, but cheaper and often more flexible if the JEE result is not what you hoped for."},
+     {title:"NPTEL / IIT online certifications plus projects",desc:"Indian Institutes of Technology publish free certified courses in machine learning and deep learning. Combine them with published projects to build evidence of skill."}
+   ],
    routes:[
      {title:"4-Year BS in AI / Computer Science",desc:"Advanced neural architectures, reinforcement learning, computer vision, and academic research."},
      {title:"Deep Learning Specialization Track",desc:"Industry certifications (DeepLearning.AI, Fast.ai) with open-source HuggingFace models."},
@@ -1459,12 +1552,19 @@ const pathways=[
      ph:"UP Diliman (Political Science), Ateneo de Manila (POS), DLSU Manila (International Studies), Miriam College",
      us:"Georgetown University (Walsh SFS), Harvard (Kennedy School), Columbia (SIPA), Princeton",
      uk:"London School of Economics (LSE), Oxford (PPE), King's College London, Cambridge",
-     global:"Sciences Po (France), Geneva Graduate Institute (Switzerland), NUS LKYSPP"
+     global:"Sciences Po (France), Geneva Graduate Institute (Switzerland), NUS LKYSPP",
+     india:"Jawaharlal Nehru University New Delhi (International Studies), University of Delhi (Political Science), Ashoka University (Politics and International Relations), Symbiosis Pune (International Studies), Christ University Bengaluru"
    },
    admission:"HUMSS strand; outstanding writing, historical awareness, debate or MUN experience.",
-   tests:"College entrance exams; essay-writing and verbal aptitude evaluations.",
-   scholarships:"Foreign Service Institute Awards, Chevening Scholarships, Erasmus Mundus, Rotary Peace Fellowships.",
+   tests:"Philippines: College entrance exams; essay-writing and verbal aptitude evaluations. India: CUET-UG (BA Political Science / International Relations at Delhi University and most central universities), JNU Entrance Exam (JNUEE), Ashoka Aptitude Assessment, Symbiosis SET.",
+   scholarships:"Philippines: Foreign Service Institute Awards, Chevening Scholarships, Erasmus Mundus, Rotary Peace Fellowships. India: NSP Central Sector Scheme, JNU and Delhi University merit aid, Inlaks and J.N. Tata Endowment scholarships for later overseas study.",
    timeline:"Grade 11: Compete in Model UN (MUN) conferences; Grade 12 (Fall): Essay-intensive college apps; (Spring): Policy interviews.",
+   indiaRoutes:[
+     {title:"BA Political Science / International Studies via CUET-UG",desc:"Three-year degree at Delhi University or another central university. The standard and most cost-effective entry into the field."},
+     {title:"JNU School of International Studies",desc:"India's most established centre for international studies, entered through the JNU entrance exam. Strong research and policy orientation."},
+     {title:"Indian Foreign Service via the UPSC Civil Services Examination",desc:"The government diplomatic route. A degree alone is not enough — plan for the UPSC exam as a separate, demanding goal."},
+     {title:"Policy think tank or NGO internship track",desc:"Research assistantships at organisations such as ORF or CPR, plus a bachelor's degree. Builds a policy portfolio without an exam-driven route."}
+   ],
    routes:[
      {title:"4-Year University Degree in IR / PolSci",desc:"Comprehensive geopolitical history, international law, treaty analysis, and foreign diplomacy."},
      {title:"Foreign Service Exam Track",desc:"Specialized diplomatic preparation for civil service and embassy career appointments."},
@@ -1491,12 +1591,19 @@ const pathways=[
      ph:"DLSU Manila (Mechatronics Engineering), Mapúa University, Batangas State University, UP Diliman",
      us:"Carnegie Mellon, MIT, Georgia Tech, Worcester Polytechnic Institute (WPI)",
      uk:"Imperial College London, University of Bristol, Sheffield, Southampton",
-     global:"TU Munich, ETH Zurich, Tokyo Institute of Technology, SUTD"
+     global:"TU Munich, ETH Zurich, Tokyo Institute of Technology, SUTD",
+     india:"IIT Bombay / Delhi / Kharagpur (Mechanical and Electrical with robotics focus), IISc Bengaluru (Robert Bosch Centre for Cyber-Physical Systems), NIT Trichy / Surathkal, VIT Vellore, Amrita Vishwa Vidyapeetham"
    },
    admission:"STEM Strand (Physics, Calculus, Electronics curiosity), hands-on technical dexterity.",
-   tests:"UPCAT, DOST-SEI Examination, SAT Math, Physics Olympiad.",
-   scholarships:"DOST Mechatronics Priority Scholarship, First Philippine Holdings Science Grants.",
+   tests:"Philippines: UPCAT, DOST-SEI Examination, SAT Math, Physics Olympiad. India: JEE Main then JEE Advanced for the IIT and NIT mechatronics and electrical routes, BITSAT, VITEEE, state CETs.",
+   scholarships:"Philippines: DOST Mechatronics Priority Scholarship, First Philippine Holdings Science Grants. India: INSPIRE-SHE (DST), NSP Post-Matric Scholarships, AICTE Pragati and Saksham scholarships, IIT / NIT merit-cum-means aid.",
    timeline:"Grade 11: Build hardware robotics projects; Grade 12 (Fall): Engineering applications; (Spring): Hardware project demos.",
+   indiaRoutes:[
+     {title:"B.Tech Mechatronics / Robotics via JEE",desc:"The standard engineering route at an IIT, NIT or private university. Check that the programme has a real robotics lab rather than only the title."},
+     {title:"B.Tech Electrical or Mechanical, then specialise",desc:"A broader engineering degree followed by robotics coursework or a master's. Keeps more doors open than a narrow undergraduate specialisation."},
+     {title:"Diploma in Electronics or Instrumentation then lateral entry",desc:"Three-year polytechnic route into industrial automation and maintenance work, with lateral entry into a B.Tech available later."},
+     {title:"Robotics competition track (e-Yantra, WRO, ABU ROBOCON)",desc:"India runs strong national robotics competitions. Visible hardware projects are what hiring managers and admission panels actually examine."}
+   ],
    routes:[
      {title:"4-5 Year Licensed Mechatronics Degree",desc:"Complete hardware-software integration leading to professional engineering licensure."},
      {title:"Industrial Automation TESDA NC II/III",desc:"Technical vocational certification in PLC programming and industrial robotic arms."},
@@ -1523,12 +1630,19 @@ const pathways=[
      ph:"De La Salle-CSB (BS-ISGD), CIIT College of Arts and Technology, FEU Tech, iACADEMY",
      us:"USC (Games), NYU Game Center, DigiPen Institute of Technology, University of Utah",
      uk:"Abertay University, Teesside University, Brunel University, Staffordshire",
-     global:"Vancouver Film School (Canada), Supinfogame (France), Tokyo Polytechnic"
+     global:"Vancouver Film School (Canada), Supinfogame (France), Tokyo Polytechnic",
+     india:"IIT Bombay (IDC School of Design), National Institute of Design (NID), Whistling Woods International Mumbai, L.V. Prasad Film and TV Academy Chennai, ICAT Design and Media College"
    },
    admission:"Creative portfolio, gaming aptitude, programming interest, narrative storytelling.",
-   tests:"Game pitch & portfolio review; university logical aptitude evaluations.",
-   scholarships:"Game Developers Association of the Philippines (GDAP) Grants, Epic Games MegaGrants.",
+   tests:"Philippines: Game pitch & portfolio review; university logical aptitude evaluations. India: UCEED (IIT design programmes), NID DAT, institute portfolio rounds at Whistling Woods and ICAT, plus general university entrance tests.",
+   scholarships:"Philippines: Game Developers Association of the Philippines (GDAP) Grants, Epic Games MegaGrants. India: NSP Post-Matric Scholarships, NID and IIT institute fee waivers, Aditya Birla and Sitaram Jindal Foundation scholarships.",
    timeline:"Grade 11: Join 48-hour Game Jams (itch.io); Grade 12 (Fall): Portfolio submissions; (Spring): Studio reviews.",
+   indiaRoutes:[
+     {title:"B.Des in Game Design via UCEED or NID DAT",desc:"IIT and NID design programmes now cover interaction and game design. Portfolio and design-aptitude scores decide admission."},
+     {title:"B.Tech / BSc Computer Science with a game development specialisation",desc:"Programming-first route into engine and gameplay code. Stronger for technical roles than an art-led degree."},
+     {title:"BFA Animation and Game Art",desc:"Art-side route covering 3D modelling, rigging and game-ready asset production at a film or design institute."},
+     {title:"Game jam and indie studio portfolio",desc:"India has an active indie scene and regular global game jams (GMTK, Ludum Dare). Shipped, playable games matter more than credentials in this field."}
+   ],
    routes:[
      {title:"4-Year Degree in Game Development",desc:"Deep training in physics engines, multiplayer networking, 3D shaders, and studio pipeline."},
      {title:"3D Asset & Animation Vocational Diploma",desc:"2-year intensive technical modeling, rigging, and character animation certificate."},
@@ -1555,12 +1669,19 @@ const pathways=[
      ph:"UP Diliman (School of Economics), De La Salle University, Ateneo de Manila, UST",
      us:"Wharton (Penn), University of Chicago, NYU Stern, Harvard, Columbia",
      uk:"London School of Economics (LSE), Cambridge, Oxford, Warwick, UCL",
-     global:"Bocconi University (Italy), University of St. Gallen (Switzerland), NUS, Melbourne"
+     global:"Bocconi University (Italy), University of St. Gallen (Switzerland), NUS, Melbourne",
+     india:"Indian Statistical Institute (Kolkata / Bengaluru), Delhi University (B.Com / Economics), St. Xavier's College Mumbai, Shri Ram College of Commerce Delhi, IIM Indore / Rohtak (IPM)"
    },
    admission:"ABM or STEM strand; advanced mathematical probability, economic curiosity, analytical rigor.",
-   tests:"UPCAT, DCAT, ACET; SAT Math, AP Micro/Macroeconomics.",
-   scholarships:"Bangko Sentral ng Pilipinas (BSP) Scholarships, CFA Institute Scholarships, Metrobank Foundation Aid.",
+   tests:"Philippines: UPCAT, DCAT, ACET; SAT Math, AP Micro/Macroeconomics. India: CUET-UG (B.Com / BA Economics at Delhi University and central universities), IPMAT (IIM integrated management), CA Foundation, ISI Admission Test for statistics-linked programmes, plus the Actuarial Common Entrance Test (ACET) if you choose actuarial science.",
+   scholarships:"Philippines: Bangko Sentral ng Pilipinas (BSP) Scholarships, CFA Institute Scholarships, Metrobank Foundation Aid. India: NSP Central Sector Scheme, IIM and Delhi University merit aid, Aditya Birla and Sitaram Jindal Foundation scholarships, Institute of Actuaries of India student concessions.",
    timeline:"Grade 11: Study financial news and Excel modeling; Grade 12 (Fall): University applications; (Spring): Finance scholarship filings.",
+   indiaRoutes:[
+     {title:"B.Com (Honours) via CUET-UG",desc:"Three-year commerce degree at Delhi University or another central university. The standard Indian route, and the base for most finance careers."},
+     {title:"BA Economics (Honours) via CUET-UG",desc:"More theory and mathematics than B.Com. Better preparation for a master's in economics or for quantitative analyst roles."},
+     {title:"CA / CFA professional qualification",desc:"Chartered Accountancy through the ICAI exam sequence, or the CFA charter, studied alongside or after a degree. Indian finance employers weight these heavily."},
+     {title:"Actuarial science via the ACET",desc:"Entrance to the Institute of Actuaries of India qualification. Extremely quantitative and exam-driven, with a small number of qualifiers each year."}
+   ],
    routes:[
      {title:"4-Year Economics / Finance Degree",desc:"Macro/microeconomics theory, quantitative econometrics, corporate valuation, and investment banking."},
      {title:"Actuarial Science Professional Track",desc:"Specialized mathematics degree preparing for international actuarial board examinations."},
@@ -1701,31 +1822,165 @@ function renderAnalysis(){
  </div>`;
 }
 
-function renderPathways(){
- $("#pathGrid").innerHTML=pathways.map(p=>`<article class="path-card">
-   <div class="path-card-media">
-     <img src="${p.img}" alt="${escapeHtml(p.name)}" loading="lazy" decoding="async" class="path-img" onerror="this.style.display='none'">
-     <span class="tag path-tag-overlay">${p.tag}</span>
-   </div>
-   <div class="path-card-body">
-     <h3>${p.icon} ${p.name}</h3>
-     <p class="reason">${p.reason}</p>
-     <div class="path-meta-rows">
-       <p><b>Core Skills:</b> ${p.skills}</p>
-       <p><b>Education:</b> ${p.edu}</p>
-       <p><b>Work Style:</b> ${p.work}</p>
-       <p><b style="color:#ba3b20">Challenges:</b> ${p.challenge}</p>
-       <p><b style="color:#22865c">30-Day Test:</b> ${p.experiment}</p>
-     </div>
-   </div>
-   <div class="path-actions">
-     <button class="small-btn save" onclick="toggleSave('${escapeHtml(p.name)}')">${state.saved.includes(p.name)?"✓ Saved":"♡ Save"}</button>
-     <button class="small-btn primary-btn" onclick="startExperimentFromPathway('${escapeHtml(p.name)}')">▶ Try this pathway</button>
-     <button class="small-btn" onclick="viewPathwayEd('${escapeHtml(p.name)}')">🎓 Unis</button>
-     <button class="small-btn" onclick="quickCompare('${escapeHtml(p.name)}')">⇄ Compare</button>
-   </div>
- </article>`).join("");
+/* ================================================================
+   WHY THIS APPEARED
+
+   The most important thing on a pathway card is not the description — it is
+   the reason it was put in front of the student. A generic blurb ("strong
+   alignment if you enjoy data") is shown to everyone and explains nothing.
+
+   So instead we compare the student's own accumulated signals against the
+   pathway's dimension profile and report which dimensions actually matched.
+   Both sides are real data: signals come from the questionnaire, dims come
+   from the pathway profile. Nothing here is invented for the copy.
+
+   Every dimension starts at a 1.0 baseline (see localAIState), so a signal
+   meaningfully above 1.0 is evidence, not noise. With no questionnaire
+   answered yet we say so plainly rather than fabricating a reason.
+   ================================================================ */
+const DIM_LABELS={
+  Analytical:"analysing information and solving quantitative problems",
+  Creative:"creating, designing and making original things",
+  People:"working with, explaining to and helping people",
+  Learning:"studying a subject deeply and building skill over time",
+  Curiosity:"investigating how things work and asking why"
+};
+const CAT_LABELS={
+  interests:"your interests", subjects:"your subject preferences",
+  problem:"your problem-solving answers", creativity:"your creative answers",
+  communication:"your communication answers", workstyle:"your working-style answers",
+  motivation:"your motivation answers", learning:"your learning answers",
+  pressure:"your answers about outside pressure", values:"your values answers"
+};
+
+function studentSignals(){
+  return (state.localAI&&state.localAI.signals)||null;
 }
+
+/* Is there enough evidence to reason from at all?
+
+   The signals ARE the evidence — every dimension starts at a 1.0 baseline and
+   only rises because the student answered something (see localSignalFromAnswer).
+   So if any dimension is meaningfully above baseline, there is real evidence to
+   explain from, regardless of how the answer log or answers object happen to be
+   populated (they can legitimately disagree after a restored session).
+
+   `hasAnsweredSome` exists only to distinguish "no data yet" from "data that
+   happens to sit at baseline", which must still read as not-enough-evidence. */
+function hasEvidence(){
+  const sig=studentSignals();
+  if(!sig) return false;
+  const a=state.localAI||{};
+  const answered=(a.history||[]).length + Object.keys(state.answers||{}).length;
+  if(!answered) return false;
+  return LOCAL_AI.dimensions.some(d=>Number(sig[d])>1.15);
+}
+
+/* Match a pathway's profile against the student's signals, best match first. */
+function pathwayEvidence(name){
+  const sig=studentSignals();
+  if(!sig) return null;
+  const profile=(LOCAL_AI.pathwayProfiles||[]).find(p=>p.name===name);
+  if(!profile||!profile.dims) return null;
+  const matched=Object.entries(profile.dims)
+    .map(([dim,weight])=>({dim,weight,value:Number(sig[dim])||1}))
+    .filter(x=>x.value>1.15)
+    .sort((a,b)=>(b.weight*b.value)-(a.weight*a.value))
+    .slice(0,3);
+  return {profile,matched};
+}
+
+/* The transparent "why this appeared" sentence. */
+function whyThisAppeared(name){
+  if(!hasEvidence()){
+    return {text:`No explanation yet — this list is in a default order. Answer the questionnaire and every pathway here will explain why it appeared, using your own answers.`,live:false};
+  }
+  const ev=pathwayEvidence(name);
+  if(!ev||!ev.matched.length){
+    return {text:`Listed for breadth rather than because your answers pointed at it. Your answers so far did not strongly match ${name}'s core work, so treat this as something to test rather than something recommended.`,live:true,weak:true};
+  }
+  const strongest=ev.matched[0];
+  const named=ev.matched.slice(0,2).map(m=>DIM_LABELS[m.dim]).filter(Boolean);
+  const cats=(ev.profile.cats||[]).map(c=>CAT_LABELS[c]).filter(Boolean);
+  const catText=cats.length?` This came mainly from ${cats.slice(0,2).join(" and ")}.`:"";
+  const list=named.length===2?`${named[0]} and ${named[1]}`:(named[0]||"the answers you gave");
+  return {
+    text:`You repeatedly showed ${list}.${catText} That pattern in your own answers is why this appeared — a reason to test the work, not a prediction that it will fit.`,
+    live:true, strongest:strongest.dim
+  };
+}
+
+/* The conditional alternative Part 4 asks for: "if you like X but dislike Y".
+   Built from the tradeoffs the profile already declares, so the caveat is
+   about the field rather than a guess about the student. */
+function alternativeIfLine(name){
+  const ev=pathwayEvidence(name);
+  if(!ev) return "";
+  const alts=(ev.profile.alt||[]).slice(0,3);
+  if(!alts.length) return "";
+  const friction=(ev.profile.tradeoffs||[])[0];
+  return friction
+    ? `If you like ${name} but dislike ${friction.toLowerCase()}, consider ${alts.join(", ")} instead.`
+    : `Related directions that share the same core work: ${alts.join(", ")}.`;
+}
+
+/* Order by evidence match, best-supported first. */
+function pathwaysByEvidence(){
+  if(!hasEvidence()) return pathways.slice();
+  return pathways.slice().sort((a,b)=>{
+    const ea=pathwayEvidence(a.name), eb=pathwayEvidence(b.name);
+    if(!ea&&!eb) return 0;
+    if(!ea) return 1;
+    if(!eb) return -1;
+    const sum=x=>x.matched.reduce((n,m)=>n+(m.weight*m.value),0);
+    return sum(eb)-sum(ea);
+  });
+}
+
+function renderPathways(){
+  const ordered=pathwaysByEvidence();
+  const evidence=hasEvidence();
+  const note=document.getElementById("pathwaysOrderNote");
+  if(note) note.innerHTML=evidence
+    ? "Ordered by how well your own answers matched each direction — <b>not</b> a ranking of which career is best. Every one of these is worth exploring; the order is evidence, not a verdict."
+    : "Currently in a default order — you have not answered the questionnaire yet, so nothing here is personalised. Once you answer, every card will explain why it appeared.";
+  const grid=$("#pathGrid");
+  if(grid) grid.innerHTML=ordered.map(p=>pathCardHtml(p,evidence)).join("");
+}
+
+function pathCardHtml(p,evidence){
+  const why=whyThisAppeared(p.name);
+  const altIf=evidence?alternativeIfLine(p.name):"";
+  const weakClass=why.weak?" why-weak":"";
+    return `<article class="path-card${weakClass}">
+     <div class="path-card-media">
+       <img src="${p.img}" alt="${escapeHtml(p.name)}" loading="lazy" decoding="async" class="path-img" onerror="this.style.display='none'">
+       <span class="tag path-tag-overlay">${p.tag}</span>
+     </div>
+     <div class="path-card-body">
+       <h3>${p.icon} ${p.name}</h3>
+       <div class="why-box">
+         <b class="why-label">Why this appeared</b>
+         <p>${escapeHtml(why.text)}</p>
+       </div>
+       <p class="reason muted">${escapeHtml(p.reason)}</p>
+       <div class="path-meta-rows">
+         <p><b>Core Skills:</b> ${p.skills}</p>
+         <p><b>Education:</b> ${p.edu}</p>
+         <p><b>Work Style:</b> ${p.work}</p>
+         <p><b style="color:#ba3b20">Challenges:</b> ${p.challenge}</p>
+         <p><b style="color:#22865c">30-Day Test:</b> ${p.experiment}</p>
+       </div>
+       ${altIf?`<div class="alt-if"><b>Consider instead</b><p>${escapeHtml(altIf)}</p></div>`:""}
+     </div>
+     <div class="path-actions">
+       <button class="small-btn save" onclick="toggleSave('${escapeHtml(p.name)}')">${state.saved.includes(p.name)?"✓ Saved":"♡ Save"}</button>
+       <button class="small-btn primary-btn" onclick="startExperimentFromPathway('${escapeHtml(p.name)}')">▶ Try this pathway</button>
+       <button class="small-btn" onclick="viewPathwayEd('${escapeHtml(p.name)}')">🎓 Unis</button>
+       <button class="small-btn" onclick="quickCompare('${escapeHtml(p.name)}')">⇄ Compare</button>
+     </div>
+    </article>`;
+  }
 
 function toggleSave(name){
  state.saved=state.saved.includes(name)?state.saved.filter(x=>x!==name):[...state.saved,name];
@@ -1914,6 +2169,10 @@ function renderEducation(targetName){
            <p style="font-size:12.5px;color:#45465e;margin:6px 0 0">${guide.universities.uk}</p>
          </div>
          <div style="background:#faf9fe;border:1px solid #e7e5f2;border-radius:14px;padding:14px">
+           <b style="color:#6c5ce7">🇮🇳 India</b>
+           <p style="font-size:12.5px;color:#45465e;margin:6px 0 0">${guide.universities.india||"Not yet documented for this pathway. Use the general India guidance below and verify against official sources."}</p>
+         </div>
+         <div style="background:#faf9fe;border:1px solid #e7e5f2;border-radius:14px;padding:14px">
            <b style="color:#6c5ce7">🌐 Global (Canada, Asia, Europe)</b>
            <p style="font-size:12.5px;color:#45465e;margin:6px 0 0">${guide.universities.global}</p>
          </div>
@@ -1950,6 +2209,20 @@ function renderEducation(targetName){
          `).join("")}
        </div>
      </div>
+
+     ${(guide.indiaRoutes||[]).length?`<div class="analysis-box full">
+       <span class="tag">INDIA ROUTES</span>
+       <h3 style="margin-top:10px">🇮🇳 Education Routes in India</h3>
+       <p class="muted" style="margin-top:6px">India runs on entrance examinations, and each of these is a genuinely different route into the same work — not a lesser version of the degree above. Entry cut-offs and exam patterns change every year, so verify against the current official brochure.</p>
+       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:10px">
+         ${guide.indiaRoutes.map(r=>`
+           <div style="background:#fff;border:1.5px solid #e8e6f3;border-radius:14px;padding:14px">
+             <b style="color:#5e50d9;font-size:13.5px;display:block;margin-bottom:4px">◈ ${r.title}</b>
+             <p style="font-size:12px;color:#6b6d82;margin:0;line-height:1.45">${r.desc}</p>
+           </div>
+         `).join("")}
+       </div>
+     </div>`:""}
    </div>
  `;
 }
@@ -1984,11 +2257,15 @@ function renderHistory(){
  `;
 }
 
-/* Pick the pathway the roadmap should be built around: the most recently
-   focused experiment, else the first saved pathway, else the first shown. */
+/* Pick the pathway the roadmap should be built around: the pathway that opened
+   the focused experiment, else the first saved pathway, else the first shown. */
 function activeRoadmapPathway(){
  const expKey=state.expFocus;
  if(expKey){
+  /* The pathway that actually opened this experiment wins, so a verdict the
+     student just recorded is never orphaned. */
+  const opened=(state.expPathway||{})[expKey];
+  if(opened) return opened;
   const savedHit=(state.saved||[]).find(n=>clusterForPathway(n)===expKey);
   if(savedHit) return savedHit;
   const aiHit=(state.aiResult?.pathways||[]).map(p=>p.name).find(n=>clusterForPathway(n)===expKey);
@@ -2007,6 +2284,35 @@ function pathwayRecord(name){
    -> Exams -> Projects -> Experiments -> Next steps. Each link is filled from
    real pathway/education data where we have it, and says plainly when the
    school must supply the specific detail. */
+
+/* What the experiment link says once the student has actually run it. The
+   roadmap is supposed to consume the exploration result rather than repeat the
+   invitation, so a recorded verdict changes both the Experiments and the Next
+   steps lines. An unfinished experiment keeps the original prompt. */
+function experimentChainLine(exp){
+ const s=(state.experiments||{})[exp.key]||{};
+ const days=(s.done||[]).length;
+ const answered=s.enjoyment!==null&&s.enjoyment!==undefined;
+ if(answered){
+  const verdict={yes:"you enjoyed the actual work",mixed:"you enjoyed only part of it",no:"you did not enjoy the actual work"}[s.enjoyment]||s.enjoyment;
+  return `Done — after ${days}/7 days you reported that ${verdict}. That result, not the experiment, is what the rest of this roadmap should be built on.`;
+ }
+ if(days){
+  return `${exp.title} — day ${days} of 7 recorded. Finish the week, then answer honestly whether you enjoyed the work.`;
+ }
+ return `${exp.title} — the 7-day exploration in the Experiments tab. Finish it, then answer honestly whether you enjoyed the work.`;
+}
+
+function nextStepForExperiment(exp){
+ const s=(state.experiments||{})[exp.key]||{};
+ const answered=s.enjoyment!==null&&s.enjoyment!==undefined;
+ if(answered){
+  if(s.enjoyment==="yes") return "You confirmed you want more of this work. Build a larger project in the same direction and check this pathway's prerequisite subjects before committing to a degree.";
+  if(s.enjoyment==="mixed") return "A mixed result is real information. Run the experiment for a neighbouring family before you commit, and compare the two verdicts.";
+  return "Ruling a direction out this early is progress, not failure. Pick a different pathway and start its day 1 — the second experiment tells you more than the first.";
+ }
+ return `Start day 1 of ${exp.title}, then update this roadmap with what you learned.`;
+}
 function roadmapChainRows(name){
  const p=pathwayRecord(name);
  const eg=p&&p.educationGuide?p.educationGuide:null;
@@ -2021,8 +2327,8 @@ function roadmapChainRows(name){
   "Universities": eg?`PH: ${eg.universities.ph}. US: ${eg.universities.us}. UK: ${eg.universities.uk}. Global: ${eg.universities.global}`:"University lists appear with the pathway's education guide. Verify every program against the current official prospectus.",
   "Exams": eg?eg.tests:`Entrance exams depend on your target country and pathway. Check official admissions pages for ${grade}.`,
   "Projects": `Build one portfolio piece that proves you can do this work — specific, finished, and showable to a stranger.`,
-  "Experiments": exp?`${exp.title} — the 7-day exploration in the Experiments tab. Finish it, then answer honestly whether you enjoyed the work.`:"Run a 7-day exploration from the Experiments tab before committing to a degree.",
-  "Next steps": exp?`Start day 1 of ${exp.title}, then update this roadmap with what you learned.`:`Pick a pathway, open its experiment, and begin day 1.`
+  "Experiments": exp?experimentChainLine(exp):"Run a 7-day exploration from the Experiments tab before committing to a degree.",
+  "Next steps": exp?nextStepForExperiment(exp):`Pick a pathway, open its experiment, and begin day 1.`
  };
  return chain.map((k,i)=>`<li class="chain-row"><span class="chain-num">${i+1}</span><div><b>${k}</b><p>${escapeHtml(String(val[k]||""))}</p></div></li>`).join("");
 }
@@ -2512,7 +2818,7 @@ function trackExperimentOpened(family){evidenceTrack(e=>{e.experimentsOpened=evi
 function trackExperimentDay(family,day){evidenceTrack(e=>{e.experimentDaysDone=[...(e.experimentDaysDone||[]).filter(x=>!(x[0]===family&&x[1]===day)),[family,day]]})}
 function trackReflection(family,enjoyment){evidenceTrack(e=>{e.reflections=[...(e.reflections||[]).filter(r=>r.family!==family),{family,enjoyment,at:Date.now()}]})}
 function trackFeedback(payload){evidenceTrack(e=>{e.feedback={...payload,at:Date.now()}})}
-/* A change log with no entries is itself a finding (METHODOLOGY.md §6). */
+/* A change log with no entries is itself a finding (docs/METHODOLOGY.md §6). */
 function trackChange(from,to){evidenceTrack(e=>{e.changeLog=[...(e.changeLog||[]),{date:evidenceToday(),from,to}]})}
 function resetEvidence(){try{localStorage.removeItem(EVIDENCE_STORE)}catch(e){}toast('Local usage evidence cleared.');try{renderEvidenceReadout()}catch(err){}}
 
@@ -2525,7 +2831,7 @@ function renderEvidenceReadout(){
  let s; try{s=evidenceSummary()}catch(e){return}
  const row=(label,value,note)=>`<div><b>${value}</b><small>${label}</small>${note?`<p class="muted" style="margin:4px 0 0;font-size:11px">${note}</p>`:""}</div>`;
  const noAnswerNote=s.reflections===0
-  ? 'No reflections yet. If nobody ever answers "I did not enjoy it", the question is being read as a test — see METHODOLOGY.md §6.'
+  ? 'No reflections yet. If nobody ever answers "I did not enjoy it", the question is being read as a test — see docs/METHODOLOGY.md §6.'
   : (s.ruledOut===0
      ? 'Nobody has ruled anything out yet. Watch this: a "No" is the most useful result the tool can produce.'
      : `Including ${s.ruledOut} honest "No" result${s.ruledOut===1?"":"s"} — directions sensibly ruled out early.`);

@@ -1,9 +1,14 @@
 // Render the generated favicon.ico back to a PNG so it can be visually checked.
 // Parses the ICO, picks the 48px image, and writes a PNG (no dependencies).
+// Reads and writes relative to the project root, whatever the current directory.
 import { readFileSync, writeFileSync } from "node:fs";
 import { deflateSync } from "node:zlib";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ico = readFileSync("favicon.ico");
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+const ico = readFileSync(resolve(ROOT, "favicon.ico"));
 const count = ico.readUInt16LE(4);
 
 let chosen = null;
@@ -85,5 +90,5 @@ const png = Buffer.concat([
   chunk("IDAT", deflateSync(raw)),
   chunk("IEND", Buffer.alloc(0)),
 ]);
-writeFileSync(".qa/favicon-preview.png", png);
-console.log("wrote .qa/favicon-preview.png", png.length, "bytes");
+writeFileSync(resolve(ROOT, "favicon-preview.png"), png);
+console.log("wrote favicon-preview.png", png.length, "bytes");

@@ -16,3 +16,10 @@ _site/
 # counterproductive to check this file into the repository.
 # Details at https://github.com/github/pages-gem/issues/768
 Gemfile.lock
+
+# QA / local artifacts — generated, never committed
+qa-result.json
+qa-result3.json
+favicon-preview.png
+srv.out.txt
+srv.err.txt

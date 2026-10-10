@@ -1,6 +1,27 @@
 // Post-cleanup regression: the app must still load, log in, and reject the old
 // admin credential. Also confirm no student-facing "1,000 bank" label remains.
-import { readFileSync } from "node:fs";
+import { readFileSync as _readFileSync } from "node:fs";
+import { dirname, resolve as _resolve, isAbsolute } from "node:path";
+import { fileURLToPath } from "node:url";
+
+// Tests live in tests/ but load the app from the project root, so they pass no
+// matter which directory they are run from. A bare app filename is resolved
+// against the root; an explicit path is left alone.
+const APP_ROOT = _resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const APP_FILES = new Set([
+  "index.html",
+  "styles.css",
+  "site-data.js",
+  "app_scratch.js",
+  "question-bank-spec.json",
+  "favicon.ico",
+  "favicon.png",
+]);
+const readFileSync = (p, ...rest) =>
+  _readFileSync(
+    typeof p === "string" && APP_FILES.has(p) ? _resolve(APP_ROOT, p) : p,
+    ...rest,
+  );
 import vm from "node:vm";
 
 const noop = () => {};

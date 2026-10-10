@@ -1,6 +1,11 @@
 // Generate favicon.ico (16/32/48) from the project's brand colour and glyph.
 // Pure Node: builds a BMP-in-ICO container. No dependencies.
+// Writes to the project root regardless of the current directory.
 import { writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const SIZES = [16, 32, 48];
 // Brand: purple rounded square #6c5ce7 with a white 4-point star.
@@ -92,7 +97,7 @@ for (const img of images) {
 }
 
 const ico = Buffer.concat([dir, ...entries, ...images.map((i) => i.data)]);
-writeFileSync("favicon.ico", ico);
+writeFileSync(resolve(ROOT, "favicon.ico"), ico);
 console.log(
   "favicon.ico written:",
   ico.length,

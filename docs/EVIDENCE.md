@@ -48,7 +48,7 @@ recorded as useful rather than as failure.
 
 **Nothing. No student has used this build.**
 
-No real-student testing has occurred (see `METHODOLOGY.md` §6). Every metric on
+No real-student testing has occurred (see `../docs/METHODOLOGY.md` §6). Every metric on
 this page is currently zero, and no claim about the method's validity is
 supported by evidence. Treat the rest of this document as instrumentation that
 is ready to be read, not as findings.

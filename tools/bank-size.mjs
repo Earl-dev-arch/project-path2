@@ -1,6 +1,11 @@
 // What is the real question-bank size? Report it so labels can be truthful.
+// Survives the app being launched from any directory.
 import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const noop = () => {};
 const el = new Proxy(
@@ -75,8 +80,8 @@ const sb = {
 sb.window = sb;
 sb.globalThis = sb;
 vm.createContext(sb);
-vm.runInContext(readFileSync("site-data.js", "utf8"), sb);
-vm.runInContext(readFileSync("app_scratch.js", "utf8"), sb);
+vm.runInContext(readFileSync(resolve(ROOT, "site-data.js"), "utf8"), sb);
+vm.runInContext(readFileSync(resolve(ROOT, "app_scratch.js"), "utf8"), sb);
 
 const bank = vm.runInContext("QUESTION_BANK", sb);
 const cats = vm.runInContext("categoryConfig", sb);
