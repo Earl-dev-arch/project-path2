@@ -1,5 +1,8 @@
-// Generate favicon.ico (16/32/48) from the project's brand colour and glyph.
-// Pure Node: builds a BMP-in-ICO container. No dependencies.
+// Generate favicon.ico (16/32/48/64) for the Your Path brand.
+// Artwork: a dark rounded square, a neon pink->violet border ring, and a
+// "YP" monogram in the same neon gradient. Pure Node: the shapes are simple
+// enough to rasterise here (point-to-segment distance keeps the strokes round),
+// and the result is packaged as a BMP-in-ICO container. No dependencies.
 // Writes to the project root regardless of the current directory.
 import { writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -7,45 +10,166 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-const SIZES = [16, 32, 48];
-// Brand: purple rounded square #6c5ce7 with a white 4-point star.
-const PURPLE = [0x6c, 0x5c, 0xe7];
-const WHITE = [0xff, 0xff, 0xff];
+const SIZES = [16, 32, 48, 64];
+const SUPERSAMPLE = 4; // render 4x then box-downsample for smooth edges
+
+// Neon brand gradient: pink -> violet -> blue.
+const NEON_PINK = [0xff, 0x2f, 0xd0];
+const NEON_VIOLET = [0xb4, 0x29, 0xf9];
+const NEON_BLUE = [0x7a, 0x5c, 0xff];
+const BG = [0x15, 0x0c, 0x28];
+
+const lerp = (a, b, t) => a + (b - a) * t;
+
+// Gradient runs top-left (pink) -> violet -> bottom-right (blue).
+function neon(x, y, w, h) {
+  const t = Math.min(1, Math.max(0, (x / w + y / h) / 2));
+  return t < 0.55
+    ? [0, 1, 2].map((i) => lerp(NEON_PINK[i], NEON_VIOLET[i], t / 0.55))
+    : [0, 1, 2].map((i) => lerp(NEON_VIOLET[i], NEON_BLUE[i], (t - 0.55) / 0.45));
+}
+
+// Distance from a point to a line segment — gives round stroke caps/joins.
+function segDist(px, py, ax, ay, bx, by) {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const len2 = dx * dx + dy * dy;
+  let t = len2 === 0 ? 0 : ((px - ax) * dx + (py - ay) * dy) / len2;
+  t = Math.min(1, Math.max(0, t));
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+
+// The "YP" monogram, mirroring the polygons used in favicon.svg so both files
+// draw the same mark. Y = two diagonals meeting a centre stem. P = a stem plus
+// a bowl, built as filled outlines in the same 64x64 design space.
+function glyphAreas() {
+  const areas = [];
+
+  // --- Y (one filled polygon) ---
+  areas.push({
+    kind: "poly",
+    pts: [
+      [13, 18], [19.6, 18], [24.1, 26.2], [28.6, 18], [35, 18],
+      [27, 32.3], [27, 46], [21.2, 46], [21.2, 32.3],
+    ],
+  });
+
+  // --- P: bowl, approximated as a closed capsule outline ---
+  const bowl = [];
+  const bcx = 47.4, bcy = 26.7, brx = 8.7, bry = 8.9;
+  for (let i = 0; i <= 28; i++) {
+    const a = -Math.PI / 2 + (i / 28) * Math.PI * 2;
+    bowl.push([bcx + brx * Math.cos(a), bcy + bry * Math.sin(a)]);
+  }
+  areas.push({ kind: "poly", pts: bowl });
+  areas.push({
+    kind: "poly",
+    pts: [[37, 18], [42.8, 18], [42.8, 46], [37, 46]],
+  });
+
+  // --- P bowl interior (cut out) ---
+  const hole = [];
+  const hcx = 47.4, hcy = 26.7, hrx = 4.3, hry = 4.3;
+  for (let i = 0; i <= 28; i++) {
+    const a = -Math.PI / 2 + (i / 28) * Math.PI * 2;
+    hole.push([hcx + hrx * Math.cos(a), hcy + hry * Math.sin(a)]);
+  }
+  areas.push({ kind: "hole", pts: hole });
+
+  return areas;
+}
+const AREAS = glyphAreas();
+
+// Standard even-odd point-in-polygon test.
+function inPoly(px, py, pts) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i];
+    const [xj, yj] = pts[j];
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+function inGlyph(gx, gy) {
+  let filled = false;
+  for (const area of AREAS) {
+    if (!inPoly(gx, gy, area.pts)) continue;
+    filled = area.kind !== "hole";
+  }
+  return filled;
+}
 
 function renderRGBA(size) {
+  const S = size * SUPERSAMPLE;
+  const acc = new Float32Array(S * S * 4);
+  const radius = S * 0.22;
+  const borderInset = S * 0.03;
+  const borderW = S * 0.05;
+
+  for (let y = 0; y < S; y++) {
+    for (let x = 0; x < S; x++) {
+      const px = x + 0.5;
+      const py = y + 0.5;
+
+      // Rounded-rect signed distance (negative inside).
+      const qx = Math.abs(px - S / 2) - (S / 2 - radius);
+      const qy = Math.abs(py - S / 2) - (S / 2 - radius);
+      const sd =
+        Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) +
+        Math.min(Math.max(qx, qy), 0) -
+        radius;
+
+      const a = sd > 0 ? 0 : sd > -1.2 ? Math.min(1, -sd / 1.2 + 0.5) : 1;
+      if (a <= 0) continue;
+
+      let col = BG;
+
+      // Neon border ring just inside the edge.
+      if (Math.abs(sd + borderInset + borderW / 2) < borderW / 2) {
+        col = neon(px, py, S, S);
+      }
+
+      // Monogram.
+      const gx = (px / S) * 64;
+      const gy = (py / S) * 64;
+      if (inGlyph(gx, gy)) col = neon(px, py, S, S);
+
+      const o = (y * S + x) * 4;
+      acc[o] = col[0];
+      acc[o + 1] = col[1];
+      acc[o + 2] = col[2];
+      acc[o + 3] = 255 * a;
+    }
+  }
+
+  // Box-downsample to the requested size, into BGRA (ICO byte order).
   const px = Buffer.alloc(size * size * 4);
-  const r = Math.max(2, Math.round(size * 0.16)); // corner radius
-  const inRoundedSquare = (x, y) => {
-    const cx = Math.min(x, size - 1 - x);
-    const cy = Math.min(y, size - 1 - y);
-    if (cx >= r || cy >= r) return true;
-    const dx = r - cx,
-      dy = r - cy;
-    return dx * dx + dy * dy <= r * r;
-  };
-  const c = (size - 1) / 2;
-  const outer = size * 0.42; // star long radius
-  const inner = size * 0.14; // star waist
-  const inStar = (x, y) => {
-    const dx = x - c,
-      dy = y - c;
-    // 4-point star: |dx|^0.5 + |dy|^0.5 <= k  (concave diamond)
-    const k = Math.pow(outer, 0.5) * 0.92;
-    return Math.pow(Math.abs(dx), 0.5) + Math.pow(Math.abs(dy), 0.5) <= k;
-  };
+  const n = SUPERSAMPLE * SUPERSAMPLE;
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
+      let r = 0, g = 0, b = 0, a = 0;
+      for (let sy = 0; sy < SUPERSAMPLE; sy++) {
+        for (let sx = 0; sx < SUPERSAMPLE; sx++) {
+          const o = ((y * SUPERSAMPLE + sy) * S + (x * SUPERSAMPLE + sx)) * 4;
+          const av = acc[o + 3] / 255;
+          r += acc[o] * av;
+          g += acc[o + 1] * av;
+          b += acc[o + 2] * av;
+          a += av;
+        }
+      }
       const i = (y * size + x) * 4;
-      if (!inRoundedSquare(x, y)) {
-        px[i + 3] = 0;
+      if (a === 0) {
+        px[i] = px[i + 1] = px[i + 2] = px[i + 3] = 0;
         continue;
       }
-      const star = inStar(x, y);
-      const col = star ? WHITE : PURPLE;
-      px[i] = col[2];
-      px[i + 1] = col[1];
-      px[i + 2] = col[0];
-      px[i + 3] = 255; // BGRA
+      px[i] = Math.round(b / a); // B
+      px[i + 1] = Math.round(g / a); // G
+      px[i + 2] = Math.round(r / a); // R
+      px[i + 3] = Math.round((a / n) * 255); // A
     }
   }
   return px;

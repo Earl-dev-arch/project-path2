@@ -20,6 +20,9 @@ Gemfile.lock
 # QA / local artifacts — generated, never committed
 qa-result.json
 qa-result3.json
+verify-account-recall.json
+verify-flags.json
+drive-result.json
 favicon-preview.png
 srv.out.txt
 srv.err.txt

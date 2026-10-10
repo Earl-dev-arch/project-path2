@@ -469,9 +469,33 @@ function openSignup(){
     window.resetConsentGate();
   }
   openModal("signupModal");
+  prefillSignupForm();
 }
 window.openLogin=openLogin;
 window.openSignup=openSignup;
+
+/* Remember who last used this browser to create an account.
+   The name/email/phone/country/grade/age/school that were submitted are kept
+   so that openSignup() can prefill the form on the next visit — making a
+   second account on the same email a couple of clicks instead of retyping
+   everything. The password is deliberately never stored. */
+function lastSignupDetails(){
+  try{return JSON.parse(localStorage.getItem("yp_last_signup_v3")||"null")}catch(e){return null}
+}
+function prefillSignupForm(){
+  const form=document.getElementById("signupForm");
+  if(!form)return;
+  const remembered=lastSignupDetails();
+  if(!remembered)return;
+  Object.keys(remembered).forEach(key=>{
+    const field=form.elements[key];
+    if(field&&!field.value) field.value=remembered[key];
+  });
+  const emailField=form.elements.email;
+  if(emailField&&emailField.value){
+    emailField.setAttribute("data-remembered-email","1");
+  }
+}
 
 function switchAuth(type){
   if(type==="signup") openSignup();
@@ -2117,6 +2141,25 @@ function renderCompare(){
  $("#compare").innerHTML=selectorHtml+tableHtml;
 }
 
+/* One card in "Target Universities & Programs".
+   The flag is an SVG sprite from lipis/flag-icons — an empty <span> whose
+   class carries the ISO 3166-1 alpha-2 code (Wikipedia keeps the canonical
+   list). No emoji flags, so the rendering is identical on every OS. */
+function countryFlag(code){
+  return `<span class="fi fis fi-${escapeHtml(String(code||'').toLowerCase())} country-flag" aria-hidden="true"></span>`;
+}
+function countryProgramCard({code,name,universities,exams}){
+  const uni=universities||"Not yet documented for this pathway. Verify against official sources before relying on it.";
+  const test=exams||"University-specific entrance examinations.";
+  return `<div class="country-card">
+    <div class="country-card-head">${countryFlag(code)}<b>${escapeHtml(name)}</b></div>
+    <p class="country-card-label">Universities & Programs</p>
+    <p class="country-card-text">${escapeHtml(uni)}</p>
+    <p class="country-card-label">Entrance Tests</p>
+    <p class="country-card-text">${escapeHtml(test)}</p>
+  </div>`;
+}
+
 function renderEducation(targetName){
  const pName=targetName||state.eduPathway||pathways[0].name;
  state.eduPathway=pName;
@@ -2162,26 +2205,46 @@ function renderEducation(targetName){
        <span class="tag">GLOBAL & LOCAL PROGRAMS</span>
        <h3 style="margin-top:10px">Target Universities & Programs</h3>
        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:10px">
-         <div style="background:#faf9fe;border:1px solid #e7e5f2;border-radius:14px;padding:14px">
-           <b style="color:#6c5ce7">🇵🇭 Philippines</b>
-           <p style="font-size:12.5px;color:#45465e;margin:6px 0 0">${guide.universities.ph}</p>
-         </div>
-         <div style="background:#faf9fe;border:1px solid #e7e5f2;border-radius:14px;padding:14px">
-           <b style="color:#6c5ce7">🇺🇸 United States</b>
-           <p style="font-size:12.5px;color:#45465e;margin:6px 0 0">${guide.universities.us}</p>
-         </div>
-         <div style="background:#faf9fe;border:1px solid #e7e5f2;border-radius:14px;padding:14px">
-           <b style="color:#6c5ce7">🇬🇧 United Kingdom</b>
-           <p style="font-size:12.5px;color:#45465e;margin:6px 0 0">${guide.universities.uk}</p>
-         </div>
-         <div style="background:#faf9fe;border:1px solid #e7e5f2;border-radius:14px;padding:14px">
-           <b style="color:#6c5ce7">🇮🇳 India</b>
-           <p style="font-size:12.5px;color:#45465e;margin:6px 0 0">${guide.universities.india||"Not yet documented for this pathway. Use the general India guidance below and verify against official sources."}</p>
-         </div>
-         <div style="background:#faf9fe;border:1px solid #e7e5f2;border-radius:14px;padding:14px">
-           <b style="color:#6c5ce7">🌐 Global (Canada, Asia, Europe)</b>
-           <p style="font-size:12.5px;color:#45465e;margin:6px 0 0">${guide.universities.global}</p>
-         </div>
+         ${countryProgramCard({
+           code:"ph", name:"Philippines",
+           universities:guide.universities.ph,
+           exams:guide.testsPhilippines||guide.tests
+         })}
+         ${countryProgramCard({
+           code:"us", name:"United States",
+           universities:guide.universities.us,
+           exams:guide.testsUnitedStates||guide.tests
+         })}
+         ${countryProgramCard({
+           code:"gb", name:"United Kingdom",
+           universities:guide.universities.uk,
+           exams:guide.testsUnitedKingdom||guide.tests
+         })}
+         ${countryProgramCard({
+           code:"in", name:"India",
+           universities:guide.universities.india||"Not yet documented for this pathway. Use the general India guidance below and verify against official sources.",
+           exams:guide.testsIndia||guide.tests
+         })}
+         ${countryProgramCard({
+           code:"ca", name:"Canada",
+           universities:guide.universities.canada||guide.universities.global,
+           exams:guide.testsInternational||guide.tests
+         })}
+         ${countryProgramCard({
+           code:"sg", name:"Singapore",
+           universities:guide.universities.singapore||guide.universities.global,
+           exams:guide.testsInternational||guide.tests
+         })}
+         ${countryProgramCard({
+           code:"au", name:"Australia",
+           universities:guide.universities.australia||guide.universities.global,
+           exams:guide.testsInternational||guide.tests
+         })}
+         ${countryProgramCard({
+           code:"eu", name:"Europe (EU)",
+           universities:guide.universities.europe||guide.universities.global,
+           exams:guide.testsInternational||guide.tests
+         })}
        </div>
      </div>
 
@@ -2218,7 +2281,7 @@ function renderEducation(targetName){
 
      ${(guide.indiaRoutes||[]).length?`<div class="analysis-box full">
        <span class="tag">INDIA ROUTES</span>
-       <h3 style="margin-top:10px">🇮🇳 Education Routes in India</h3>
+       <h3 style="margin-top:10px;display:flex;align-items:center;gap:9px">${countryFlag("in")} Education Routes in India</h3>
        <p class="muted" style="margin-top:6px">India runs on entrance examinations, and each of these is a genuinely different route into the same work — not a lesser version of the degree above. Entry cut-offs and exam patterns change every year, so verify against the current official brochure.</p>
        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:10px">
          ${guide.indiaRoutes.map(r=>`
@@ -2548,14 +2611,28 @@ $('#signupForm').onsubmit=async e=>{
  if(!d.password||d.password.length<6){toast('Please choose a password with at least 6 characters.');return;}
  state.accounts=state.accounts||{};
  if(state.accounts[email]){
-  toast('An account with this email already exists. Please log in.');
+  /* This email is already registered. Don't drop the student back on an empty
+    form — take them to login with the email already filled in, and tell them
+    which account (and who created it) they are signing back into. */
+  const known=state.accounts[email];
+  const createdBy=known.creatorEmail||known.email||email;
+  state.user={...known,creatorEmail:createdBy};
+  if(!state.user.role)state.user.role='student';
+  saveState();
+  updateUI();
+  toast('An account with this email already exists — logging you in.');
   openLogin();
+  const loginEmail=document.querySelector("#loginForm input[name='email']");
+  if(loginEmail) loginEmail.value=email;
   return;
  }
- state.user={...d,email,role:'student',createdAt:Date.now()};
+ state.user={...d,email,role:'student',createdAt:Date.now(),creatorEmail:email};
  state.accounts[email]=state.user;
  state.answers={};
  state.saved=[];
+ /* Remember who created this account so returning here to make another one
+   is not a hassle: the signup form is prefilled with these details. */
+ try{localStorage.setItem('yp_last_signup_v3',JSON.stringify({name:d.name||'',email,phone:d.phone||'',country:d.country||'',grade:d.grade||'',age:d.age||'',school:d.school||''}));}catch(err){}
  saveState();
  closeModal('signupModal');
  closeModal('authModal');
