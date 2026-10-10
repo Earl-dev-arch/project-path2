@@ -289,6 +289,31 @@ function newSession(){
  state.answers={};state.qIndex=0;saveState();
  try{trackSessionStarted()}catch(e){}
 }
+let _dbSyncTimeout = null;
+function syncProgressToDatabase(){
+  if(!state.user || (!state.user.id && !state.user.email)) return;
+  clearTimeout(_dbSyncTimeout);
+  _dbSyncTimeout = setTimeout(async ()=>{
+    try {
+      await fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: state.user.id,
+          email: state.user.email,
+          answers: state.answers,
+          saved: state.saved,
+          savedNotes: state.savedNotes,
+          experiments: state.experiments,
+          session: state.session,
+          qIndex: state.qIndex
+        })
+      });
+    } catch(err) {
+      /* Graceful offline fallback */
+    }
+  }, 400);
+}
 function saveState(){
  localStorage.setItem(STORE.user,JSON.stringify(state.user));
  localStorage.setItem(STORE.answers,JSON.stringify(state.answers));
@@ -298,6 +323,7 @@ function saveState(){
  localStorage.setItem(STORE.history,JSON.stringify(state.history));
  localStorage.setItem(STORE.savedNotes,JSON.stringify(state.savedNotes));
  localStorage.setItem(STORE.experiments,JSON.stringify(state.experiments));
+ syncProgressToDatabase();
 }
 function sessionQuestions(){return state.session?.ids?.map(id=>QUESTION_BANK.find(q=>q.id===id)).filter(Boolean)||[]}
 function ensureSession(){if(!state.session||state.session.ids?.length!==20)newSession()}
@@ -690,43 +716,62 @@ function showAuthLoader(configOrTitle, subtitle, onComplete){
  }, 2000);
 }
 
-$("#signupForm").onsubmit=e=>{
+$("#signupForm").onsubmit=async e=>{
  e.preventDefault();
  const d=Object.fromEntries(new FormData(e.target).entries());
  if(!d.password || d.password.length < 6){
    toast("Please choose a password with at least 6 characters.");
    return;
  }
- if(state.accounts && state.accounts[d.email]){
-   toast("An account with this email already exists. Please log in.");
-   openLogin();
-   return;
- }
- const newUser={
-   name:d.name,
-   email:d.email,
-   password:d.password,
-   phone:d.phone||"",
-   country:d.country||"Philippines (+63)",
-   grade:d.grade||"Grade 10",
-   age:d.age||"",
-   school:d.school||"",
-   targetCountry:d.targetCountry||"Domestic / Home Country",
-   budget:d.budget||"Full scholarship needed",
-   goals:d.goals||"",
-   role:"student",
-   createdAt:Date.now()
+
+ const payload = {
+   name: d.name,
+   email: d.email,
+   password: d.password,
+   phone: d.phone||"",
+   country: d.country||"Philippines (+63)",
+   grade: d.grade||"Grade 10",
+   age: d.age||"",
+   school: d.school||"",
+   targetCountry: d.targetCountry||"Domestic / Home Country",
+   budget: d.budget||"Full scholarship needed",
+   goals: d.goals||"",
+   role: "student"
  };
- state.accounts=state.accounts||{};
- state.accounts[d.email]=newUser;
- state.user=newUser;
- state.answers={};
+
+ let registeredUser = null;
+ try {
+   const res = await fetch('/api/auth/signup', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify(payload)
+   });
+   const resData = await res.json();
+   if (!res.ok) {
+     toast(resData.error || "Failed to create account.");
+     if (res.status === 409) openLogin();
+     return;
+   }
+   registeredUser = resData.user;
+ } catch(err) {
+   if(state.accounts && state.accounts[d.email]){
+     toast("An account with this email already exists. Please log in.");
+     openLogin();
+     return;
+   }
+   registeredUser = { ...payload, createdAt: Date.now() };
+ }
+
+ state.accounts = state.accounts || {};
+ state.accounts[registeredUser.email] = registeredUser;
+ state.user = registeredUser;
+ state.answers = {};
  newSession();
  saveState();
  closeModal("signupModal");
  closeModal("authModal");
 
- const firstName=newUser.name ? newUser.name.trim().split(" ")[0] : "Student";
+ const firstName = registeredUser.name ? registeredUser.name.trim().split(" ")[0] : "Student";
  showAuthLoader({
    mode:"signup",
    badge:"ACCOUNT REGISTRATION",
@@ -740,40 +785,79 @@ $("#signupForm").onsubmit=e=>{
        document.getElementById("journeyBoard")?.scrollIntoView({behavior:"smooth",block:"start"});
        document.getElementById("journeyQuestionnaire")?.classList.add("current");
      });
-     toast(`Account created for ${newUser.name}! Welcome to Your Path.`);
+     toast(`Account created for ${registeredUser.name}! Welcome to Your Path.`);
    }
  });
 };
 
-$("#loginForm").onsubmit=e=>{
+$("#loginForm").onsubmit=async e=>{
  e.preventDefault();
  const d=Object.fromEntries(new FormData(e.target).entries());
- /* No hard-coded admin credentials and no client-side role bypass.
-    Roles must be granted by a server; in this browser-only build every
-    account is a student. */
- if(state.accounts && state.accounts[d.email]){
-   if(state.accounts[d.email].password===d.password){
-     state.user=state.accounts[d.email];
-   } else {
-     toast("Incorrect password for this account. Please try again.");
+ 
+ let loggedInUser = null;
+ let fetchedProgress = null;
+
+ try {
+   const res = await fetch('/api/auth/login', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ email: d.email, password: d.password })
+   });
+   const resData = await res.json();
+   if (!res.ok) {
+     toast(resData.error || "Login failed.");
      return;
    }
- } else {
-  /* The email is not a registered account, so login must refuse it. The only
-    exception is an account that exists in the current session but was never
-    written to state.accounts — made by a server or an older build — and even
-    then the password must match what that session already holds. */
-  const sessionUser=state.user;
-  const sameUnregistered=sessionUser&&sessionUser.email===d.email&&sessionUser.password&&sessionUser.password===d.password;
-  if(sameUnregistered){
-    state.accounts=state.accounts||{};
-    state.accounts[d.email]=sessionUser;
-  } else {
-    toast("No account found for that email. Please sign up first.");
-    openSignup();
-    return;
-  }
+   loggedInUser = resData.user;
+   fetchedProgress = resData.progress;
+ } catch(err) {
+   if(state.accounts && state.accounts[d.email]){
+     if(state.accounts[d.email].password===d.password){
+       loggedInUser = state.accounts[d.email];
+     } else {
+       toast("Incorrect password for this account. Please try again.");
+       return;
+     }
+   } else {
+     const sessionUser=state.user;
+     const sameUnregistered=sessionUser&&sessionUser.email===d.email&&sessionUser.password&&sessionUser.password===d.password;
+     if(sameUnregistered){
+       state.accounts=state.accounts||{};
+       state.accounts[d.email]=sessionUser;
+       loggedInUser = sessionUser;
+     } else {
+       toast("No account found for that email. Please sign up first.");
+       openSignup();
+       return;
+     }
+   }
  }
+
+ state.user = loggedInUser;
+ state.accounts = state.accounts || {};
+ state.accounts[loggedInUser.email] = loggedInUser;
+
+ if (fetchedProgress) {
+   if (fetchedProgress.answers && Object.keys(fetchedProgress.answers).length > 0) {
+     state.answers = fetchedProgress.answers;
+   }
+   if (fetchedProgress.saved && Array.isArray(fetchedProgress.saved)) {
+     state.saved = fetchedProgress.saved;
+   }
+   if (fetchedProgress.savedNotes && typeof fetchedProgress.savedNotes === 'object') {
+     state.savedNotes = fetchedProgress.savedNotes;
+   }
+   if (fetchedProgress.experiments && typeof fetchedProgress.experiments === 'object') {
+     state.experiments = fetchedProgress.experiments;
+   }
+   if (fetchedProgress.session && fetchedProgress.session.ids) {
+     state.session = fetchedProgress.session;
+   }
+   if (typeof fetchedProgress.qIndex === 'number') {
+     state.qIndex = fetchedProgress.qIndex;
+   }
+ }
+
  ensureSession();
  saveState();
  closeModal("loginModal");
@@ -2457,11 +2541,21 @@ function loadProfile(){
 
 $("#profile").onsubmit=e=>{
  e.preventDefault();
- state.user={...state.user,...Object.fromEntries(new FormData(e.target).entries())};
+ const updatedData = Object.fromEntries(new FormData(e.target).entries());
+ state.user={...state.user,...updatedData};
  if(state.accounts && state.user.email){
    state.accounts[state.user.email]={...state.accounts[state.user.email],...state.user};
  }
- saveState();updateUI();toast("Student profile & preferences updated.");
+ saveState();
+ updateUI();
+ toast("Student profile & preferences updated.");
+ if(state.user){
+   fetch('/api/user/profile', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ userId: state.user.id, email: state.user.email, ...updatedData })
+   }).catch(()=>{});
+ }
 };
 
 $("#feedback").onsubmit=e=>{
@@ -2478,6 +2572,27 @@ $("#cookieSettings").onclick=()=>$("#cookie").style.display="flex";
 if(localStorage.getItem(STORE.cookie))$("#cookie").style.display="none";
 
 ensureSession();updateUI();renderQuestion();
+
+async function refreshCloudProgress(){
+  if(!state.user || (!state.user.id && !state.user.email)) return;
+  try {
+    const userId = state.user.id || state.user.email;
+    const res = await fetch(`/api/progress/${encodeURIComponent(userId)}`);
+    if(res.ok) {
+      const fetched = await res.json();
+      if(fetched && (fetched.answers || fetched.saved)) {
+        if(fetched.answers && Object.keys(fetched.answers).length > 0) state.answers = fetched.answers;
+        if(fetched.saved && Array.isArray(fetched.saved)) state.saved = fetched.saved;
+        if(fetched.savedNotes && typeof fetched.savedNotes === 'object') state.savedNotes = fetched.savedNotes;
+        if(fetched.experiments && typeof fetched.experiments === 'object') state.experiments = fetched.experiments;
+        if(fetched.session && fetched.session.ids) state.session = fetched.session;
+        if(typeof fetched.qIndex === 'number') state.qIndex = fetched.qIndex;
+        updateUI();
+      }
+    }
+  } catch(e){}
+}
+refreshCloudProgress();
 
 window.newQuestionSession=()=>{newSession();renderQuestion();toast("New 20-question session generated.")};
 window.retakeQuestionnaire=retakeQuestionnaire;
