@@ -32,7 +32,7 @@ project-path2/
 
 You can use **Neon** (or Supabase, Render, Aiven) which provides a free managed PostgreSQL database with **no credit card required**:
 
-1. Go to [https://neon.tech](https://neon.tech) and sign up (or sign in with GitHub/Google).
+1. Go to [https://neon.tech](npm install) and sign up (or sign in with GitHub/Google).
 2. Click **Create Project** (e.g., name it `your-path-db`).
 3. Neon will instantly display your **Connection String / URI**. It looks like this:
    ```text
