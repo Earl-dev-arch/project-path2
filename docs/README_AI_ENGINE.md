@@ -6,7 +6,7 @@ The questionnaire and dashboard are driven by a small explainable AI engine writ
 
 ## What the local AI does
 
-- Uses the existing 1,000-question bank.
+
 - Selects the first question with weighted randomness.
 - Chooses every later question adaptively from the student's answers.
 - Prioritizes dimensions where the AI has less evidence.
