@@ -236,20 +236,15 @@
     <div class="journey-title"><span>HOW IT WORKS</span><b>STUDENT JOURNEY</b></div>
     <div class="journey-steps">
       <article class="journey-step complete" id="journeyRegister"><div class="step-num">1</div><div><small>REGISTER</small><h3>Create your account</h3><p id="journeyProfileText">Your profile is ready.</p><button class="journey-btn" data-tab="profile">Edit profile</button></div></article>
-      <div class="journey-arrow">→</div>
       <article class="journey-step" id="journeyQuestionnaire"><div class="step-num">2</div><div><small>DEEP QUESTIONNAIRE</small><h3 id="journeyQTitle">20 questions</h3><p id="journeyQText">Explore your genuine interests, preferences and motivations.</p><button class="journey-btn primary" data-tab="questionnaire">Start questionnaire</button></div></article>
-      <div class="journey-arrow">→</div>
       <article class="journey-step" id="journeyAnalysis"><div class="step-num">3</div><div><small>AI ANALYSIS</small><h3 id="journeyATitle">Waiting for answers</h3><p id="journeyAText">Your responses will be checked for patterns, contradictions and uncertainty.</p><button class="journey-btn" data-tab="analysis">View analysis</button></div></article>
-      <div class="journey-arrow">→</div>
       <article class="journey-step" id="journeyPathways"><div class="step-num">4</div><div><small>PATHWAYS</small><h3>Several directions</h3><p>Explore multiple possible education and career routes.</p><button class="journey-btn" data-tab="pathways">Explore pathways</button></div></article>
-      <div class="journey-arrow">→</div>
-      <article class="journey-step" id="journeyRoadmap"><div class="step-num">5</div><div><small>ROADMAP</small><h3>Your next steps</h3><p>School → skills → education → career, based on your stage.</p><button class="journey-btn" data-tab="roadmaps">Build roadmap</button></div></article>
-      <div class="journey-arrow">→</div>
+      <article class="journey-step" id="journeyRoadmap"><div class="step-num">5</div><div><small>ROADMAP</small><h3>Your next steps</h3><p>School, skills, education and career, based on your stage.</p><button class="journey-btn" data-tab="roadmaps">Build roadmap</button></div></article>
       <article class="journey-step" id="journeyAction"><div class="step-num">6</div><div><small>TAKE ACTION & TRACK</small><h3>Today’s action</h3><p id="journeyActionText">Start with one small experiment and keep track of what you learn.</p><button class="journey-btn" data-tab="roadmaps">View actions</button></div></article>
     </div>
   </div>
   <div class="stats"><div><b id="completion">0%</b><small>Questionnaire</small></div><div><b>16</b><small>Pathways to explore</small></div><div><b id="savedCount">0</b><small>Saved pathways</small></div><div><b id="historyCount">0</b><small>Completed analyses</small></div></div>
-  <div class="dash-grid"><div class="card"><div class="card-title"><h3>Your pathway set</h3><button class="link" data-tab="pathways">View all →</button></div><div id="topPaths"></div></div><div class="card"><div class="interest-head"><h3>Your interest map</h3><span id="interestStatus" class="interest-status">Complete the questionnaire</span></div><div class="radar" id="interestRadar"><div class="radar-grid"></div><div class="radar-fill" id="radarFill"></div><span>Analytical</span><span>Creative</span><span>People</span><span>Learning</span><span>Curiosity</span></div><div class="interest-bars" id="interestBars"></div></div><div class="card"><h3>External pressure check</h3><p class="muted">This is a reflection indicator, not a claim about what you think.</p><div class="pressure"><p><span>Parental expectations</span><b>Medium</b></p><p><span>Peer influence</span><b>Low</b></p><p><span>Status / salary</span><b>Low</b></p></div></div></div>
+  <div class="dash-grid"><div class="card"><div class="card-title"><h3>Your pathway set</h3><button class="link" data-tab="pathways">View all</button></div><div id="topPaths"></div></div><div class="card"><div class="interest-head"><h3>Your interest map</h3><span id="interestStatus" class="interest-status">Complete the questionnaire</span></div><div class="radar" id="interestRadar"><div class="radar-grid"></div><div class="radar-fill" id="radarFill"></div><span>Analytical</span><span>Creative</span><span>People</span><span>Learning</span><span>Curiosity</span></div><div class="interest-bars" id="interestBars"></div></div><div class="card"><h3>External pressure check</h3><p class="muted">This is a reflection indicator, not a claim about what you think.</p><div class="pressure"><p><span>Parental expectations</span><b>Medium</b></p><p><span>Peer influence</span><b>Low</b></p><p><span>Status / salary</span><b>Low</b></p></div></div></div>
   <div class="quick">
     <button onclick="retakeQuestionnaire()">
       <span class="quick-icon-wrap">
@@ -296,7 +291,7 @@
   <div id="educationContainer"></div>
 </div>
 
-<div class="tab" id="tab-roadmaps"><div class="tab-head"><div><span class="eyebrow">ROADMAP</span><h2>School ➪ skills ➪ education ➪ career.</h2><p id="roadmapGrade"></p></div></div><div id="roadmap"></div></div>
+<div class="tab" id="tab-roadmaps"><div class="tab-head"><div><span class="eyebrow">ROADMAP</span><h2>School, skills, education, career.</h2><p id="roadmapGrade"></p></div></div><div id="roadmap"></div></div>
 
 <div class="tab" id="tab-experiments">
   <div class="tab-head"><div><span class="eyebrow">CAREER EXPERIMENTS</span><h2>Try the work before you commit to it.</h2><p>A pathway is not something you "might like" — it is something you test. Each experiment below is a 7-day exploration you can finish this month, using free tools, ending with the only question that matters: <b>did you enjoy the actual work?</b></p></div></div>
@@ -376,7 +371,7 @@
           <li><b>Support email</b><a href="mailto:support@yourpath.demo">support@yourpath.demo</a></li>
           <li><b>Feedback & partnerships</b><a href="mailto:hello@yourpath.demo">hello@yourpath.demo</a></li>
           <li><b>Support hours</b><span>Monday – Friday, 9:00 – 17:00 GMT</span></li>
-          <li><b>In the app</b><span>Dashboard ➪ Feedback</span></li>
+          <li><b>In the app</b><span>Dashboard, then Feedback</span></li>
         </ul>
         <p class="blog-note">For an urgent safety concern about a student, contact your school or a local support service first — YourPath. is not an emergency service.</p>
       </article>
@@ -408,8 +403,8 @@
   </div>
 </section>
 <section class="page" id="explore"><div class="shell public"><span class="eyebrow">EXPLORE CAREERS</span><h1>Curiosity has more than one destination.</h1><p>Start with clusters, then research specific roles, degrees and universities.</p><div class="path-grid" id="publicPaths"></div></div></section>
-<section class="page" id="roadmap"><div class="shell public"><span class="eyebrow">ROADMAPS</span><h1>Make the next step visible.</h1><p>A real roadmap changes with your grade, country, budget and goals.</p><div class="roadmap-flow"><div><b>School</b><small>Subjects / stream</small></div><i>→</i><div><b>Skills</b><small>Projects / practice</small></div><i>→</i><div><b>Education</b><small>Degrees / routes</small></div><i>→</i><div><b>Career</b><small>Experience / options</small></div></div><button class="btn primary" id="roadmapStart">Build my roadmap</button></div></section>
-<section class="page" id="resources"><div class="shell public"><span class="eyebrow">RESOURCES</span><h1>Research beyond the chatbot.</h1><p>Production versions should show current, attributable information with dates and sources.</p><div class="resources"><a href="https://www.bls.gov/ooh/" target="_blank">U.S. Bureau of Labor Statistics <small>Occupational outlook, pay and employment projections.</small>↗</a><a href="https://www.weforum.org/publications/the-future-of-jobs-report-2025/" target="_blank">World Economic Forum <small>Global employer perspectives on jobs and skills.</small>↗</a><a href="https://www.oecd.org/education/" target="_blank">OECD Education <small>Education research and comparative data.</small>↗</a><a href="https://www.unesco.org/en/education" target="_blank">UNESCO Education <small>International education resources.</small>↗</a></div></div></section>
+<section class="page" id="roadmap"><div class="shell public"><span class="eyebrow">ROADMAPS</span><h1>Make the next step visible.</h1><p>A real roadmap changes with your grade, country, budget and goals.</p><div class="roadmap-flow"><div><b>School</b><small>Subjects / stream</small></div><i></i><div><b>Skills</b><small>Projects / practice</small></div><i></i><div><b>Education</b><small>Degrees / routes</small></div><i></i><div><b>Career</b><small>Experience / options</small></div></div><button class="btn primary" id="roadmapStart">Build my roadmap</button></div></section>
+<section class="page" id="resources"><div class="shell public"><span class="eyebrow">RESOURCES</span><h1>Research beyond the chatbot.</h1><p>Production versions should show current, attributable information with dates and sources.</p><div class="resources"><a href="https://www.bls.gov/ooh/" target="_blank">U.S. Bureau of Labor Statistics <small>Occupational outlook, pay and employment projections.</small></a><a href="https://www.weforum.org/publications/the-future-of-jobs-report-2025/" target="_blank">World Economic Forum <small>Global employer perspectives on jobs and skills.</small></a><a href="https://www.oecd.org/education/" target="_blank">OECD Education <small>Education research and comparative data.</small></a><a href="https://www.unesco.org/en/education" target="_blank">UNESCO Education <small>International education resources.</small></a></div></div></section>
 <section class="page" id="about"><div class="shell public about"><div><span class="eyebrow">ABOUT YOURPATH.</span><h1>For students, by purpose.</h1><p>YourPath. is decision support, not a replacement for teachers, counselors, parents or professional advice.</p><div class="credits"><b>Founder / Concept</b><span>Madhu</span><b>Website Development</b><span>Earl & Hemang</span></div></div><div class="privacy-card"><h3>Privacy by design</h3><p>Real deployment should use a secure backend, encrypted storage, access controls, consent flows, retention rules and deletion controls.</p><button class="btn soft" id="privacyBtn">Privacy notice</button></div></div></section>
 </main>
 <footer><div class="shell foot"><span>© 2026 YourPath. — Built by Madhu</span><span><button class="footer-link" id="privacyFoot">Privacy</button> · <button class="footer-link" id="termsFoot">Terms</button> · <button class="footer-link" id="cookieSettings">Cookie settings</button></span></div></footer>
@@ -543,7 +538,7 @@
     <h3>4. Your rights and controls</h3>
     <ul class="security">
       <li><b>Access</b> — your data is visible in the Profile and Dashboard screens at any time.</li>
-      <li><b>Correction</b> — edit your profile from Dashboard → Profile and save.</li>
+      <li><b>Correction</b> — edit your profile from the Dashboard Profile tab and save.</li>
       <li><b>Deletion</b> — use Cookie settings, or clear this site's storage in your browser.</li>
       <li><b>Withdrawal of consent</b> — log out; no further data is collected until you sign in again.</li>
     </ul>

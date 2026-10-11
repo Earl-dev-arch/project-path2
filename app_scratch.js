@@ -1,18 +1,6 @@
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+﻿const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 
-/* ================================================================
-   ICON SET
 
-   Inline SVG icons (Lucide geometry, ISC-licensed) drawn as stroke paths.
-   They replace the emoji that used to sit on pathway cards, the auth loader
-   and the motivation avatars. Rationale: emoji render differently on every
-   OS, cannot inherit brand colour, and read as casual. These use
-   stroke="currentColor", so each icon takes the colour of its container and
-   looks identical on Windows, macOS and Android.
-
-   Usage:  iconSvg('chart', 18)
-   Keys are referenced from data as `iconKey`, never as a literal glyph.
-   ================================================================ */
 const ICON_PATHS={
   chart:'<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>',
   brain:'<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24A2.5 2.5 0 0 0 14.5 2Z"/>',
@@ -62,7 +50,7 @@ function pathIcon(p,size=18){
   return iconSvg((p&&p.iconKey)||'spark',size,'path-card-icon');
 }
 
-const STORE={user:"yp_user_v3",answers:"yp_answers_v3",saved:"yp_saved_v3",cookie:"yp_cookie_v3",session:"yp_question_session_v3",accounts:"yp_accounts_v3",history:"yp_history_v3",savedNotes:"yp_saved_notes_v3",experiments:"yp_experiments_v3"};
+const STORE={user:"yp_user_v3",answers:"yp_answers_v3",saved:"yp_saved_v3",cookie:"yp_cookie_v3",session:"yp_question_session_v3",accounts:"yp_accounts_v3",history:"yp_history_v3",savedNotes:"yp_saved_notes_v3",experiments:"yp_experiments_v3",activeTab:"yp_active_tab_v3"};
 const state={user:JSON.parse(localStorage.getItem(STORE.user)||"null"),answers:JSON.parse(localStorage.getItem(STORE.answers)||"{}"),saved:JSON.parse(localStorage.getItem(STORE.saved)||"[]"),session:JSON.parse(localStorage.getItem(STORE.session)||"null"),accounts:JSON.parse(localStorage.getItem(STORE.accounts)||"{}"),history:JSON.parse(localStorage.getItem(STORE.history)||"[]"),savedNotes:JSON.parse(localStorage.getItem(STORE.savedNotes)||"{}"),experiments:JSON.parse(localStorage.getItem(STORE.experiments)||"{}"),qIndex:0,compareSelected:[],eduPathway:null};
 
 const categoryConfig=[
@@ -637,6 +625,7 @@ $$(".auth-tabs button, [data-auth]").forEach(btn=>{
 function requireLogin(){if(!state.user){openLogin();toast("Log in or create an account to continue.");return false}showPage("dashboard");return true}
 function goTab(name){
  if(!state.user)return;
+ try{localStorage.setItem(STORE.activeTab,name)}catch(e){}
  $$(".side").forEach(x=>x.classList.toggle("active",x.dataset.tab===name));
  $$(".tab").forEach(x=>x.classList.toggle("active",x.id==="tab-"+name));
  if(name==="questionnaire")renderQuestion();
@@ -958,7 +947,7 @@ $("#loginForm").onsubmit=async e=>{
  });
 };
 
-const handleLogout=()=>{state.user=null;saveState();updateUI();showPage("home");toast("Logged out.")};
+const handleLogout=()=>{state.user=null;try{localStorage.removeItem(STORE.activeTab)}catch(e){}saveState();updateUI();showPage("home");toast("Logged out.")};
 $("#logout").onclick=handleLogout;
 const topLogout=$("#topLogout");
 if(topLogout) topLogout.onclick=handleLogout;
@@ -1202,7 +1191,7 @@ function renderJourney(){
 
 function renderOverview(){
  const p=pathways.slice(0,4);
- $("#topPaths").innerHTML=p.map(x=>`<div class="path-mini"><span class="path-icon">${iconSvg(x.iconKey,16)}</span><span><b>${x.name}</b><small>${x.tag}</small></span><button class="link-inline" style="font-size:11px" onclick="viewPathwayEd('${escapeHtml(x.name)}')">Ed Guide →</button></div>`).join("");
+ $("#topPaths").innerHTML=p.map(x=>`<div class="path-mini"><span class="path-icon">${iconSvg(x.iconKey,16)}</span><span><b>${x.name}</b><small>${x.tag}</small></span><button class="link-inline" style="font-size:11px" onclick="viewPathwayEd('${escapeHtml(x.name)}')">Ed Guide</button></div>`).join("");
 }
 
 function renderInterestMap(){
@@ -1899,7 +1888,7 @@ function renderPublic(){
      <p><b>Related:</b> ${p.alt}</p>
    </div>
    <div class="path-actions">
-     <button class="small-btn primary" onclick="requireLogin()">Explore details →</button>
+     <button class="small-btn primary" onclick="requireLogin()">Explore details</button>
    </div>
  </article>`).join("");
 }
@@ -1955,7 +1944,7 @@ function renderQuestion(){
   body=`<div class="options">${(q.options||[]).map(o=>`<label class="option ${Array.isArray(val)?val.includes(o):val===o?"selected":""}"><input type="${isMulti?"checkbox":"radio"}" name="answer" value="${escapeHtml(o)}" ${Array.isArray(val)?val.includes(o)?"checked":"":val===o?"checked":""}><span>${escapeHtml(o)}</span></label>`).join("")}</div>`;
  }
  const badgeType=q.type==="scale"?"RATING SCALE":q.type==="multi"?"MULTI-SELECT":q.type==="rank"?"PRIORITY RANKING":q.type==="open"?"REFLECTION PROMPT":"SCENARIO CHOICE";
- $("#question").innerHTML=`<div class="question-card"><div class="question-type-badge"><span class="q-dim-pill">${escapeHtml(q.categoryLabel)}</span><span class="q-type-pill">${badgeType}</span></div><h3>${escapeHtml(q.prompt)}</h3>${body}<p class="muted hint-note">There is no socially correct answer. Choose what authentically describes you.</p><div class="question-nav"><button class="btn soft" id="back" ${state.qIndex===0?"disabled":""}>← Previous</button><button class="btn primary" id="next">${state.qIndex===19?"Finish & analyze pathways":"Next question →"}</button></div></div>`;
+ $("#question").innerHTML=`<div class="question-card"><div class="question-type-badge"><span class="q-dim-pill">${escapeHtml(q.categoryLabel)}</span><span class="q-type-pill">${badgeType}</span></div><h3>${escapeHtml(q.prompt)}</h3>${body}<p class="muted hint-note">There is no socially correct answer. Choose what authentically describes you.</p><div class="question-nav"><button class="btn soft" id="back" ${state.qIndex===0?"disabled":""}>Previous</button><button class="btn primary" id="next">${state.qIndex===19?"Finish & analyze pathways":"Next question"}</button></div></div>`;
  $$("#question input").forEach(x=>x.addEventListener("change",()=>{
   $$(".option").forEach(o=>{const inp=o.querySelector("input");if(inp)o.classList.toggle("selected",inp.checked)});
   $$(".scale label").forEach(l=>{const inp=l.querySelector("input");if(inp)l.classList.toggle("selected",inp.checked)});
@@ -2030,7 +2019,7 @@ function renderAnalysis(){
    <div class="analysis-box full"><h3>AI Uncertainty & Contradictions Check</h3>${uncertaintyHtml}</div>
    <div class="analysis-box"><h3>External-pressure reflection</h3><p class="muted">If answers regarding parent expectations, salary prestige, or peer trends pulled strongly against your personal hobbies, that tension is highlighted for your own reflection rather than scored as a mismatch.</p></div>
    <div class="analysis-box"><h3>Zero Fake Percentages</h3><p>YourPath. does not use misleading pseudo-scientific percentages like '97% career match'. Human curiosity is dynamic. We explain the explicit reasoning for each pathway so you can decide what makes sense.</p></div>
-   <div class="analysis-box full"><h3>Next recommended steps</h3><p>Review the recommended pathways below, compare 2–4 side-by-side in the Compare tab, and check the Education & Universities guide for relevant programs.</p><div style="display:flex;gap:10px;margin-top:14px"><button class="btn primary" onclick="goTab('pathways')">Explore pathways →</button><button class="btn soft" onclick="goTab('compare')">Compare side-by-side →</button><button class="btn soft" onclick="goTab('education')">Universities & Education →</button></div></div>
+   <div class="analysis-box full"><h3>Next recommended steps</h3><p>Review the recommended pathways below, compare 2–4 side-by-side in the Compare tab, and check the Education & Universities guide for relevant programs.</p><div style="display:flex;gap:10px;margin-top:14px"><button class="btn primary" onclick="goTab('pathways')">Explore pathways</button><button class="btn soft" onclick="goTab('compare')">Compare side-by-side</button><button class="btn soft" onclick="goTab('education')">Universities & Education</button></div></div>
  </div>`;
 }
 
@@ -2292,7 +2281,7 @@ function quickCompare(name){
 
 function renderSaved(){
  if(!state.saved.length){
-   $("#saved").innerHTML='<div class="card"><p class="muted">No pathways saved yet. Explore the recommended pathways and click "Save" to curate the careers you want to investigate.</p><button class="btn primary" style="margin-top:12px" onclick="goTab(\'pathways\')">Explore pathways →</button></div>';
+   $("#saved").innerHTML='<div class="card"><p class="muted">No pathways saved yet. Explore the recommended pathways and click "Save" to curate the careers you want to investigate.</p><button class="btn primary" style="margin-top:12px" onclick="goTab(\'pathways\')">Explore pathways</button></div>';
    return;
  }
  $("#saved").innerHTML=`<div class="saved-list">${state.saved.map(n=>{
@@ -2303,7 +2292,7 @@ function renderSaved(){
        <h3 style="margin:0">${p.iconKey?pathIcon(p):""} ${p.name}</h3>
        <div style="display:flex;gap:6px">
          <button class="small-btn" onclick="viewPathwayEd('${escapeHtml(p.name)}')">Universities</button>
-         <button class="small-btn" onclick="quickCompare('${escapeHtml(p.name)}')">⇄ Compare</button>
+         <button class="small-btn" onclick="quickCompare('${escapeHtml(p.name)}')">${iconSvg('scale',12)} Compare</button>
          <button class="small-btn" onclick="toggleSave('${escapeHtml(p.name)}')">Remove</button>
        </div>
      </div>
@@ -2556,7 +2545,7 @@ function renderEducation(targetName){
 function renderHistory(){
  const list=state.history||[];
  if(!list.length){
-   $("#historyContainer").innerHTML=`<div class="card"><p class="muted">No previous sessions archived yet. As you retake the questionnaire over time, your completed analyses and interest snapshots will be recorded here so you can revisit how your goals and curiosities evolve.</p><button class="btn primary" style="margin-top:12px" onclick="retakeQuestionnaire()">Start Questionnaire Session →</button></div>`;
+   $("#historyContainer").innerHTML=`<div class="card"><p class="muted">No previous sessions archived yet. As you retake the questionnaire over time, your completed analyses and interest snapshots will be recorded here so you can revisit how your goals and curiosities evolve.</p><button class="btn primary" style="margin-top:12px" onclick="retakeQuestionnaire()">Start Questionnaire Session</button></div>`;
    return;
  }
  $("#historyContainer").innerHTML=`
@@ -2676,14 +2665,14 @@ function renderRoadmapImpl(){
  const g=state.user?.grade||"Grade 10";
  const c=state.user?.country||"Philippines";
  const target=state.user?.targetCountry||"Domestic / Home Country";
- $("#roadmapGrade").textContent=`Personalized action roadmap for ${state.user?.name||"Student"} (${g}, ${c} → Target: ${target}). Adapt this roadmap to your family budget, target deadlines, and experimental learnings.`;
+ $("#roadmapGrade").textContent=`Personalized action roadmap for ${state.user?.name||"Student"} (${g}, ${c}, target: ${target}). Adapt this roadmap to your family budget, target deadlines, and experimental learnings.`;
  const name=activeRoadmapPathway();
  $("#roadmap").innerHTML=`
    <div class="roadmap-card">
      <div style="display:flex;justify-content:space-between;align-items:center"><h3>The full chain</h3><span class="tag">PATHWAY PLAN</span></div>
      <p class="muted">${name?`Built around <b>${escapeHtml(name)}</b>. Every link is filled from your pathway and education data — and says so plainly when your school must confirm the specific detail.`:"Choose a pathway first and this chain fills itself in from your own answers, not from a template."}</p>
      <ol class="chain">${roadmapChainRows(name)}</ol>
-     ${name?`<button class="btn primary" onclick="startExperimentFromPathway('${escapeHtml(name)}')">▶ Run the 7-day experiment</button>`:`<button class="btn primary" data-tab="pathways">Explore pathways →</button>`}
+     ${name?`<button class="btn primary" onclick="startExperimentFromPathway('${escapeHtml(name)}')">Run the 7-day experiment</button>`:`<button class="btn primary" data-tab="pathways">Explore pathways</button>`}
    </div>
    <div class="roadmap-card">
      <div style="display:flex;justify-content:space-between;align-items:center"><h3>Alternative routes</h3><span class="tag">NOT ONLY A DEGREE</span></div>
@@ -2745,6 +2734,11 @@ $("#cookieSettings").onclick=()=>$("#cookie").style.display="flex";
 if(localStorage.getItem(STORE.cookie))$("#cookie").style.display="none";
 
 ensureSession();updateUI();renderQuestion();
+if(state.user){
+  showPage("dashboard");
+  const savedTab = localStorage.getItem(STORE.activeTab) || "overview";
+  goTab(savedTab);
+}
 
 async function refreshCloudProgress(){
   if(!state.user || (!state.user.id && !state.user.email)) return;
@@ -2821,7 +2815,7 @@ function renderAIQuestion(){
   else if(q.type==='scale') body=`<div class="scale">${(q.scaleLabels||['Strongly disagree','Disagree','Neutral','Agree','Strongly agree']).map((x,i)=>`<label><input type="radio" name="aiAnswer" value="${i+1}">${i+1}<small>${escapeHtml(x)}</small></label>`).join('')}</div>`;
   else if(q.type==='rank') body=`<div class="rank" id="aiQuestionCard">${(q.options||[]).map(o=>`<div><span>${escapeHtml(o)}</span><select><option value="">Rank</option>${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div>`).join('')}</div>`;
   else body=`<div class="options">${(q.options||[]).map(o=>`<label class="option"><input type="${q.type==='multi'?'checkbox':'radio'}" name="aiAnswer" value="${escapeHtml(o)}"><span>${escapeHtml(o)}</span></label>`).join('')}</div>`;
-  $('#question').innerHTML=`<div class="question-card ai-question-card" id="aiQuestionCard"><div class="question-type">AI ADAPTIVE · ${escapeHtml(q.dimension||'Your Path')}</div><h3>${escapeHtml(q.question)}</h3>${body}<p class="muted">There is no socially correct answer. The AI will use your answer to decide what to explore next.</p><div class="ai-why">${escapeHtml(q.why||'This question helps the AI understand a part of your preferences.')}</div><div class="question-nav"><button class="btn soft" id="aiBack" ${n===1?'disabled':''}>← Back</button><button class="btn primary" id="aiNext">${n===20?'Finish & analyze':'Next →'}</button></div></div>`;
+  $('#question').innerHTML=`<div class="question-card ai-question-card" id="aiQuestionCard"><div class="question-type">AI ADAPTIVE · ${escapeHtml(q.dimension||'Your Path')}</div><h3>${escapeHtml(q.question)}</h3>${body}<p class="muted">There is no socially correct answer. The AI will use your answer to decide what to explore next.</p><div class="ai-why">${escapeHtml(q.why||'This question helps the AI understand a part of your preferences.')}</div><div class="question-nav"><button class="btn soft" id="aiBack" ${n===1?'disabled':''}>Back</button><button class="btn primary" id="aiNext">${n===20?'Finish & analyze':'Next'}</button></div></div>`;
   $$('#question input').forEach(x=>x.addEventListener('change',()=>{$$('.option').forEach(o=>{const inp=o.querySelector('input');if(inp)o.classList.toggle('selected',inp.checked)})}));
   $('#aiBack').onclick=()=>{toast('Adaptive back-navigation is intentionally limited so the AI can keep the interview sequence coherent.');};
   $('#aiNext').onclick=submitAIAnswer;
@@ -2835,7 +2829,7 @@ async function submitAIAnswer(){
     state.answers[`AI_${state.qIndex+1}`]=answer;saveState();
     if(d.complete){state.aiResult=d.analysis;state.qIndex=20;saveAI();renderAIResult();renderInterestMapFromAI();updateAIJourney();goTab('analysis');setAIStatus('AI analysis complete','ready');toast('Your adaptive interview is complete.');}
     else{state.qIndex=d.number-1;state.aiQuestion=d.question;saveAI();renderAIQuestion();setAIStatus(`AI interviewer — question ${d.number} of 20`,'ready');}
-  }catch(e){btn.disabled=false;btn.textContent=(state.qIndex===19?'Finish & analyze':'Next →');setAIStatus('AI request failed','warning');toast(e.message);}
+  }catch(e){btn.disabled=false;btn.textContent=(state.qIndex===19?'Finish & analyze':'Next');setAIStatus('AI request failed','warning');toast(e.message);}
 }
 function renderAIResult(){
   if(!state.aiResult)return;
@@ -2844,7 +2838,7 @@ function renderAIResult(){
   const list=(x)=>Array.isArray(x)?x.map(v=>`<li>${escapeHtml(v)}</li>`).join(''):'';
   const pressure=(a.pressureSignals||[]).map(x=>`<div class="signal"><b>${escapeHtml(x.area)}</b><span>${escapeHtml(x.level)}</span><p>${escapeHtml(x.evidence)}</p></div>`).join('')||'<p class="muted">No strong signal identified from this short interview.</p>';
   const contradictions=(a.contradictions||[]).map(x=>`<div class="signal"><b>${escapeHtml(x.signal)}</b><p>${escapeHtml(x.evidence)}</p><small>Follow-up: ${escapeHtml(x.followUp)}</small></div>`).join('')||'<p class="muted">No major contradiction was identified in this session.</p>';
-  $('#analysis').innerHTML=`<div class="ai-banner"><span class="ai-orb">●</span><div><b>AI-guided analysis</b><p>${escapeHtml(a.summary||'Analysis generated from your adaptive interview.')}</p></div></div><div class="analysis-grid"><div class="analysis-box"><h3>Interest signals</h3><div class="interest-ai-bars">${Object.entries(a.interestMap||{}).map(([k,v])=>`<div><span>${escapeHtml(k)}</span><i><em style="width:${Math.max(0,Math.min(100,Number(v)||0))}%"></em></i><b>${Math.round(Number(v)||0)}</b></div>`).join('')}</div></div><div class="analysis-box"><h3>Strength signals</h3><ul>${list(a.strengthSignals)||'<li>More evidence is needed.</li>'}</ul><h3>Areas to develop</h3><ul>${list(a.developmentAreas)||'<li>More evidence is needed.</li>'}</ul></div><div class="analysis-box"><h3>Working style hypothesis</h3><p>${escapeHtml(a.workingStyleHypothesis||'Not enough evidence yet.')}</p></div><div class="analysis-box"><h3>External-pressure reflection</h3>${pressure}<p class="muted">These are response-pattern indicators, not claims about what you think.</p></div><div class="analysis-box full"><h3>Contradictions worth exploring</h3>${contradictions}</div><div class="analysis-box full"><h3>Uncertainty</h3><ul>${list(a.uncertainty)||'<li>This is only one 20-question session.</li>'}</ul></div><div class="analysis-box full"><h3>AI next step</h3><p>Explore the pathways, choose a few experiments, then return later with new evidence. Your answers can change over time.</p><button class="btn primary" onclick="goTab('pathways')">Explore AI pathways →</button></div></div>`;
+  $('#analysis').innerHTML=`<div class="ai-banner"><span class="ai-orb">●</span><div><b>AI-guided analysis</b><p>${escapeHtml(a.summary||'Analysis generated from your adaptive interview.')}</p></div></div><div class="analysis-grid"><div class="analysis-box"><h3>Interest signals</h3><div class="interest-ai-bars">${Object.entries(a.interestMap||{}).map(([k,v])=>`<div><span>${escapeHtml(k)}</span><i><em style="width:${Math.max(0,Math.min(100,Number(v)||0))}%"></em></i><b>${Math.round(Number(v)||0)}</b></div>`).join('')}</div></div><div class="analysis-box"><h3>Strength signals</h3><ul>${list(a.strengthSignals)||'<li>More evidence is needed.</li>'}</ul><h3>Areas to develop</h3><ul>${list(a.developmentAreas)||'<li>More evidence is needed.</li>'}</ul></div><div class="analysis-box"><h3>Working style hypothesis</h3><p>${escapeHtml(a.workingStyleHypothesis||'Not enough evidence yet.')}</p></div><div class="analysis-box"><h3>External-pressure reflection</h3>${pressure}<p class="muted">These are response-pattern indicators, not claims about what you think.</p></div><div class="analysis-box full"><h3>Contradictions worth exploring</h3>${contradictions}</div><div class="analysis-box full"><h3>Uncertainty</h3><ul>${list(a.uncertainty)||'<li>This is only one 20-question session.</li>'}</ul></div><div class="analysis-box full"><h3>AI next step</h3><p>Explore the pathways, choose a few experiments, then return later with new evidence. Your answers can change over time.</p><button class="btn primary" onclick="goTab('pathways')">Explore AI pathways</button></div></div>`;
 }
 function renderAIPatways(){
   const ps=state.aiResult?.pathways||[];if(!ps.length){renderPathways();return;}
@@ -3027,7 +3021,7 @@ const LOCAL_AI={
     {name:'Electrical Engineering',icon:'⌁',dims:{Analytical:.95,Learning:.85,Curiosity:.8,Creative:.4},cats:['problem','subjects','learning'],skills:['Circuits','electronics','mathematics','systems'],subjects:['Mathematics','Physics','Electronics'],tradeoffs:['Technical theory','Careful testing'],alt:['Electronics Engineering','Power Engineering','Embedded Systems'],test:'Build a safe low-voltage circuit or simulation and document what each component does.'},
     {name:'Electronics Engineering',icon:'◌',dims:{Analytical:.95,Creative:.55,Curiosity:.85,Learning:.85},cats:['problem','interests','subjects'],skills:['Electronics','embedded systems','circuits','programming'],subjects:['Mathematics','Physics','ICT'],tradeoffs:['Detailed debugging','Rapid hardware changes'],alt:['Electrical Engineering','Robotics','Embedded Systems'],test:'Experiment with a beginner microcontroller project and keep a troubleshooting log.'},
     {name:'Chemical Engineering',icon:'⚗',dims:{Analytical:.95,Learning:.9,Curiosity:.8,Creative:.3},cats:['problem','subjects','learning'],skills:['Chemistry','process design','mathematics','safety'],subjects:['Chemistry','Mathematics','Physics'],tradeoffs:['Demanding quantitative study','Process and safety constraints'],alt:['Chemistry','Materials Science','Environmental Engineering'],test:'Explore how an everyday product is manufactured and map its inputs, processes and outputs.'},
-    {name:'Industrial Engineering',icon:'⇄',dims:{Analytical:.9,People:.55,Learning:.7,Creative:.45},cats:['problem','workstyle','communication'],skills:['Optimization','statistics','process improvement','operations'],subjects:['Mathematics','Statistics','Business'],tradeoffs:['Process-focused work','Balancing people and efficiency'],alt:['Operations Management','Supply Chain','Business Analytics'],test:'Choose a repeated school process and measure where time or effort is being lost.'},
+    {name:'Industrial Engineering',icon:'◫',dims:{Analytical:.9,People:.55,Learning:.7,Creative:.45},cats:['problem','workstyle','communication'],skills:['Optimization','statistics','process improvement','operations'],subjects:['Mathematics','Statistics','Business'],tradeoffs:['Process-focused work','Balancing people and efficiency'],alt:['Operations Management','Supply Chain','Business Analytics'],test:'Choose a repeated school process and measure where time or effort is being lost.'},
     {name:'Mechatronics / Robotics',icon:'🤖',dims:{Analytical:.95,Creative:.6,Curiosity:.9,Learning:.85},cats:['problem','interests','creativity'],skills:['Mechanics','electronics','programming','control systems'],subjects:['Mathematics','Physics','ICT'],tradeoffs:['Cross-disciplinary learning','Hands-on troubleshooting'],alt:['Mechanical Engineering','Electronics Engineering','Automation'],test:'Build or simulate a small automated mechanism.'},
     {name:'Architecture',icon:'⌂',dims:{Creative:.9,Analytical:.65,People:.4,Learning:.7},cats:['creativity','problem','values'],skills:['Design','spatial thinking','drawing','technical communication'],subjects:['Mathematics','Art','Physics'],tradeoffs:['Long design projects','Balancing creativity and regulations'],alt:['Interior Design','Urban Planning','Landscape Architecture'],test:'Redesign a small room or public space for a specific user and explain the constraints.'},
     {name:'Urban & Regional Planning',icon:'⌖',dims:{Analytical:.7,People:.65,Curiosity:.8,Creative:.55},cats:['values','problem','communication'],skills:['Planning','GIS','research','community engagement'],subjects:['Geography','Social Studies','Mathematics'],tradeoffs:['Many stakeholders','Long-term projects'],alt:['Architecture','Geography','Public Administration'],test:'Map one local issue such as traffic, walkability or public space and propose alternatives.'},
@@ -3067,12 +3061,12 @@ const LOCAL_AI={
     {name:'History',icon:'⌛',dims:{Curiosity:.9,Learning:.95,People:.55,Analytical:.55},cats:['subjects','interests','learning'],skills:['Research','source evaluation','writing','contextual reasoning'],subjects:['History','English','Social Studies'],tradeoffs:['Extensive reading','Interpretation requires source criticism'],alt:['Law','Education','Archives'],test:'Take a historical claim and compare several primary and secondary sources.'},
 
     // Business, finance, law & communication
-    {name:'Business Administration',icon:'↗',dims:{People:.75,Analytical:.55,Creative:.55,Learning:.7},cats:['motivation','communication','values'],skills:['Management','finance basics','communication','operations'],subjects:['Business','Economics','Mathematics'],tradeoffs:['Broad rather than specialized','Team and deadline driven'],alt:['Marketing','Management','Entrepreneurship'],test:'Analyze how a small business earns, spends and creates value.'},
+    {name:'Business Administration',icon:'▤',dims:{People:.75,Analytical:.55,Creative:.55,Learning:.7},cats:['motivation','communication','values'],skills:['Management','finance basics','communication','operations'],subjects:['Business','Economics','Mathematics'],tradeoffs:['Broad rather than specialized','Team and deadline driven'],alt:['Marketing','Management','Entrepreneurship'],test:'Analyze how a small business earns, spends and creates value.'},
     {name:'Accounting',icon:'▤',dims:{Analytical:.9,Learning:.8,People:.45,Curiosity:.55},cats:['subjects','workstyle','problem'],skills:['Accounting','financial reporting','accuracy','analysis'],subjects:['Mathematics','Business','Economics'],tradeoffs:['Detail-heavy','Accuracy and deadlines matter'],alt:['Finance','Auditing','Management Accounting'],test:'Create a simple budget and reconcile the numbers carefully.'},
     {name:'Finance',icon:'₱',dims:{Analytical:.85,Learning:.75,People:.45,Curiosity:.65},cats:['subjects','problem','motivation'],skills:['Financial analysis','economics','risk','quantitative reasoning'],subjects:['Mathematics','Economics','Business'],tradeoffs:['High attention to uncertainty','Numbers and decisions are central'],alt:['Accounting','Economics','Actuarial Science'],test:'Learn how compound growth, inflation and risk affect a hypothetical long-term plan.'},
     {name:'Economics',icon:'∿',dims:{Analytical:.85,Curiosity:.85,Learning:.8,People:.5},cats:['problem','subjects','values'],skills:['Economic reasoning','statistics','research','writing'],subjects:['Mathematics','Economics','Social Studies'],tradeoffs:['Models simplify reality','Requires quantitative and conceptual thinking'],alt:['Finance','Public Policy','Business Analytics'],test:'Use a simple supply-and-demand example to explain a real-world price change.'},
     {name:'Marketing',icon:'✧',dims:{Creative:.8,People:.8,Analytical:.5,Curiosity:.65},cats:['creativity','communication','motivation'],skills:['Research','branding','communication','analytics'],subjects:['Business','English','Art/Design'],tradeoffs:['Fast-changing trends','Results can be uncertain'],alt:['Advertising','Public Relations','Sales'],test:'Compare how two brands communicate to different audiences and identify the evidence.'},
-    {name:'Entrepreneurship',icon:'↗',dims:{People:.8,Creative:.75,Curiosity:.65,Analytical:.55},cats:['motivation','communication','values'],skills:['Problem discovery','market research','finance','leadership'],subjects:['Business','Economics','Mathematics'],tradeoffs:['Uncertainty','Requires experimentation and resilience'],alt:['Business Administration','Marketing','Innovation Management'],test:'Interview three people about a real problem before proposing a solution.'},
+    {name:'Entrepreneurship',icon:'▤',dims:{People:.8,Creative:.75,Curiosity:.65,Analytical:.55},cats:['motivation','communication','values'],skills:['Problem discovery','market research','finance','leadership'],subjects:['Business','Economics','Mathematics'],tradeoffs:['Uncertainty','Requires experimentation and resilience'],alt:['Business Administration','Marketing','Innovation Management'],test:'Interview three people about a real problem before proposing a solution.'},
     {name:'Human Resources',icon:'♧',dims:{People:1,Analytical:.45,Learning:.7,Creative:.4},cats:['communication','values','workstyle'],skills:['Recruitment','communication','organizational behavior','policy'],subjects:['Business','Psychology','Communication'],tradeoffs:['People conflicts can be difficult','Requires confidentiality and fairness'],alt:['Psychology','Management','Labor Relations'],test:'Study how organizations recruit, onboard and develop people.'},
     {name:'Law / Legal Studies',icon:'§',dims:{Analytical:.75,People:.7,Learning:.9,Curiosity:.8},cats:['communication','problem','subjects'],skills:['Reading','argument analysis','research','writing'],subjects:['English','History','Social Studies'],tradeoffs:['Heavy reading','Precision and competing arguments'],alt:['Political Science','Criminology','Compliance'],test:'Read a simple public legal case summary and identify the facts, issue, arguments and decision.'},
     {name:'Criminology',icon:'⌁',dims:{Curiosity:.85,People:.65,Analytical:.65,Learning:.8},cats:['interests','problem','values'],skills:['Research','crime analysis','social science','writing'],subjects:['Social Studies','Psychology','Statistics'],tradeoffs:['Sensitive subject matter','Evidence must be handled carefully'],alt:['Law','Forensics','Public Safety'],test:'Study evidence-based explanations of crime and compare them without assuming one cause.'},
@@ -3101,7 +3095,7 @@ const LOCAL_AI={
     {name:'Culinary Arts / Culinary Management',icon:'♨',dims:{Creative:.8,People:.75,Learning:.65,Curiosity:.6},cats:['creativity','workstyle','interests'],skills:['Cooking','food safety','menu planning','operations'],subjects:['Home Economics','Science','Business'],tradeoffs:['Fast-paced work','Long or irregular hours can occur'],alt:['Food Science','Hospitality','Entrepreneurship'],test:'Plan and execute a simple meal while tracking preparation time, cost and quality.'},
     {name:'Maritime Studies / Marine Transportation',icon:'⚓',dims:{Analytical:.65,Learning:.8,Curiosity:.8,People:.55},cats:['values','subjects','workstyle'],skills:['Navigation','safety','operations','discipline'],subjects:['Physics','Mathematics','Geography'],tradeoffs:['Extended periods away from home may occur','Strict safety procedures'],alt:['Marine Engineering','Logistics','Port Management'],test:'Research the training, certification and actual onboard duties for maritime roles.'},
     {name:'Marine Engineering',icon:'⚓',dims:{Analytical:.9,Learning:.85,Curiosity:.8,Creative:.35},cats:['problem','subjects','workstyle'],skills:['Mechanical systems','engines','maintenance','safety'],subjects:['Mathematics','Physics','Engineering'],tradeoffs:['Technical responsibility','Potential extended time at sea'],alt:['Mechanical Engineering','Maritime Studies','Marine Technology'],test:'Learn how a ship propulsion system works and identify its major engineering subsystems.'},
-    {name:'Logistics & Supply Chain Management',icon:'⇄',dims:{Analytical:.75,People:.6,Learning:.7,Curiosity:.6},cats:['problem','workstyle','communication'],skills:['Planning','inventory','operations','data'],subjects:['Business','Mathematics','Economics'],tradeoffs:['Time-sensitive decisions','Coordination across many people'],alt:['Industrial Engineering','Business Administration','Operations'],test:'Map how an everyday product moves from supplier to customer and find possible bottlenecks.'},
+    {name:'Logistics & Supply Chain Management',icon:'◫',dims:{Analytical:.75,People:.6,Learning:.7,Curiosity:.6},cats:['problem','workstyle','communication'],skills:['Planning','inventory','operations','data'],subjects:['Business','Mathematics','Economics'],tradeoffs:['Time-sensitive decisions','Coordination across many people'],alt:['Industrial Engineering','Business Administration','Operations'],test:'Map how an everyday product moves from supplier to customer and find possible bottlenecks.'},
 
     // Public service, safety & specialized fields
     {name:'Public Administration',icon:'▤',dims:{People:.75,Analytical:.6,Learning:.8,Curiosity:.7},cats:['values','communication','workstyle'],skills:['Policy implementation','administration','public service','research'],subjects:['Social Studies','Business','English'],tradeoffs:['Complex procedures','Many stakeholders'],alt:['Political Science','Public Policy','Community Development'],test:'Study how a local public service is delivered and identify the roles involved.'},

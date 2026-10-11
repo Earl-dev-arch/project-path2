@@ -41,8 +41,8 @@ For a production version:
 `question-bank-spec.json` documents the 1,000-question composition and selection probabilities.
 
 
-## Registration → Student Journey
-After a student creates an account, the dashboard opens to a six-stage Student Journey: Register → Deep Questionnaire → AI Analysis → Pathways → Roadmap → Take Action & Track. The first card is populated from the new profile and the current stage is highlighted.
+## Registration and Student Journey
+After a student creates an account, the dashboard opens to a six-stage Student Journey: Register, Deep Questionnaire, AI Analysis, Pathways, Roadmap, and Take Action & Track. The first card is populated from the new profile and the current stage is highlighted.
 
 
 ## Project layout
