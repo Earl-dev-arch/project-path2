@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#6c5ce7">
-<meta name="description" content="Your Path — an explainable career exploration platform built for students. Discover what fits you.">
-<title>Your Path.</title>
+<meta name="description" content="YourPath. — an explainable career exploration platform built for students. Discover what fits you.">
+<title>YourPath. — Discover What Fits You</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -20,7 +20,7 @@
 <div class="page-noise"></div>
 <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
 <header class="topbar">
-  <a class="brand" href="#home"><span><strong>Your Path</strong><small>Discover what fits you.</small></span></a>
+  <a class="brand" href="#home"><span><strong class="brand-title">YourPath<span class="brand-accent">.</span></strong><small>Discover what fits you.</small></span></a>
   <nav><a href="#home" data-page="home">Home</a><a href="#explore" data-page="explore">Explore Careers</a><a href="#roadmap" data-page="roadmap">Roadmaps</a><a href="#resources" data-page="resources">Resources</a><a href="#blog" data-page="blog">Blog & Safety</a><a href="#about" data-page="about">About</a></nav>
  <div class="top-actions">
   <button class="btn ghost btn-large" id="loginBtn">Log in</button>
@@ -84,7 +84,7 @@
         </div>
         <h3>Log In to Your Space</h3>
         <p>Continue your 20-question session, review AI patterns, and access your saved pathways, roadmaps, and previous analyses.</p>
-        <button class="btn ghost btn-full" onclick="openLogin()" style="border:1.5px solid #dcd8ee">Log In to Account ➪</button>
+        <button class="btn ghost btn-full" onclick="openLogin()" style="border:1.5px solid #dcd8ee">Log in to account</button>
       </div>
 
       <div class="starting-card highlight-card">
@@ -120,8 +120,8 @@
 <aside class="sidebar">
   <div class="side-logo">
     <div class="side-logo-text">
-      <b>Your Path</b>
-      <small>Student space</small>
+      <b class="brand-title">YourPath<span class="brand-accent">.</span></b>
+      <small>Student workspace</small>
     </div>
   </div>
 
@@ -230,24 +230,24 @@
   </div>
 </aside>
 <section class="dash-main">
-<div class="dash-head"><div><span class="eyebrow">STUDENT DASHBOARD · HONEST DECISION SUPPORT</span><h1 id="welcome">Welcome back!</h1><p>You're not here to fit in. You're here to figure out your path.</p></div><div class="quote quote-interactive" id="dailyQuoteCard" onclick="openMotivationModal()" title="Click for famous quotes & inspiration"><span class="quote-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path></svg>DAILY MOTIVATION · CLICK TO VIEW</span><blockquote id="headerQuoteText">“The best way to predict your future is to create it.”</blockquote><small id="headerQuoteAuthor">Often attributed to Abraham Lincoln ✦</small></div></div>
-<div class="journey-board" id="journeyBoard">
-  <div class="journey-title"><span>HOW IT WORKS</span><b>STUDENT JOURNEY</b></div>
-  <div class="journey-steps">
-    <article class="journey-step complete" id="journeyRegister"><div class="step-num">1</div><div><small>REGISTER</small><h3>Create your account</h3><p id="journeyProfileText">Your profile is ready.</p><button class="journey-btn" data-tab="profile">Edit profile</button></div></article>
-    <div class="journey-arrow">→</div>
-    <article class="journey-step" id="journeyQuestionnaire"><div class="step-num">2</div><div><small>DEEP QUESTIONNAIRE</small><h3 id="journeyQTitle">20 questions</h3><p id="journeyQText">Explore your genuine interests, preferences and motivations.</p><button class="journey-btn primary" data-tab="questionnaire">Start questionnaire</button></div></article>
-    <div class="journey-arrow">→</div>
-    <article class="journey-step" id="journeyAnalysis"><div class="step-num">3</div><div><small>AI ANALYSIS</small><h3 id="journeyATitle">Waiting for answers</h3><p id="journeyAText">Your responses will be checked for patterns, contradictions and uncertainty.</p><button class="journey-btn" data-tab="analysis">View analysis</button></div></article>
-    <div class="journey-arrow">→</div>
-    <article class="journey-step" id="journeyPathways"><div class="step-num">4</div><div><small>PATHWAYS</small><h3>Several directions</h3><p>Explore multiple possible education and career routes.</p><button class="journey-btn" data-tab="pathways">Explore pathways</button></div></article>
-    <div class="journey-arrow">→</div>
-    <article class="journey-step" id="journeyRoadmap"><div class="step-num">5</div><div><small>ROADMAP</small><h3>Your next steps</h3><p>School → skills → education → career, based on your stage.</p><button class="journey-btn" data-tab="roadmaps">Build roadmap</button></div></article>
-    <div class="journey-arrow">→</div>
-    <article class="journey-step" id="journeyAction"><div class="step-num">6</div><div><small>TAKE ACTION & TRACK</small><h3>Today’s action</h3><p id="journeyActionText">Start with one small experiment and keep track of what you learn.</p><button class="journey-btn" data-tab="roadmaps">View actions</button></div></article>
-  </div>
-</div>
+<div class="dash-head"><div><span class="eyebrow">STUDENT DASHBOARD · HONEST DECISION SUPPORT</span><h1 id="welcome">Welcome back!</h1><p>You're not here to fit in. You're here to figure out your path.</p></div><div class="quote quote-interactive" id="dailyQuoteCard" onclick="openMotivationModal()" title="Click for famous quotes & inspiration"><span class="quote-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"></path></svg>DAILY MOTIVATION · CLICK TO VIEW</span><blockquote id="headerQuoteText">“The best way to predict your future is to create it.”</blockquote><small id="headerQuoteAuthor">Often attributed to Abraham Lincoln</small></div></div>
 <div class="tab active" id="tab-overview">
+  <div class="journey-board" id="journeyBoard">
+    <div class="journey-title"><span>HOW IT WORKS</span><b>STUDENT JOURNEY</b></div>
+    <div class="journey-steps">
+      <article class="journey-step complete" id="journeyRegister"><div class="step-num">1</div><div><small>REGISTER</small><h3>Create your account</h3><p id="journeyProfileText">Your profile is ready.</p><button class="journey-btn" data-tab="profile">Edit profile</button></div></article>
+      <div class="journey-arrow">→</div>
+      <article class="journey-step" id="journeyQuestionnaire"><div class="step-num">2</div><div><small>DEEP QUESTIONNAIRE</small><h3 id="journeyQTitle">20 questions</h3><p id="journeyQText">Explore your genuine interests, preferences and motivations.</p><button class="journey-btn primary" data-tab="questionnaire">Start questionnaire</button></div></article>
+      <div class="journey-arrow">→</div>
+      <article class="journey-step" id="journeyAnalysis"><div class="step-num">3</div><div><small>AI ANALYSIS</small><h3 id="journeyATitle">Waiting for answers</h3><p id="journeyAText">Your responses will be checked for patterns, contradictions and uncertainty.</p><button class="journey-btn" data-tab="analysis">View analysis</button></div></article>
+      <div class="journey-arrow">→</div>
+      <article class="journey-step" id="journeyPathways"><div class="step-num">4</div><div><small>PATHWAYS</small><h3>Several directions</h3><p>Explore multiple possible education and career routes.</p><button class="journey-btn" data-tab="pathways">Explore pathways</button></div></article>
+      <div class="journey-arrow">→</div>
+      <article class="journey-step" id="journeyRoadmap"><div class="step-num">5</div><div><small>ROADMAP</small><h3>Your next steps</h3><p>School → skills → education → career, based on your stage.</p><button class="journey-btn" data-tab="roadmaps">Build roadmap</button></div></article>
+      <div class="journey-arrow">→</div>
+      <article class="journey-step" id="journeyAction"><div class="step-num">6</div><div><small>TAKE ACTION & TRACK</small><h3>Today’s action</h3><p id="journeyActionText">Start with one small experiment and keep track of what you learn.</p><button class="journey-btn" data-tab="roadmaps">View actions</button></div></article>
+    </div>
+  </div>
   <div class="stats"><div><b id="completion">0%</b><small>Questionnaire</small></div><div><b>16</b><small>Pathways to explore</small></div><div><b id="savedCount">0</b><small>Saved pathways</small></div><div><b id="historyCount">0</b><small>Completed analyses</small></div></div>
   <div class="dash-grid"><div class="card"><div class="card-title"><h3>Your pathway set</h3><button class="link" data-tab="pathways">View all →</button></div><div id="topPaths"></div></div><div class="card"><div class="interest-head"><h3>Your interest map</h3><span id="interestStatus" class="interest-status">Complete the questionnaire</span></div><div class="radar" id="interestRadar"><div class="radar-grid"></div><div class="radar-fill" id="radarFill"></div><span>Analytical</span><span>Creative</span><span>People</span><span>Learning</span><span>Curiosity</span></div><div class="interest-bars" id="interestBars"></div></div><div class="card"><h3>External pressure check</h3><p class="muted">This is a reflection indicator, not a claim about what you think.</p><div class="pressure"><p><span>Parental expectations</span><b>Medium</b></p><p><span>Peer influence</span><b>Low</b></p><p><span>Status / salary</span><b>Low</b></p></div></div></div>
   <div class="quick">
@@ -314,7 +314,7 @@
   <div id="historyContainer"></div>
 </div>
 
-<div class="tab" id="tab-feedback"><div class="tab-head"><div><span class="eyebrow">FEEDBACK</span><h2>Help improve Your Path.</h2><p>What you write here is stored only in this browser. Below the form you can see the anonymous usage counts this device has recorded.</p></div></div><div class="analysis-box full" style="margin-bottom:16px"><span class="tag">EVIDENCE</span><h3 style="margin-top:10px">Is this actually working?</h3><div id="evidenceReadout"></div></div><form class="form-card" id="feedback"><label>Was this useful?<select name="useful"><option>Yes</option><option>Somewhat</option><option>Not really</option></select></label><label>Did you discover something new?<select name="new"><option>Yes</option><option>A little</option><option>No</option></select></label><label>Which pathway interested you most?<input name="favorite"></label><label>What was missing?<textarea name="missing" rows="3"></textarea></label><label>Would you use it again?<select name="again"><option>Yes</option><option>Maybe</option><option>No</option></select></label><label>Open feedback<textarea name="feedback" rows="5"></textarea></label><button class="btn primary">Submit feedback</button></form></div>
+<div class="tab" id="tab-feedback"><div class="tab-head"><div><span class="eyebrow">FEEDBACK</span><h2>Help improve YourPath.</h2><p>What you write here is stored only in this browser. Below the form you can see the anonymous usage counts this device has recorded.</p></div></div><div class="analysis-box full" style="margin-bottom:16px"><span class="tag">EVIDENCE</span><h3 style="margin-top:10px">Is this actually working?</h3><div id="evidenceReadout"></div></div><form class="form-card" id="feedback"><label>Was this useful?<select name="useful"><option>Yes</option><option>Somewhat</option><option>Not really</option></select></label><label>Did you discover something new?<select name="new"><option>Yes</option><option>A little</option><option>No</option></select></label><label>Which pathway interested you most?<input name="favorite"></label><label>What was missing?<textarea name="missing" rows="3"></textarea></label><label>Would you use it again?<select name="again"><option>Yes</option><option>Maybe</option><option>No</option></select></label><label>Open feedback<textarea name="feedback" rows="5"></textarea></label><button class="btn primary">Submit feedback</button></form></div>
 
 <div class="tab" id="tab-profile"><div class="tab-head"><div><span class="eyebrow">PROFILE</span><h2>Your student profile & goals.</h2><p>Update your details, academic grade, target country, budget preferences, and primary aspirations.</p></div></div><form class="form-card" id="profile"><div class="form-grid"><label>Full name<input name="name" required></label><label>Email<input name="email" type="email" required></label><label>Phone<input name="phone"></label><label>Country + code<select name="country"><option>Philippines (+63)</option><option>United States (+1)</option><option>United Kingdom (+44)</option><option>India (+91)</option><option>Canada (+1)</option><option>Australia (+61)</option><option>Other</option></select></label><label>Grade/Class<select name="grade"><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>Grade 12</option><option>College</option></select></label><label>Age<input name="age" type="number"></label><label class="wide">School / Location<input name="school"></label><label>Target Study Country<select name="targetCountry"><option value="Domestic / Home Country">Domestic / Home Country</option><option value="United States">United States</option><option value="United Kingdom">United Kingdom</option><option value="Canada">Canada</option><option value="Australia / New Zealand">Australia / New Zealand</option><option value="Europe (Germany, Netherlands, etc.)">Europe (Germany, Netherlands, etc.)</option><option value="Asia (Singapore, Japan, etc.)">Asia (Singapore, Japan, etc.)</option></select></label><label>Budget & Financial Aid Priority<select name="budget"><option value="Full scholarship needed">Full scholarship / Financial aid needed</option><option value="Partial scholarship preferred">Partial scholarship preferred</option><option value="Public state university budget">Public state university tuition budget</option><option value="Flexible / Self-funded">Flexible / Self-funded</option></select></label><label class="wide">Primary personal goal or dream projects<textarea name="goals" rows="3" placeholder="e.g. Build apps that help people, study marine biology, start a social enterprise, learn robotics..."></textarea></label></div><button class="btn primary">Save & update profile</button></form></div>
 
@@ -323,13 +323,13 @@
   <div class="shell public">
     <span class="eyebrow">BLOG & SAFETY</span>
     <h1>Blog, Safety & Support</h1>
-    <p>Everything you need to know about the Your Path platform, its community, and how your information is handled.</p>
+    <p>Everything you need to know about the YourPath. platform, its community, and how your information is handled.</p>
 
     <div class="blog-feature">
       <div class="blog-feature-body">
         <span class="eyebrow">GENERAL INFORMATION</span>
-        <h2>What Your Path actually is.</h2>
-        <p>Your Path is an AI-powered career exploration platform designed for students. Instead of matching you to a job title with a static quiz, it asks adaptive questions about your genuine interests, working style, motivation and the pressure around you — then explains the reasoning behind every pathway it suggests.</p>
+        <h2>What YourPath. actually is.</h2>
+        <p>YourPath. is an AI-powered career exploration platform designed for students. Instead of matching you to a job title with a static quiz, it asks adaptive questions about your genuine interests, working style, motivation and the pressure around you — then explains the reasoning behind every pathway it suggests.</p>
         <p>It is decision support, not a verdict. There is no “97% career match” here. Every pathway comes with its skills, education routes, trade-offs, alternatives, and one small real-world experiment you can run this month.</p>
         <div class="blog-feature-facts">
           <div><b>20</b><small>questions per session</small></div>
@@ -351,13 +351,13 @@
       <article class="card blog-card">
         <span class="blog-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 16.5v-5"></path><path d="M12 8h.01"></path></svg></span>
         <h3>General Information</h3>
-        <p>Your Path is an AI-powered career exploration platform for students. Adaptive questioning surfaces the interests, working styles and motivations that actually appear in your answers — then turns them into pathways you can test in the real world.</p>
+        <p>YourPath. is an AI-powered career exploration platform for students. Adaptive questioning surfaces the interests, working styles and motivations that actually appear in your answers — then turns them into pathways you can test in the real world.</p>
         <p>Every session asks 20 questions across ten dimensions, from genuine interests to external pressure. Selection weights describe how questions are chosen; they are never a personality score.</p>
       </article>
 
       <article class="card blog-card safe-card">
         <span class="blog-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-3z"></path><path d="M9.2 12.2l2 2 3.6-4"></path></svg></span>
-        <h3>Is YourPath safe to use?</h3>
+        <h3>Is YourPath. safe to use?</h3>
         <p><b>Short answer: yes.</b> This prototype stores everything in your own browser's local storage — your profile, answers and saved pathways never leave your device, and no server receives them.</p>
         <ul class="blog-list">
           <li>No third-party trackers, advertising pixels, or resale of student data.</li>
@@ -378,7 +378,7 @@
           <li><b>Support hours</b><span>Monday – Friday, 9:00 – 17:00 GMT</span></li>
           <li><b>In the app</b><span>Dashboard ➪ Feedback</span></li>
         </ul>
-        <p class="blog-note">For an urgent safety concern about a student, contact your school or a local support service first — Your Path is not an emergency service.</p>
+        <p class="blog-note">For an urgent safety concern about a student, contact your school or a local support service first — YourPath. is not an emergency service.</p>
       </article>
 
       <article class="card blog-card community-card">
@@ -395,13 +395,13 @@
     </div>
 
     <section class="blog-faq">
-      <div class="heading"><span class="eyebrow">FAQ</span><h2>Common questions.</h2><p>Short answers about how Your Path works, what it stores, and what it will never claim to know.</p></div>
+      <div class="heading"><span class="eyebrow">FAQ</span><h2>Common questions.</h2><p>Short answers about how YourPath. works, what it stores, and what it will never claim to know.</p></div>
       <div class="faq-grid">
-        <details class="faq" open><summary>Does Your Path tell me which career to choose?</summary><p>No. It shows several plausible directions with their reasoning, trade-offs and alternatives, plus one small experiment for each. The decision stays yours — and “I don’t know yet” is a normal, honest answer.</p></details>
+        <details class="faq" open><summary>Does YourPath. tell me which career to choose?</summary><p>No. It shows several plausible directions with their reasoning, trade-offs and alternatives, plus one small experiment for each. The decision stays yours — and “I don’t know yet” is a normal, honest answer.</p></details>
         <details class="faq"><summary>Where is my data stored?</summary><p>In this prototype, entirely in your browser’s local storage. Nothing is uploaded. Clearing this site’s storage removes your profile, answers, saved pathways and preferences.</p></details>
         <details class="faq"><summary>Can one questionnaire decide my future?</summary><p>No, and any platform that claims otherwise is overselling. A 20-question session is one sample of evidence. Retaking it later and running real experiments gives better information.</p></details>
         <details class="faq"><summary>How do I delete my account or my answers?</summary><p>Log out, then clear this site’s data in your browser settings, or use <b>Cookie settings</b> in the footer. A production deployment would also provide an in-app deletion request flow.</p></details>
-        <details class="faq"><summary>Is this a replacement for a school counselor?</summary><p>No. Your Path is decision support. Teachers, counselors, parents and professionals should stay part of the conversation.</p></details>
+        <details class="faq"><summary>Is this a replacement for a school counselor?</summary><p>No. YourPath. is decision support. Teachers, counselors, parents and professionals should stay part of the conversation.</p></details>
         <details class="faq"><summary>How do I report a problem?</summary><p>Email <a href="mailto:support@yourpath.demo">support@yourpath.demo</a> or post in the Discord community. Include the page you were on and what you expected to happen.</p></details>
       </div>
     </section>
@@ -410,23 +410,22 @@
 <section class="page" id="explore"><div class="shell public"><span class="eyebrow">EXPLORE CAREERS</span><h1>Curiosity has more than one destination.</h1><p>Start with clusters, then research specific roles, degrees and universities.</p><div class="path-grid" id="publicPaths"></div></div></section>
 <section class="page" id="roadmap"><div class="shell public"><span class="eyebrow">ROADMAPS</span><h1>Make the next step visible.</h1><p>A real roadmap changes with your grade, country, budget and goals.</p><div class="roadmap-flow"><div><b>School</b><small>Subjects / stream</small></div><i>→</i><div><b>Skills</b><small>Projects / practice</small></div><i>→</i><div><b>Education</b><small>Degrees / routes</small></div><i>→</i><div><b>Career</b><small>Experience / options</small></div></div><button class="btn primary" id="roadmapStart">Build my roadmap</button></div></section>
 <section class="page" id="resources"><div class="shell public"><span class="eyebrow">RESOURCES</span><h1>Research beyond the chatbot.</h1><p>Production versions should show current, attributable information with dates and sources.</p><div class="resources"><a href="https://www.bls.gov/ooh/" target="_blank">U.S. Bureau of Labor Statistics <small>Occupational outlook, pay and employment projections.</small>↗</a><a href="https://www.weforum.org/publications/the-future-of-jobs-report-2025/" target="_blank">World Economic Forum <small>Global employer perspectives on jobs and skills.</small>↗</a><a href="https://www.oecd.org/education/" target="_blank">OECD Education <small>Education research and comparative data.</small>↗</a><a href="https://www.unesco.org/en/education" target="_blank">UNESCO Education <small>International education resources.</small>↗</a></div></div></section>
-<section class="page" id="about"><div class="shell public about"><div><span class="eyebrow">ABOUT YOUR PATH</span><h1>For students, by purpose.</h1><p>Your Path is decision support, not a replacement for teachers, counselors, parents or professional advice.</p><div class="credits"><b>Founder / Concept</b><span>Madhu</span><b>Website Development</b><span>Earl & Hemang</span></div></div><div class="privacy-card"><h3>Privacy by design</h3><p>Real deployment should use a secure backend, encrypted storage, access controls, consent flows, retention rules and deletion controls.</p><button class="btn soft" id="privacyBtn">Privacy notice</button></div></div></section>
+<section class="page" id="about"><div class="shell public about"><div><span class="eyebrow">ABOUT YOURPATH.</span><h1>For students, by purpose.</h1><p>YourPath. is decision support, not a replacement for teachers, counselors, parents or professional advice.</p><div class="credits"><b>Founder / Concept</b><span>Madhu</span><b>Website Development</b><span>Earl & Hemang</span></div></div><div class="privacy-card"><h3>Privacy by design</h3><p>Real deployment should use a secure backend, encrypted storage, access controls, consent flows, retention rules and deletion controls.</p><button class="btn soft" id="privacyBtn">Privacy notice</button></div></div></section>
 </main>
-<footer><div class="shell foot"><span>© 2026 Your Path — Built by Madhu ✦</span><span><button class="footer-link" id="privacyFoot">Privacy</button> · <button class="footer-link" id="termsFoot">Terms</button> · <button class="footer-link" id="cookieSettings">Cookie settings</button></span></div></footer>
+<footer><div class="shell foot"><span>© 2026 YourPath. — Built by Madhu</span><span><button class="footer-link" id="privacyFoot">Privacy</button> · <button class="footer-link" id="termsFoot">Terms</button> · <button class="footer-link" id="cookieSettings">Cookie settings</button></span></div></footer>
 <div class="auth-loader-backdrop hidden" id="authLoader" aria-live="polite" role="status">
   <div class="auth-loader-card">
     <div class="auth-loader-glow"></div>
     <div class="auth-loader-spinner">
       <div class="auth-loader-ring"></div>
       <div class="auth-loader-ring outer"></div>
-      <span class="brand-mark loader-brand-mark" id="loaderBrandMark" aria-label="Your Path"><svg class="brand-svg" viewBox="0 0 28 28" width="22" height="22" fill="none"><circle cx="14" cy="14" r="11" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-dasharray="2 3"/><path d="M14 3v4M14 21v4M3 14h4M21 14h4" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/><polygon points="14,6 17.5,12 23.5,14 17.5,16 14,22 10.5,16 4.5,14 10.5,12" fill="#ffffff"/><circle cx="14" cy="14" r="2.2" fill="#6c5ce7"/></svg></span>
     </div>
     <span class="loader-badge" id="loaderBadge">AUTHENTICATING</span>
     <h3 id="loaderTitle">Preparing your student space...</h3>
     <p id="loaderSub">Setting up your personalized career exploration environment</p>
-    
+
     <div class="loader-steps" id="loaderSteps">
-      
+
     </div>
 
     <div class="loader-progress-info">
@@ -439,12 +438,12 @@
   </div>
 </div>
 <div class="modal-backdrop hidden" id="loginModal">
-  <div class="modal auth-modal auth-modal-login" role="dialog" aria-modal="true" aria-label="Log in to Your Path">
+  <div class="modal auth-modal auth-modal-login" role="dialog" aria-modal="true" aria-label="Log in to YourPath.">
     <button class="close" data-close="loginModal" aria-label="Close">×</button>
-    <div class="auth-brand"><span class="brand-mark auth-brand-mark" aria-label="Your Path"><svg class="brand-svg" viewBox="0 0 28 28" width="22" height="22" fill="none"><circle cx="14" cy="14" r="11" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-dasharray="2 3"/><path d="M14 3v4M14 21v4M3 14h4M21 14h4" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/><polygon points="14,6 17.5,12 23.5,14 17.5,16 14,22 10.5,16 4.5,14 10.5,12" fill="#ffffff"/><circle cx="14" cy="14" r="2.2" fill="#6c5ce7"/></svg></span><div><b>Your Path</b><small>Discover what fits you.</small></div></div>
+    <div class="auth-brand"><div><b class="brand-title">YourPath<span class="brand-accent">.</span></b><small>Discover what fits you.</small></div></div>
 
     <div id="loginBox" class="auth-pane">
-      <div class="auth-pane-head"><span class="eyebrow">WELCOME BACK</span><h2>Log in to Your Path.</h2><p>Continue your journey — your answers, pathways and roadmap are waiting for you.</p></div>
+      <div class="auth-pane-head"><span class="eyebrow">WELCOME BACK</span><h2>Log in to YourPath.</h2><p>Continue your journey — your answers, pathways and roadmap are waiting for you.</p></div>
       <form class="auth-form auth-form-lg" id="loginForm">
         <label>Email<input name="email" type="email" required placeholder="you@example.com"></label>
         <label>Password<input name="password" type="password" required placeholder="••••••••"></label>
@@ -456,13 +455,13 @@
 </div>
 
 <div class="modal-backdrop hidden" id="signupModal">
-  <div class="modal auth-modal auth-modal-lg" role="dialog" aria-modal="true" aria-label="Create student account">
+  <div class="modal auth-modal auth-modal-lg" role="dialog" aria-modal="true" aria-label="Create student account on YourPath.">
     <button class="close" data-close="signupModal" aria-label="Close">×</button>
-    <div class="auth-brand"><span class="brand-mark auth-brand-mark" aria-label="Your Path"><svg class="brand-svg" viewBox="0 0 28 28" width="22" height="22" fill="none"><circle cx="14" cy="14" r="11" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-dasharray="2 3"/><path d="M14 3v4M14 21v4M3 14h4M21 14h4" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/><polygon points="14,6 17.5,12 23.5,14 17.5,16 14,22 10.5,16 4.5,14 10.5,12" fill="#ffffff"/><circle cx="14" cy="14" r="2.2" fill="#6c5ce7"/></svg></span><div><b>Your Path</b><small>Discover what fits you.</small></div></div>
+    <div class="auth-brand"><div><b class="brand-title">YourPath<span class="brand-accent">.</span></b><small>Discover what fits you.</small></div></div>
 
     <div id="signupBox" class="auth-pane">
       <div class="auth-step" id="consentStep">
-        <div class="auth-pane-head"><span class="eyebrow">STEP 1 OF 2 · REQUIRED</span><h2>Before you create an account.</h2><p>Your Path is built for students. Read and accept both policies below — you cannot create an account until you do.</p></div>
+        <div class="auth-pane-head"><span class="eyebrow">STEP 1 OF 2 · REQUIRED</span><h2>Before you create an account.</h2><p>YourPath. is built for students. Read and accept both policies below — you cannot create an account until you do.</p></div>
         <div class="consent-docs">
           <article class="consent-doc">
             <h3>Privacy Policy</h3>
@@ -471,14 +470,14 @@
               <p><b>What we never do.</b> We do not sell student data, run third-party advertising trackers, or expose AI provider keys in the frontend.</p>
               <p><b>Your control.</b> You can remove everything at any time by clearing this site's storage in your browser settings or through Cookie settings in the footer.</p>
               <p><b>Before a real launch.</b> Production must use server-side sessions or a vetted authentication provider, encryption in transit and at rest, role-based access control, audit logs, age and guardian consent rules for every country served, and documented retention, correction and deletion procedures.</p>
-              <p><b>Safety note.</b> Your Path is decision support, not medical, psychological, legal or financial advice, and it is not an emergency service.</p>
+              <p><b>Safety note.</b> YourPath. is decision support, not medical, psychological, legal or financial advice, and it is not an emergency service.</p>
             </div>
             <button type="button" class="link-inline" onclick="openModal('privacyModal')">Open the full Privacy Policy</button>
           </article>
           <article class="consent-doc">
             <h3>Terms & Conditions</h3>
             <div class="consent-scroll">
-              <p><b>Using Your Path.</b> Your Path is a career exploration tool for students. It helps you compare plausible directions and next steps. It does not guarantee admission, employment, income or any outcome.</p>
+              <p><b>Using YourPath.</b> YourPath. is a career exploration tool for students. It helps you compare plausible directions and next steps. It does not guarantee admission, employment, income or any outcome.</p>
               <p><b>Honest answers.</b> Results are only useful if your answers are honest. There is no socially correct answer, and results describe patterns in your responses — not your worth, ability or fixed personality.</p>
               <p><b>Your responsibilities.</b> Keep your account details accurate, do not enter another person's private information, and do not misuse or attempt to disrupt the platform.</p>
               <p><b>Third-party information.</b> Career, salary, university and job-market details change and must always be verified against current official sources before you rely on them.</p>
@@ -488,7 +487,7 @@
           </article>
         </div>
         <label class="check consent-check"><input type="checkbox" id="consentPolicies"><span>I have read and agree to the <b>Privacy Policy</b> and the <b>Terms & Conditions</b>.</span></label>
-        <label class="check consent-check"><input type="checkbox" id="consentAge"><span>I am 13 or older, or I have a parent or guardian's permission to use Your Path.</span></label>
+        <label class="check consent-check"><input type="checkbox" id="consentAge"><span>I am 13 or older, or I have a parent or guardian's permission to use YourPath.</span></label>
         <div class="consent-actions"><button type="button" class="btn soft btn-xl" id="consentCancel">Cancel</button><button type="button" class="btn primary btn-xl" id="consentAccept" disabled>I agree — Continue</button></div>
         <small class="auth-alt" style="display:block;margin-top:12px;text-align:center;">Already have an account? <button type="button" class="link-inline" onclick="openLogin()">Log in</button></small>
         <small class="consent-footnote">Both boxes are required. You can review these policies any time from the Blog & Safety page.</small>
@@ -519,8 +518,8 @@
   <div class="modal wide legal-modal" role="dialog" aria-modal="true" aria-label="Privacy Policy">
     <button class="close" data-close="privacyModal" aria-label="Close">×</button>
     <span class="eyebrow">PRIVACY POLICY</span>
-    <h2>How Your Path handles your information.</h2>
-    <p> everything you enter stays on your own device. This notice explains exactly what that means, and what a production deployment must add before real students use it.</p>
+    <h2>How YourPath. handles your information.</h2>
+    <p>Everything you enter stays on your own device. This notice explains exactly what that means, and what a production deployment must add before real students use it.</p>
 
     <h3>1. What we collect</h3>
     <ul class="security">
@@ -550,7 +549,7 @@
     </ul>
 
     <h3>5. Students and age</h3>
-    <p>Your Path is intended for students aged 13 and over. Where a country requires guardian consent, that requirement must be implemented before launch. Do not enter sensitive personal, medical or family information into this demo.</p>
+    <p>YourPath. is intended for students aged 13 and over. Where a country requires guardian consent, that requirement must be implemented before launch. Do not enter sensitive personal, medical or family information into this demo.</p>
 
     <h3>6. Before a real launch</h3>
     <ul class="security">
@@ -575,9 +574,9 @@
     <button class="close" data-close="termsModal" aria-label="Close">×</button>
     <span class="eyebrow">TERMS & CONDITIONS</span>
     <h2>Terms of use.</h2>
-    <p>By creating an account you agree to these terms. They exist to keep Your Path honest about what it can and cannot do for you.</p>
+    <p>By creating an account you agree to these terms. They exist to keep YourPath. honest about what it can and cannot do for you.</p>
 
-    <h3>1. What Your Path is</h3>
+    <h3>1. What YourPath. is</h3>
     <ul class="security">
       <li>A career exploration and decision-support tool built for students.</li>
       <li>Not a guarantee of admission, employment, income or any other outcome.</li>
@@ -602,7 +601,7 @@
     </ul>
 
     <h3>4. Intellectual property</h3>
-    <p>The platform design, question bank, pathway library and written content belong to the Your Path project. You may use your own results and roadmap for personal, educational and career-planning purposes.</p>
+    <p>The platform design, question bank, pathway library and written content belong to the YourPath. project. You may use your own results and roadmap for personal, educational and career-planning purposes.</p>
 
     <h3>5. Availability and changes</h3>
     <ul class="security">
@@ -622,16 +621,16 @@
     <button class="close" data-close="motivationModal" aria-label="Close">×</button>
     <div class="motivation-glow"></div>
     <div class="motivation-head">
-      <span class="motivation-badge">✨ WORDS OF WISDOM</span>
+      <span class="motivation-badge">WORDS OF WISDOM</span>
       <span class="motivation-field" id="motField">INNOVATION & VISION</span>
     </div>
 
     <div class="motivation-body">
       <div class="motivation-quote-icon">“</div>
       <blockquote class="motivation-quote-text" id="motQuote">The only way to do great work is to love what you do. If you haven't found it yet, keep looking. Don't settle.</blockquote>
-      
+
       <div class="motivation-author-card">
-        <div class="motivation-avatar" id="motAvatar">💡</div>
+        <div class="motivation-avatar" id="motAvatar"></div>
         <div class="motivation-author-info">
           <h3 id="motAuthor">Steve Jobs</h3>
           <p id="motRole">Co-founder of Apple · Pioneer of Personal Computing</p>
@@ -645,8 +644,8 @@
     </div>
 
     <div class="motivation-actions">
-      <button type="button" class="btn primary" onclick="nextMotivationQuote()">🎲 Next Quote ➪</button>
-      <button type="button" class="btn soft" onclick="copyMotivationQuote()">📋 Copy Quote</button>
+      <button type="button" class="btn primary" onclick="nextMotivationQuote()">Next quote</button>
+      <button type="button" class="btn soft" onclick="copyMotivationQuote()">Copy quote</button>
       <button type="button" class="btn ghost" onclick="closeModal('motivationModal')">Close</button>
     </div>
   </div>
@@ -657,7 +656,7 @@
   <span>Daily Motivation</span>
 </button>
 
-<div class="cookie" id="cookie"><div><b>Your Path uses browser storage.</b><p>This prototype uses local storage for login state, questionnaire progress and your cookie preference. Nothing is sent to a server.</p></div><div><button class="btn soft" id="essential">Essential only</button><button class="btn primary" id="accept">Accept</button></div></div>
+<div class="cookie" id="cookie"><div><b>YourPath. uses browser storage.</b><p>This prototype uses local storage for login state, questionnaire progress and your cookie preference. Nothing is sent to a server.</p></div><div><button class="btn soft" id="essential">Essential only</button><button class="btn primary" id="accept">Accept</button></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script src="site-data.js"></script>
 <script src="app_scratch.js"></script>

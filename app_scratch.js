@@ -1,4 +1,67 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+/* ================================================================
+   ICON SET
+
+   Inline SVG icons (Lucide geometry, ISC-licensed) drawn as stroke paths.
+   They replace the emoji that used to sit on pathway cards, the auth loader
+   and the motivation avatars. Rationale: emoji render differently on every
+   OS, cannot inherit brand colour, and read as casual. These use
+   stroke="currentColor", so each icon takes the colour of its container and
+   looks identical on Windows, macOS and Android.
+
+   Usage:  iconSvg('chart', 18)
+   Keys are referenced from data as `iconKey`, never as a literal glyph.
+   ================================================================ */
+const ICON_PATHS={
+  chart:'<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>',
+  brain:'<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24A2.5 2.5 0 0 0 14.5 2Z"/>',
+  palette:'<circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-1a2 2 0 0 1 2-2h1a3 3 0 0 0 3-3 10 10 0 0 0-10-10Z"/>',
+  leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>',
+  code:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  shield:'<path d="M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-3z"/><path d="M9.2 12.2l2 2 3.6-4"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',
+  rocket:'<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
+  landmark:'<line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
+  dna:'<path d="M2 15c6.667-6 13.333 0 20-6"/><path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/><path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/><path d="M17 6l-2.5-2.5"/><path d="M14 8l-1-1"/><path d="M7 18l2.5 2.5"/><path d="M10 16l1 1"/><path d="M2 9c6.667 6 13.333 0 20 6"/>',
+  trending:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+  cpu:'<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  bot:'<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 2h8"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/>',
+  gamepad:'<line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="6"/>',
+  coins:'<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/>',
+  user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  compass:'<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
+  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  notebook:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+  heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 3 8.5c0 2.3 1.5 4.05 3 5.5l6 6Z"/>',
+  activity:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  scale:'<path d="M12 3v18"/><path d="M5 7h14"/><path d="m5 7-3 6h6z"/><path d="m19 7-3 6h6z"/><path d="M7 21h10"/>',
+  spark:'<path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/>',
+  circle:'<circle cx="12" cy="12" r="9"/>',
+  atom:'<circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/>',
+  flask:'<path d="M9 3h6M10 3v6.5L4.5 18A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-3L14 9.5V3"/><path d="M7 15h10"/>',
+  pen:'<path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>',
+  telescope:'<path d="m10.06 7.36 5.5-2.6a1 1 0 0 1 1.3.44l1.1 2.1-6.4 3.02z"/><path d="M13.65 3.35 15.5 1.5M6.5 8.5l-3 3M8 12l-4.5 8.5M14 12l4.5 8.5M8 12h8"/>',
+  zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  bookmark:'<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+  play:'<polygon points="6 4 20 12 6 20 6 4"/>',
+  graduation:'<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+  check:'<polyline points="20 6 9 17 4 12"/>',
+  arrowRight:'<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>'
+};
+function iconSvg(key,size=20,cls=""){
+  const path=ICON_PATHS[key]||ICON_PATHS.spark||'';
+  return `<svg class="icon-svg ${cls}" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+}
+
+/* The icon for a pathway object. Falls back to a neutral mark so a card can
+   never render an empty gap where an icon should be. */
+function pathIcon(p,size=18){
+  return iconSvg((p&&p.iconKey)||'spark',size,'path-card-icon');
+}
+
 const STORE={user:"yp_user_v3",answers:"yp_answers_v3",saved:"yp_saved_v3",cookie:"yp_cookie_v3",session:"yp_question_session_v3",accounts:"yp_accounts_v3",history:"yp_history_v3",savedNotes:"yp_saved_notes_v3",experiments:"yp_experiments_v3"};
 const state={user:JSON.parse(localStorage.getItem(STORE.user)||"null"),answers:JSON.parse(localStorage.getItem(STORE.answers)||"{}"),saved:JSON.parse(localStorage.getItem(STORE.saved)||"[]"),session:JSON.parse(localStorage.getItem(STORE.session)||"null"),accounts:JSON.parse(localStorage.getItem(STORE.accounts)||"{}"),history:JSON.parse(localStorage.getItem(STORE.history)||"[]"),savedNotes:JSON.parse(localStorage.getItem(STORE.savedNotes)||"{}"),experiments:JSON.parse(localStorage.getItem(STORE.experiments)||"{}"),qIndex:0,compareSelected:[],eduPathway:null};
 
@@ -286,8 +349,25 @@ function weightedSession(){
 function shuffle(a){return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1])}
 function newSession(){
  state.session={ids:weightedSession().map(q=>q.id),started:Date.now()};
- state.answers={};state.qIndex=0;saveState();
+ state.answers={};state.qIndex=0;resetLocalSignals();saveState();
  try{trackSessionStarted()}catch(e){}
+}
+
+/* Clear the accumulated interest signals so a fresh session starts from the
+   1.0 baseline. Without this, a retake would inherit the previous session's
+   evidence and the recommendation order would reflect an old set of answers. */
+const SIGNAL_DIMENSIONS=['Analytical','Creative','People','Learning','Curiosity'];
+function blankSignals(){return Object.fromEntries(SIGNAL_DIMENSIONS.map(x=>[x,1]))}
+
+/* Clear the accumulated interest signals so a fresh session starts from the
+   1.0 baseline. Deliberately depends only on SIGNAL_DIMENSIONS and not on the
+   LOCAL_AI object: newSession() runs at load time (via ensureSession) before
+   LOCAL_AI is initialised, and reading a const in its temporal dead zone
+   throws even through `typeof`. */
+function resetLocalSignals(){
+  state.localAI={asked:[],history:[],signals:blankSignals(),catEvidence:{},pressure:{},contradictions:[],_recorded:[],started:Date.now(),complete:false};
+  state.localAIResult=null;
+  try{saveLocalAI()}catch(e){}
 }
 let _dbSyncTimeout = null;
 function syncProgressToDatabase(){
@@ -626,22 +706,22 @@ function showAuthLoader(configOrTitle, subtitle, onComplete){
  }
 
  const stepsList=mode==="signup"?[
-   {icon:"👤",title:"Creating student profile & credentials",note:"Configuring student workspace..."},
-   {icon:"🧠",title:"Preparing your 20 questions",note:"Covering ten dimensions of interest..."},
-   {icon:"🧭",title:"Calibrating your career pathways & roadmaps",note:"Preparing contextual education guides..."},
-   {icon:"🚀",title:"Launching personalized student dashboard",note:"Personalized environment ready!"}
+  {icon:"user",title:"Creating student profile & credentials",note:"Configuring student workspace..."},
+  {icon:"brain",title:"Preparing your 20 questions",note:"Covering ten dimensions of interest..."},
+  {icon:"compass",title:"Calibrating your career pathways & roadmaps",note:"Preparing contextual education guides..."},
+  {icon:"rocket",title:"Launching personalized student dashboard",note:"Personalized environment ready!"}
  ]:[
-   {icon:"🔐",title:"Verifying student credentials & session",note:"Authenticating student credentials..."},
-   {icon:"📝",title:"Loading questionnaire progress & AI signals",note:"Restoring pattern analysis engine..."},
-   {icon:"❤️",title:"Syncing your pathways & saved notes",note:"Retrieving pathway notes & roadmaps..."},
-   {icon:"📊",title:"Preparing student dashboard & radar map",note:"All systems synchronized!"}
+  {icon:"lock",title:"Verifying student credentials & session",note:"Authenticating student credentials..."},
+  {icon:"notebook",title:"Loading questionnaire progress & AI signals",note:"Restoring pattern analysis engine..."},
+  {icon:"heart",title:"Syncing your pathways & saved notes",note:"Retrieving pathway notes & roadmaps..."},
+  {icon:"activity",title:"Preparing student dashboard & radar map",note:"All systems synchronized!"}
  ];
 
  if(stepsEl){
    stepsEl.innerHTML=stepsList.map((st,idx)=>`
      <div class="loader-step-item pending" id="loaderStepItem${idx}">
        <div class="loader-step-left">
-         <span class="loader-step-icon">${st.icon}</span>
+         <span class="loader-step-icon">${iconSvg(st.icon,14)}</span>
          <span class="loader-step-title">${st.title}</span>
        </div>
        <span class="loader-step-state">○</span>
@@ -665,7 +745,7 @@ function showAuthLoader(configOrTitle, subtitle, onComplete){
      const stateIcon=item.querySelector(".loader-step-state");
      if(stateIcon){
        if(stateName==="pending") stateIcon.textContent="○";
-       else if(stateName==="active") stateIcon.textContent="✦";
+       else if(stateName==="active") stateIcon.textContent="●";
        else if(stateName==="done") stateIcon.textContent="✓";
      }
    }
@@ -681,24 +761,24 @@ function showAuthLoader(configOrTitle, subtitle, onComplete){
  setStepState(0,"active",18,stepsList[0].note);
 
  setTimeout(()=>{
-   setStepState(0,"done",32,"Credentials verified ✓");
+   setStepState(0,"done",32,"Credentials verified");
    setStepState(1,"active",48,stepsList[1].note);
  }, 420);
 
  setTimeout(()=>{
-   setStepState(1,"done",68,"Questionnaire engine loaded ✓");
+   setStepState(1,"done",68,"Questionnaire engine loaded");
    setStepState(2,"active",80,stepsList[2].note);
  }, 880);
 
  setTimeout(()=>{
-   setStepState(2,"done",92,"Pathways & roadmaps synced ✓");
+   setStepState(2,"done",92,"Pathways & roadmaps synced");
    setStepState(3,"active",98,stepsList[3].note);
  }, 1320);
 
  setTimeout(()=>{
    setStepState(3,"done",100,"All systems ready! Launching...");
    if(badgeEl){
-     badgeEl.textContent="READY ✦";
+     badgeEl.textContent="READY";
      badgeEl.style.background="#dcfce7";
      badgeEl.style.color="#15803d";
      badgeEl.style.borderColor="#bbf7d0";
@@ -775,7 +855,7 @@ $("#signupForm").onsubmit=async e=>{
  showAuthLoader({
    mode:"signup",
    badge:"ACCOUNT REGISTRATION",
-   title:`Welcome to Your Path, ${firstName}! 🚀`,
+   title:`Welcome to YourPath., ${firstName}!`,
    subtitle:"Preparing your 20 personalised questions and your workspace...",
    onComplete:()=>{
      updateUI();
@@ -785,7 +865,7 @@ $("#signupForm").onsubmit=async e=>{
        document.getElementById("journeyBoard")?.scrollIntoView({behavior:"smooth",block:"start"});
        document.getElementById("journeyQuestionnaire")?.classList.add("current");
      });
-     toast(`Account created for ${registeredUser.name}! Welcome to Your Path.`);
+     toast(`Account created for ${registeredUser.name}! Welcome to YourPath..`);
    }
  });
 };
@@ -793,7 +873,7 @@ $("#signupForm").onsubmit=async e=>{
 $("#loginForm").onsubmit=async e=>{
  e.preventDefault();
  const d=Object.fromEntries(new FormData(e.target).entries());
- 
+
  let loggedInUser = null;
  let fetchedProgress = null;
 
@@ -867,7 +947,7 @@ $("#loginForm").onsubmit=async e=>{
  showAuthLoader({
    mode:"login",
    badge:"SESSION AUTHENTICATED",
-   title:`Welcome back, ${firstName}! 👋`,
+   title:`Welcome back, ${firstName}!`,
    subtitle:"Loading your student profile, questionnaire answers & saved pathways...",
    onComplete:()=>{
      updateUI();
@@ -887,7 +967,7 @@ const MOTIVATION_QUOTES = [
   {
     author: "Albert Einstein",
     role: "Theoretical Physicist · Nobel Laureate in Physics",
-    avatar: "⚛️",
+    avatar: "atom",
     field: "CURIOSITY & DISCOVERY",
     quote: "Imagination is more important than knowledge. For knowledge is limited, whereas imagination embraces the entire world, stimulating progress, giving birth to evolution.",
     takeaway: "Never be afraid to ask unorthodox questions. The greatest breakthroughs in science and career begin with playful curiosity rather than rote memorization."
@@ -895,7 +975,7 @@ const MOTIVATION_QUOTES = [
   {
     author: "Marie Curie",
     role: "Physicist & Chemist · 2x Nobel Prize Winner",
-    avatar: "🔬",
+    avatar: "flask",
     field: "PERSEVERANCE & SCIENCE",
     quote: "Nothing in life is to be feared, it is only to be understood. Now is the time to understand more, so that we may fear less.",
     takeaway: "Career uncertainty and tough exams can feel intimidating, but breaking them down into small, understandable experiments turns fear into confidence."
@@ -903,15 +983,15 @@ const MOTIVATION_QUOTES = [
   {
     author: "Steve Jobs",
     role: "Co-founder of Apple · Pioneer of Personal Computing",
-    avatar: "💻",
+    avatar: "code",
     field: "PASSION & INNOVATION",
     quote: "The only way to do great work is to love what you do. If you haven't found it yet, keep looking. Don't settle.",
-    takeaway: "Your Path is designed to help you explore multiple possibilities without forcing an early compromise. Keep testing until you find what genuinely fits you."
+    takeaway: "YourPath. is designed to help you explore multiple possibilities without forcing an early compromise. Keep testing until you find what genuinely fits you."
   },
   {
     author: "Maya Angelou",
     role: "Poet, Author & Civil Rights Champion",
-    avatar: "✍️",
+    avatar: "pen",
     field: "CREATIVITY & RESILIENCE",
     quote: "You can't use up creativity. The more you use, the more you have.",
     takeaway: "Creativity isn't a finite resource. Whether you write code, design experiences, or build communities, daily practice makes your creative instincts sharper."
@@ -919,7 +999,7 @@ const MOTIVATION_QUOTES = [
   {
     author: "Carl Sagan",
     role: "Astronomer, Planetary Scientist & Author",
-    avatar: "🌌",
+    avatar: "telescope",
     field: "ASTRONOMY & WONDER",
     quote: "Somewhere, something incredible is waiting to be known.",
     takeaway: "The world has thousands of emerging disciplines that didn't exist 10 years ago. Stay curious and build real skills that open doors to the unknown."
@@ -927,7 +1007,7 @@ const MOTIVATION_QUOTES = [
   {
     author: "Nelson Mandela",
     role: "Former President of South Africa & Nobel Peace Laureate",
-    avatar: "🌍",
+    avatar: "globe",
     field: "LEADERSHIP & EDUCATION",
     quote: "Education is the most powerful weapon which you can use to change the world.",
     takeaway: "Every subject you learn, every project you build, and every skill you practice gives you greater leverage to help your family and community."
@@ -935,7 +1015,7 @@ const MOTIVATION_QUOTES = [
   {
     author: "Leonardo da Vinci",
     role: "Polymath, Artist, Engineer & Inventor",
-    avatar: "🎨",
+    avatar: "palette",
     field: "INTERDISCIPLINARY MASTERY",
     quote: "Learning never exhausts the mind.",
     takeaway: "You don't have to choose between art and science. The most innovative creators bridge design, technology, and human empathy together."
@@ -943,7 +1023,7 @@ const MOTIVATION_QUOTES = [
   {
     author: "Richard Feynman",
     role: "Theoretical Physicist · Nobel Laureate & Educator",
-    avatar: "⚡",
+    avatar: "zap",
     field: "FIRST-PRINCIPLES THINKING",
     quote: "Study hard what interests you the most in the most undisciplined, irreverent and original manner possible.",
     takeaway: "True mastery comes from building things with your own hands and understanding why they work, not just memorizing answers for tests."
@@ -951,7 +1031,7 @@ const MOTIVATION_QUOTES = [
   {
     author: "Malala Yousafzai",
     role: "Education Activist & Nobel Peace Prize Laureate",
-    avatar: "📚",
+    avatar: "book",
     field: "PURPOSE & ADVOCACY",
     quote: "One child, one teacher, one book, one pen can change the world.",
     takeaway: "Your voice and dedication matter regardless of your starting grade or background. Take pride in your educational journey."
@@ -959,7 +1039,7 @@ const MOTIVATION_QUOTES = [
   {
     author: "Katherine Johnson",
     role: "NASA Mathematician & Space Exploration Pioneer",
-    avatar: "🚀",
+    avatar: "rocket",
     field: "MATHEMATICS & EXCELLENCE",
     quote: "Like what you do, and then you will do your best.",
     takeaway: "Focus on finding the joy in problem solving. When you enjoy the process of learning, high performance follows naturally."
@@ -967,7 +1047,7 @@ const MOTIVATION_QUOTES = [
   {
     author: "Alan Turing",
     role: "Father of Modern Computing & Artificial Intelligence",
-    avatar: "🤖",
+    avatar: "bot",
     field: "COMPUTING & LOGIC",
     quote: "Sometimes it is the people no one can imagine anything of who do the things no one can imagine.",
     takeaway: "Don't let anyone pigeonhole your potential based on traditional molds. Unconventional thinkers often build the future."
@@ -975,7 +1055,7 @@ const MOTIVATION_QUOTES = [
   {
     author: "Jane Goodall",
     role: "Primatologist, Anthropologist & Conservationist",
-    avatar: "🌿",
+    avatar: "leaf",
     field: "ENVIRONMENT & IMPACT",
     quote: "What you do makes a difference, and you have to decide what kind of difference you want to make.",
     takeaway: "Every career choice carries real impact on people, animals, and the planet. Choose pathways that align with your deepest values."
@@ -1006,7 +1086,7 @@ function renderMotivationModal(){
   if(quoteEl) quoteEl.textContent = `“${item.quote}”`;
   if(authorEl) authorEl.textContent = item.author;
   if(roleEl) roleEl.textContent = item.role;
-  if(avatarEl) avatarEl.textContent = item.avatar;
+  if(avatarEl) avatarEl.innerHTML = iconSvg(item.avatar,26);
   if(fieldEl) fieldEl.textContent = item.field;
   if(takeawayEl) takeawayEl.textContent = item.takeaway;
 }
@@ -1035,7 +1115,7 @@ function copyMotivationQuote(){
   const text = `“${item.quote}” — ${item.author} (${item.role})`;
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(()=>{
-      toast("Quote copied to clipboard! 📋");
+      toast("Quote copied to clipboard.");
     }).catch(()=>{
       toast(`Copied quote from ${item.author}`);
     });
@@ -1050,7 +1130,7 @@ function renderHeaderQuote(){
   const qText = $("#headerQuoteText");
   const qAuth = $("#headerQuoteAuthor");
   if(qText && item) qText.textContent = `“${item.quote}”`;
-  if(qAuth && item) qAuth.textContent = `${item.author} · ${item.role.split("·")[0].trim()} ✦`;
+  if(qAuth && item) qAuth.textContent = `${item.author} · ${item.role.split("·")[0].trim()}`;
 }
 
 function updateUI(){
@@ -1069,7 +1149,7 @@ function updateUI(){
  const activeGreeting=$("#activeSessionGreeting");
  if(startingMenu) startingMenu.classList.toggle("hidden", loggedIn);
  if(activeBanner) activeBanner.classList.toggle("hidden", !loggedIn);
- if(activeGreeting) activeGreeting.textContent=`Welcome back, ${state.user?.name||"Student"}! ✦`;
+ if(activeGreeting) activeGreeting.textContent=`Welcome back, ${state.user?.name||"Student"}!`;
 
  $("#welcome").textContent=`Welcome back, ${state.user?.name||"there"}!`;
  $("#savedCount").textContent=state.saved.length;
@@ -1122,7 +1202,7 @@ function renderJourney(){
 
 function renderOverview(){
  const p=pathways.slice(0,4);
- $("#topPaths").innerHTML=p.map(x=>`<div class="path-mini"><span class="path-icon">${x.icon}</span><span><b>${x.name}</b><small>${x.tag}</small></span><button class="link-inline" style="font-size:11px" onclick="viewPathwayEd('${escapeHtml(x.name)}')">Ed Guide →</button></div>`).join("");
+ $("#topPaths").innerHTML=p.map(x=>`<div class="path-mini"><span class="path-icon">${iconSvg(x.iconKey,16)}</span><span><b>${x.name}</b><small>${x.tag}</small></span><button class="link-inline" style="font-size:11px" onclick="viewPathwayEd('${escapeHtml(x.name)}')">Ed Guide →</button></div>`).join("");
 }
 
 function renderInterestMap(){
@@ -1130,11 +1210,11 @@ function renderInterestMap(){
  if(!fill||!status||!bars)return;
  const qs=sessionQuestions();
  const answeredQs=qs.filter(q=>state.answers[q.id]!=null&&state.answers[q.id]!==""&&!(Array.isArray(state.answers[q.id])&&state.answers[q.id].every(v=>v==="")));
- const complete=answeredQs.length===20;
- if(!complete){
+ const count=answeredQs.length;
+ if(count===0){
    fill.classList.remove("ready");
-   status.textContent=`${answeredQs.length}/20 answered`;
-   bars.innerHTML="<div class=\"muted\">Finish all 20 questions to reveal your interest profile.</div>";
+   status.textContent="0/20 answered";
+   bars.innerHTML="<div class=\"muted\">Answer questions in the Questionnaire tab to shape your live interest map.</div>";
    return;
  }
  const axes=["Analytical","Creative","People","Learning","Curiosity"];
@@ -1174,15 +1254,15 @@ function renderInterestMap(){
  const cx=50,cy=50,r=45;
  const coords=points.map((v,i)=>{const angle=(-90+i*72)*Math.PI/180;const rr=r*(v/100);return `${(cx+Math.cos(angle)*rr).toFixed(1)}% ${(cy+Math.sin(angle)*rr).toFixed(1)}%`;});
  fill.style.clipPath=`polygon(${coords.join(",")})`;
- fill.classList.remove("ready");requestAnimationFrame(()=>fill.classList.add("ready"));
- status.textContent="Updated from your 20 answers";
- bars.innerHTML=axes.map((a,i)=>`<div class="interest-bar"><span>${a}</span><div class="interest-track"><i style="width:${normalized[a]}%"></i></div><b>${normalized[a]}</b></div>`).join("");
+ fill.classList.add("ready");
+ status.textContent=count===20 ? "Updated from your 20 answers" : `${count}/20 answered (Live preview)`;
+ bars.innerHTML=axes.map(a=>`<div class="interest-bar"><span>${a}</span><div class="interest-track"><i style="width:${normalized[a]}%"></i></div><b>${normalized[a]}</b></div>`).join("");
 }
 
 const pathways=[
 {
  name:"Data Science & Analytics",
- icon:"📊",
+ iconKey:"chart",
  tag:"Analytical + curious",
  img:"https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
  reason:"Strong alignment if you enjoy uncovering patterns in messy data, quantitative reasoning, and turning questions into structured analysis.",
@@ -1221,7 +1301,7 @@ const pathways=[
 },
 {
  name:"Psychology & Behaviour",
- icon:"🧠",
+ iconKey:"brain",
  tag:"People + research",
  img:"https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
  reason:"Fits students drawn to understanding human motivations, empathy-driven problem solving, and evidence-based behavioral research.",
@@ -1260,7 +1340,7 @@ const pathways=[
 },
 {
  name:"UX / Product Design",
- icon:"🎨",
+ iconKey:"palette",
  tag:"Creative + problem solving",
  img:"https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=600&q=80",
  reason:"Ideal if you enjoy understanding user frustrations, sketching solutions, and designing intuitive digital and physical experiences.",
@@ -1299,7 +1379,7 @@ const pathways=[
 },
 {
  name:"Environmental Science",
- icon:"🌿",
+ iconKey:"leaf",
  tag:"Science + impact",
  img:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80",
  reason:"Natural fit if you are passionate about ecological systems, climate resilience, biodiversity, and outdoor/laboratory investigations.",
@@ -1338,7 +1418,7 @@ const pathways=[
 },
 {
  name:"Software Engineering",
- icon:"💻",
+ iconKey:"code",
  tag:"Logical + builder",
  img:"https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80",
  reason:"A high-impact direction if you enjoy constructing software systems, technical problem solving, debugging, and continuous learning.",
@@ -1377,7 +1457,7 @@ const pathways=[
 },
 {
  name:"Cybersecurity",
- icon:"🛡️",
+ iconKey:"shield",
  tag:"Systems + investigation",
  img:"https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80",
  reason:"Explore this if you are energized by protecting digital assets, investigating attack vectors, networks, and puzzle-like vulnerabilities.",
@@ -1416,7 +1496,7 @@ const pathways=[
 },
 {
  name:"Engineering & Computational Science",
- icon:"⚙️",
+ iconKey:"gear",
  tag:"Math + making",
  img:"https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
  reason:"Geared for students drawn to physics, mathematical modeling, simulation, and creating real-world physical or computational systems.",
@@ -1455,7 +1535,7 @@ const pathways=[
 },
 {
  name:"Business & Entrepreneurship",
- icon:"🚀",
+ iconKey:"rocket",
  tag:"Initiative + people",
  img:"https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=600&q=80",
  reason:"Ideal if you enjoy launching ideas, commercial strategy, leading initiatives, negotiations, and measurable business outcomes.",
@@ -1494,7 +1574,7 @@ const pathways=[
 },
 {
  name:"Architecture & Spatial Design",
- icon:"🏛️",
+ iconKey:"landmark",
  tag:"Creative + technical",
  img:"https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80",
  reason:"Designed for minds that love spatial thinking, physical environments, structural aesthetics, and blending art with engineering logic.",
@@ -1533,7 +1613,7 @@ const pathways=[
 },
 {
  name:"Biotechnology & Life Sciences",
- icon:"🧬",
+ iconKey:"dna",
  tag:"Science + discovery",
  img:"https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=600&q=80",
  reason:"Explore this if you are fascinated by genetics, laboratory discovery, biomedical innovation, and solving global health or agricultural challenges.",
@@ -1572,7 +1652,7 @@ const pathways=[
 },
 {
  name:"Digital Marketing & Strategy",
- icon:"📈",
+ iconKey:"trending",
  tag:"Creative + analytical",
  img:"https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
  reason:"A high-energy direction if you love analyzing audience behavior, content storytelling, growth marketing, and digital campaigns.",
@@ -1611,7 +1691,7 @@ const pathways=[
 },
 {
  name:"Artificial Intelligence & ML",
- icon:"🤖",
+ iconKey:"cpu",
  tag:"Math + innovation",
  img:"https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&q=80",
  reason:"A cutting-edge path for those drawn to machine learning, neural networks, advanced mathematical logic, and automated intelligence.",
@@ -1650,7 +1730,7 @@ const pathways=[
 },
 {
  name:"International Relations & Global Policy",
- icon:"🌐",
+ iconKey:"globe",
  tag:"People + values",
  img:"https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=600&q=80",
  reason:"Explore this if you care about diplomacy, geopolitical policy, global trade, social advocacy, and cross-cultural communication.",
@@ -1689,7 +1769,7 @@ const pathways=[
 },
 {
  name:"Robotics & Mechatronics",
- icon:"🦾",
+ iconKey:"bot",
  tag:"Technical + builder",
  img:"https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
  reason:"Perfect for students who love merging mechanical hardware, electronic circuitry, sensors, and embedded software into moving machines.",
@@ -1728,7 +1808,7 @@ const pathways=[
 },
 {
  name:"Game Design & Development",
- icon:"🎮",
+ iconKey:"gamepad",
  tag:"Creative + logical",
  img:"https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80",
  reason:"A thrilling intersection of interactive storytelling, gameplay mechanics, visual art, player psychology, and creative programming.",
@@ -1767,7 +1847,7 @@ const pathways=[
 },
 {
  name:"Finance & Quantitative Economics",
- icon:"💰",
+ iconKey:"coins",
  tag:"Analytical + strategic",
  img:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80",
  reason:"For students fascinated by financial markets, economic modeling, risk management, and mathematical decisions under uncertainty.",
@@ -1813,7 +1893,7 @@ function renderPublic(){
      <span class="tag path-tag-overlay">${p.tag}</span>
    </div>
    <div class="path-card-body">
-     <h3>${p.icon} ${p.name}</h3>
+     <h3>${pathIcon(p)} ${p.name}</h3>
      <p class="reason">${p.reason}</p>
      <p><b>Skills:</b> ${p.skills}</p>
      <p><b>Related:</b> ${p.alt}</p>
@@ -1826,11 +1906,29 @@ function renderPublic(){
 
 function capture(){
  const q=sessionQuestions()[state.qIndex];if(!q)return;
- if(q.type==="open")state.answers[q.id]=$("#answerOpen")?.value||"";
- else if(q.type==="rank")state.answers[q.id]=$$("#answerRank select").map(x=>x.value);
- else if(q.type==="multi")state.answers[q.id]=$$("#question input[type=checkbox]:checked").map(x=>x.value);
- else state.answers[q.id]=$$("#question input[name=answer]:checked")[0]?.value||"";
+ let val;
+ if(q.type==="open")val=$("#answerOpen")?.value||"";
+ else if(q.type==="rank")val=$$("#answerRank select").map(x=>x.value);
+ else if(q.type==="multi")val=$$("#question input[type=checkbox]:checked").map(x=>x.value);
+ else val=$$("#question input[name=answer]:checked")[0]?.value||"";
+ state.answers[q.id]=val;
+ recordLocalSignal(q,val);
  saveState();updateUI();
+}
+
+/* Feed a captured answer into the interest signal engine, but only once per
+   question. capture() runs on every click and keystroke, so we guard against
+   double-counting by remembering which questions this session already fed in.
+   This is the link that was missing: the questionnaires recorded answers but
+   never turned them into the signals the pathway ranking reads. */
+function recordLocalSignal(q,val){
+  const a=localAIState();
+  a._recorded=a._recorded||[];
+  if(a._recorded.includes(q.id)) return;
+  if(!localValidAnswer(val)) return;
+  a._recorded.push(q.id);
+  try{localSignalFromAnswer(q,val)}catch(e){}
+  try{saveLocalAI()}catch(e){}
 }
 
 function renderQuestion(){
@@ -1857,7 +1955,7 @@ function renderQuestion(){
   body=`<div class="options">${(q.options||[]).map(o=>`<label class="option ${Array.isArray(val)?val.includes(o):val===o?"selected":""}"><input type="${isMulti?"checkbox":"radio"}" name="answer" value="${escapeHtml(o)}" ${Array.isArray(val)?val.includes(o)?"checked":"":val===o?"checked":""}><span>${escapeHtml(o)}</span></label>`).join("")}</div>`;
  }
  const badgeType=q.type==="scale"?"RATING SCALE":q.type==="multi"?"MULTI-SELECT":q.type==="rank"?"PRIORITY RANKING":q.type==="open"?"REFLECTION PROMPT":"SCENARIO CHOICE";
- $("#question").innerHTML=`<div class="question-card"><div class="question-type-badge"><span class="q-dim-pill">✦ ${escapeHtml(q.categoryLabel)}</span><span class="q-type-pill">${badgeType}</span></div><h3>${escapeHtml(q.prompt)}</h3>${body}<p class="muted hint-note">✦ There is no socially correct answer. Choose what authentically describes you.</p><div class="question-nav"><button class="btn soft" id="back" ${state.qIndex===0?"disabled":""}>← Previous</button><button class="btn primary" id="next">${state.qIndex===19?"Finish & analyze pathways ✦":"Next question →"}</button></div></div>`;
+ $("#question").innerHTML=`<div class="question-card"><div class="question-type-badge"><span class="q-dim-pill">${escapeHtml(q.categoryLabel)}</span><span class="q-type-pill">${badgeType}</span></div><h3>${escapeHtml(q.prompt)}</h3>${body}<p class="muted hint-note">There is no socially correct answer. Choose what authentically describes you.</p><div class="question-nav"><button class="btn soft" id="back" ${state.qIndex===0?"disabled":""}>← Previous</button><button class="btn primary" id="next">${state.qIndex===19?"Finish & analyze pathways":"Next question →"}</button></div></div>`;
  $$("#question input").forEach(x=>x.addEventListener("change",()=>{
   $$(".option").forEach(o=>{const inp=o.querySelector("input");if(inp)o.classList.toggle("selected",inp.checked)});
   $$(".scale label").forEach(l=>{const inp=l.querySelector("input");if(inp)l.classList.toggle("selected",inp.checked)});
@@ -1872,7 +1970,7 @@ function renderQuestion(){
    } else {
      capture();renderInterestMap();
      archiveCurrentSession();
-     try{trackSessionCompleted();trackCareersExplored(pathways.slice(0,3).map(p=>p.name))}catch(e){}
+     try{trackSessionCompleted();trackCareersExplored(pathwaysByEvidence().slice(0,3).map(p=>p.name))}catch(e){}
      goTab("analysis");
      toast("20 responses analyzed! Patterns and uncertainty checks are ready.");
    }
@@ -1890,7 +1988,7 @@ function archiveCurrentSession(){
    started:state.session?.started||Date.now(),
    date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric",hour:"2-digit",minute:"2-digit"}),
    answered:answeredCount,
-   topPathways:pathways.slice(0,3).map(p=>p.name)
+   topPathways:pathwaysByEvidence().slice(0,3).map(p=>p.name)
  };
  if(existingIdx>=0) state.history[existingIdx]=snapshot;
  else state.history.unshift(snapshot);
@@ -1919,11 +2017,11 @@ function renderAnalysis(){
 
  let uncertaintyHtml="";
  if(answered<20){
-   uncertaintyHtml=`<div class="notice"><b>✦ Incomplete Data Signal:</b> You have answered ${answered} of 20 questions. The AI treats incomplete sessions with high uncertainty. Answer all 20 questions to unlock clear dimensional hypotheses.</div>`;
+   uncertaintyHtml=`<div class="notice"><b>Incomplete Data Signal:</b> You have answered ${answered} of 20 questions. The AI treats incomplete sessions with high uncertainty. Answer all 20 questions to unlock clear dimensional hypotheses.</div>`;
  } else if(isHighlyNeutral){
-   uncertaintyHtml=`<div class="notice"><b>✦ Open Uncertainty Notice:</b> A noticeable portion of your scale responses were marked 'Neutral'. This frequently occurs when exploring unfamiliar fields or when your interests are equally balanced across multiple domains. Rather than forcing a single narrow career prediction, we recommend testing 2–3 contrasting pathways in short real-world projects.</div>`;
+   uncertaintyHtml=`<div class="notice"><b>Open Uncertainty Notice:</b> A noticeable portion of your scale responses were marked 'Neutral'. This frequently occurs when exploring unfamiliar fields or when your interests are equally balanced across multiple domains. Rather than forcing a single narrow career prediction, we recommend testing 2–3 contrasting pathways in short real-world projects.</div>`;
  } else {
-   uncertaintyHtml=`<div class="notice"><b>✦ Open Uncertainty & Contradiction Check:</b> No severe conflicting contradictions were detected in your 20 answers. Your responses reflect consistent interest signals. However, remember that career satisfaction depends on day-to-day work environment, team culture, and continuous experimentation.</div>`;
+   uncertaintyHtml=`<div class="notice"><b>Open Uncertainty & Contradiction Check:</b> No severe conflicting contradictions were detected in your 20 answers. Your responses reflect consistent interest signals. However, remember that career satisfaction depends on day-to-day work environment, team culture, and continuous experimentation.</div>`;
  }
 
  $("#analysis").innerHTML=`<div class="analysis-grid">
@@ -1931,7 +2029,7 @@ function renderAnalysis(){
    <div class="analysis-box"><h3>Possible working style hypothesis</h3><p><b>Working Style:</b> Focused problem investigation with purposeful collaboration. You appear to appreciate clear logic and tangible outputs.</p><p class="muted">Treat this as a working hypothesis to validate through actual projects, not a fixed personality label.</p></div>
    <div class="analysis-box full"><h3>AI Uncertainty & Contradictions Check</h3>${uncertaintyHtml}</div>
    <div class="analysis-box"><h3>External-pressure reflection</h3><p class="muted">If answers regarding parent expectations, salary prestige, or peer trends pulled strongly against your personal hobbies, that tension is highlighted for your own reflection rather than scored as a mismatch.</p></div>
-   <div class="analysis-box"><h3>Zero Fake Percentages</h3><p>Your Path does not use misleading pseudo-scientific percentages like '97% career match'. Human curiosity is dynamic. We explain the explicit reasoning for each pathway so you can decide what makes sense.</p></div>
+   <div class="analysis-box"><h3>Zero Fake Percentages</h3><p>YourPath. does not use misleading pseudo-scientific percentages like '97% career match'. Human curiosity is dynamic. We explain the explicit reasoning for each pathway so you can decide what makes sense.</p></div>
    <div class="analysis-box full"><h3>Next recommended steps</h3><p>Review the recommended pathways below, compare 2–4 side-by-side in the Compare tab, and check the Education & Universities guide for relevant programs.</p><div style="display:flex;gap:10px;margin-top:14px"><button class="btn primary" onclick="goTab('pathways')">Explore pathways →</button><button class="btn soft" onclick="goTab('compare')">Compare side-by-side →</button><button class="btn soft" onclick="goTab('education')">Universities & Education →</button></div></div>
  </div>`;
 }
@@ -1967,6 +2065,39 @@ const CAT_LABELS={
   pressure:"your answers about outside pressure", values:"your values answers"
 };
 
+/* ================================================================
+   PATHWAY DIMENSION PROFILES
+
+   Every displayed pathway card needs a `dims` profile, or the card can
+   never be matched against the student's answers and its position in
+   the list becomes arbitrary — which reads as "random".
+
+   The five dimensions are the same ones the questionnaire raises
+   (Analytical / Creative / People / Learning / Curiosity). The numbers
+   are RELATIVE weights, not percentages: they say which of the five the
+   field leans on most. They are authored from the field itself (the
+   daily work), never from a student's answers, so the match stays
+   evidence-based rather than circular.
+
+   `cats` names the questionnaire categories whose answers are the most
+   honest evidence for that field, so the "why this appeared" sentence
+   can cite the student's actual answers.
+   ================================================================ */
+const PATHWAY_DRIVES={
+  "Psychology & Behaviour":{dims:{People:1,Curiosity:.75,Learning:.7,Analytical:.4},cats:["communication","interests","values"]},
+  "UX / Product Design":{dims:{Creative:.95,People:.7,Analytical:.4,Curiosity:.6},cats:["creativity","communication","problem"]},
+  "Engineering & Computational Science":{dims:{Analytical:1,Curiosity:.75,Learning:.8,Creative:.45},cats:["problem","subjects","learning"]},
+  "Business & Entrepreneurship":{dims:{People:.85,Creative:.7,Analytical:.55,Curiosity:.65},cats:["motivation","communication","values"]},
+  "Architecture & Spatial Design":{dims:{Creative:.9,Analytical:.65,People:.4,Learning:.7},cats:["creativity","problem","values"]},
+  "Biotechnology & Life Sciences":{dims:{Curiosity:.9,Learning:.95,Analytical:.65,People:.3},cats:["subjects","interests","learning"]},
+  "Digital Marketing & Strategy":{dims:{Creative:.85,People:.8,Curiosity:.6,Analytical:.45},cats:["creativity","communication","motivation"]},
+  "Artificial Intelligence & ML":{dims:{Analytical:1,Curiosity:.9,Learning:.85,Creative:.3},cats:["problem","interests","subjects"]},
+  "International Relations & Global Policy":{dims:{People:.8,Curiosity:.95,Learning:.85,Analytical:.5},cats:["values","communication","interests"]},
+  "Robotics & Mechatronics":{dims:{Analytical:.95,Creative:.6,Curiosity:.9,Learning:.85},cats:["problem","interests","creativity"]},
+  "Game Design & Development":{dims:{Creative:1,Analytical:.55,Curiosity:.7,Learning:.6},cats:["creativity","interests","problem"]},
+  "Finance & Quantitative Economics":{dims:{Analytical:.9,Learning:.75,Curiosity:.7,People:.45},cats:["subjects","problem","motivation"]}
+};
+
 function studentSignals(){
   return (state.localAI&&state.localAI.signals)||null;
 }
@@ -1990,18 +2121,55 @@ function hasEvidence(){
   return LOCAL_AI.dimensions.some(d=>Number(sig[d])>1.15);
 }
 
-/* Match a pathway's profile against the student's signals, best match first. */
+/* Resolve the dimension profile for a displayed pathway.
+
+   Preference order: an explicit PATHWAY_DRIVES entry, then an exact
+   LOCAL_AI.pathwayProfiles match. A few profile names in LOCAL_AI differ
+   from the card names, so those are bridged explicitly rather than left
+   to silently fail (which is what made the order look random). */
+const PROFILE_ALIASES={
+  "Psychology & Behaviour":"Psychology",
+  "UX / Product Design":"Graphic Design",
+  "Engineering & Computational Science":"Mechanical Engineering",
+  "Business & Entrepreneurship":"Entrepreneurship",
+  "Architecture & Spatial Design":"Architecture",
+  "Biotechnology & Life Sciences":"Biology",
+  "Digital Marketing & Strategy":"Marketing",
+  "Artificial Intelligence & ML":"Data Science & Analytics",
+  "International Relations & Global Policy":"International Relations",
+  "Robotics & Mechatronics":"Mechatronics / Robotics",
+  "Game Design & Development":"Animation / 3D / Visual Effects",
+  "Finance & Quantitative Economics":"Finance"
+};
+
+function pathwayDims(name){
+  if(PATHWAY_DRIVES[name]) return PATHWAY_DRIVES[name];
+  const alias=PROFILE_ALIASES[name];
+  const profile=(LOCAL_AI.pathwayProfiles||[]).find(p=>p.name===(alias||name))
+    || (LOCAL_AI.pathwayProfiles||[]).find(p=>p.name===name);
+  if(profile&&profile.dims) return {dims:profile.dims,cats:profile.cats||[]};
+  return null;
+}
+
+/* Match a pathway's profile against the student's signals.
+
+   `score` is the weighted alignment: it sums weight x signal over every
+   dimension the answers actually raised, so two pathways with different
+   profiles can never tie by accident. `matched` is the human-readable
+   subset used to explain WHY the pathway appeared. */
 function pathwayEvidence(name){
   const sig=studentSignals();
   if(!sig) return null;
-  const profile=(LOCAL_AI.pathwayProfiles||[]).find(p=>p.name===name);
-  if(!profile||!profile.dims) return null;
-  const matched=Object.entries(profile.dims)
+  const drive=pathwayDims(name);
+  if(!drive||!drive.dims) return null;
+  const matched=Object.entries(drive.dims)
     .map(([dim,weight])=>({dim,weight,value:Number(sig[dim])||1}))
     .filter(x=>x.value>1.15)
     .sort((a,b)=>(b.weight*b.value)-(a.weight*a.value))
     .slice(0,3);
-  return {profile,matched};
+  const score=Object.entries(drive.dims)
+    .reduce((n,[dim,weight])=>n+weight*((Number(sig[dim])||1)-1),0);
+  return {profile:drive,matched,score};
 }
 
 /* The transparent "why this appeared" sentence. */
@@ -2038,17 +2206,22 @@ function alternativeIfLine(name){
     : `Related directions that share the same core work: ${alts.join(", ")}.`;
 }
 
-/* Order by evidence match, best-supported first. */
+/* Order by evidence match, best-supported first, deterministically.
+
+   Every card now resolves to a profile, so the sort is a real ranking of
+   "how well your answers matched this direction" rather than the near-tie
+   the old name-lookup produced. Ties break on the original list order, so
+   the same answers always produce the same order. */
 function pathwaysByEvidence(){
   if(!hasEvidence()) return pathways.slice();
-  return pathways.slice().sort((a,b)=>{
-    const ea=pathwayEvidence(a.name), eb=pathwayEvidence(b.name);
-    if(!ea&&!eb) return 0;
-    if(!ea) return 1;
-    if(!eb) return -1;
-    const sum=x=>x.matched.reduce((n,m)=>n+(m.weight*m.value),0);
-    return sum(eb)-sum(ea);
-  });
+  return pathways.map((p,i)=>({p,i}))
+    .map(x=>({...x,ev:pathwayEvidence(x.p.name)}))
+    .sort((a,b)=>{
+      const sa=a.ev?a.ev.score:0, sb=b.ev?b.ev.score:0;
+      if(sb!==sa) return sb-sa;
+      return a.i-b.i;
+    })
+    .map(x=>x.p);
 }
 
 function renderPathways(){
@@ -2072,7 +2245,7 @@ function pathCardHtml(p,evidence){
        <span class="tag path-tag-overlay">${p.tag}</span>
      </div>
      <div class="path-card-body">
-       <h3>${p.icon} ${p.name}</h3>
+       <h3>${pathIcon(p)} ${p.name}</h3>
        <div class="why-box">
          <b class="why-label">Why this appeared</b>
          <p>${escapeHtml(why.text)}</p>
@@ -2088,10 +2261,10 @@ function pathCardHtml(p,evidence){
        ${altIf?`<div class="alt-if"><b>Consider instead</b><p>${escapeHtml(altIf)}</p></div>`:""}
      </div>
      <div class="path-actions">
-       <button class="small-btn save" onclick="toggleSave('${escapeHtml(p.name)}')">${state.saved.includes(p.name)?"✓ Saved":"♡ Save"}</button>
-       <button class="small-btn primary-btn" onclick="startExperimentFromPathway('${escapeHtml(p.name)}')">▶ Try this pathway</button>
-       <button class="small-btn" onclick="viewPathwayEd('${escapeHtml(p.name)}')">🎓 Unis</button>
-       <button class="small-btn" onclick="quickCompare('${escapeHtml(p.name)}')">⇄ Compare</button>
+       <button class="small-btn save" onclick="toggleSave('${escapeHtml(p.name)}')">${state.saved.includes(p.name)?iconSvg('bookmark',12)+' Saved':iconSvg('bookmark',12)+' Save'}</button>
+       <button class="small-btn primary-btn" onclick="startExperimentFromPathway('${escapeHtml(p.name)}')">${iconSvg('play',12)} Try this pathway</button>
+       <button class="small-btn" onclick="viewPathwayEd('${escapeHtml(p.name)}')">${iconSvg('graduation',12)} Universities</button>
+       <button class="small-btn" onclick="quickCompare('${escapeHtml(p.name)}')">${iconSvg('scale',12)} Compare</button>
      </div>
     </article>`;
   }
@@ -2119,7 +2292,7 @@ function quickCompare(name){
 
 function renderSaved(){
  if(!state.saved.length){
-   $("#saved").innerHTML='<div class="card"><p class="muted">No pathways saved yet. Explore the recommended pathways and click "♡ Save" to curate the careers you want to investigate.</p><button class="btn primary" style="margin-top:12px" onclick="goTab(\'pathways\')">Explore pathways →</button></div>';
+   $("#saved").innerHTML='<div class="card"><p class="muted">No pathways saved yet. Explore the recommended pathways and click "Save" to curate the careers you want to investigate.</p><button class="btn primary" style="margin-top:12px" onclick="goTab(\'pathways\')">Explore pathways →</button></div>';
    return;
  }
  $("#saved").innerHTML=`<div class="saved-list">${state.saved.map(n=>{
@@ -2127,9 +2300,9 @@ function renderSaved(){
    const note=(state.savedNotes&&state.savedNotes[n])||"";
    return `<div class="card" style="margin-bottom:14px">
      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-       <h3 style="margin:0">${p.icon||"✦"} ${p.name}</h3>
+       <h3 style="margin:0">${p.iconKey?pathIcon(p):""} ${p.name}</h3>
        <div style="display:flex;gap:6px">
-         <button class="small-btn" onclick="viewPathwayEd('${escapeHtml(p.name)}')">🎓 Universities</button>
+         <button class="small-btn" onclick="viewPathwayEd('${escapeHtml(p.name)}')">Universities</button>
          <button class="small-btn" onclick="quickCompare('${escapeHtml(p.name)}')">⇄ Compare</button>
          <button class="small-btn" onclick="toggleSave('${escapeHtml(p.name)}')">Remove</button>
        </div>
@@ -2176,7 +2349,7 @@ function renderCompare(){
    </div>
    <div class="chips2">${pathways.map(p=>{
      const sel=state.compareSelected.includes(p.name);
-     return `<button type="button" class="chip ${sel?'active':''}" style="cursor:pointer;border:${sel?'1.5px solid #6c5ce7':'1px solid #e3e1ed'};background:${sel?'#efedff':'#fff'};color:${sel?'#5d50d5':'#4d4e63'}" onclick="toggleComparePathway('${escapeHtml(p.name)}')">${sel?'✓ ':''}${p.name}</button>`;
+     return `<button type="button" class="chip ${sel?'active':''}" style="cursor:pointer;border:${sel?'1.5px solid #6c5ce7':'1px solid #e3e1ed'};background:${sel?'#efedff':'#fff'};color:${sel?'#5d50d5':'#4d4e63'}" onclick="toggleComparePathway('${escapeHtml(p.name)}')">${sel?iconSvg('check',11)+' ':''}${p.name}</button>`;
    }).join("")}</div>
  </div>`;
 
@@ -2185,7 +2358,7 @@ function renderCompare(){
      <thead>
        <tr>
          <th style="min-width:140px">Dimension</th>
-         ${selectedPaths.map(p=>`<th style="min-width:210px"><div style="font-size:16px;margin-bottom:4px">${p.icon} ${p.name}</div><span class="tag">${p.tag}</span></th>`).join("")}
+         ${selectedPaths.map(p=>`<th style="min-width:210px"><div style="font-size:16px;margin-bottom:4px">${pathIcon(p)} ${p.name}</div><span class="tag">${p.tag}</span></th>`).join("")}
        </tr>
      </thead>
      <tbody>
@@ -2215,12 +2388,12 @@ function renderCompare(){
        </tr>
        <tr>
          <th>Actions</th>
-         ${selectedPaths.map(p=>`<td><button class="small-btn save" onclick="toggleSave('${escapeHtml(p.name)}')">${state.saved.includes(p.name)?"✓ Saved":"♡ Save"}</button> <button class="small-btn" onclick="viewPathwayEd('${escapeHtml(p.name)}')">Universities →</button></td>`).join("")}
+         ${selectedPaths.map(p=>`<td><button class="small-btn save" onclick="toggleSave('${escapeHtml(p.name)}')">${state.saved.includes(p.name)?iconSvg('bookmark',12)+' Saved':iconSvg('bookmark',12)+' Save'}</button> <button class="small-btn" onclick="viewPathwayEd('${escapeHtml(p.name)}')">Universities ${iconSvg('arrowRight',12)}</button></td>`).join("")}
        </tr>
      </tbody>
    </table>
  </div>
- <div class="notice" style="margin-top:14px"><b>✦ Plain-Language Comparison:</b> We never generate fake scientific match percentages (like '97% match'). Comparison is meant to clarify trade-offs, required skills, and real-world experiments so you can make deliberate choices.</div>`;
+ <div class="notice" style="margin-top:14px"><b>Plain-Language Comparison:</b> We never generate fake scientific match percentages (like '97% match'). Comparison is meant to clarify trade-offs, required skills, and real-world experiments so you can make deliberate choices.</div>`;
 
  $("#compare").innerHTML=selectorHtml+tableHtml;
 }
@@ -2261,13 +2434,13 @@ function renderEducation(targetName){
  $("#educationContainer").innerHTML=`
    <div class="card" style="margin-bottom:18px">
      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
-       <div><span class="eyebrow">SELECT PATHWAY</span><h2 style="margin:4px 0 0;font-size:22px">${p.icon} ${p.name}</h2></div>
+       <div><span class="eyebrow">SELECT PATHWAY</span><h2 style="margin:4px 0 0;font-size:22px">${pathIcon(p)} ${p.name}</h2></div>
        <select style="padding:10px 14px;border-radius:10px;border:1.5px solid #d9d5eb;font-weight:700;color:#5d50d5;background:#f8f7fe;cursor:pointer" onchange="renderEducation(this.value)">
-         ${pathways.map(item=>`<option value="${escapeHtml(item.name)}" ${item.name===p.name?"selected":""}>${item.icon} ${item.name}</option>`).join("")}
+         ${pathways.map(item=>`<option value="${escapeHtml(item.name)}" ${item.name===p.name?"selected":""}>${item.name}</option>`).join("")}
        </select>
      </div>
      <div class="notice" style="background:#f4f7fe;border-color:#d0ddf9;color:#24447a">
-       <b>✦ Context Principle:</b> No single university is universally 'best'. The optimal choice depends directly on your <b>personal goals, target country, family budget, and academic profile</b>.
+       <b>Context Principle:</b> No single university is universally 'best'. The optimal choice depends directly on your <b>personal goals, target country, family budget, and academic profile</b>.
      </div>
    </div>
 
@@ -2401,7 +2574,7 @@ function renderHistory(){
              <small class="muted">${h.answered} / 20 questions completed</small>
            </div>
            <div class="chips2">
-             ${(h.topPathways||[]).map(p=>`<span class="chip" style="font-size:11px">★ ${p}</span>`).join("")}
+             ${(h.topPathways||[]).map(p=>`<span class="chip" style="font-size:11px">${p}</span>`).join("")}
            </div>
          </div>
        </div>
@@ -2473,7 +2646,7 @@ function roadmapChainRows(name){
  const chain=roadmapChainData();
  const grade=state.user?.grade||"your current grade";
  const val={
-  "Career": p?`${p.icon||"✦"} ${p.name}`:`${name||"Not chosen yet"}`,
+  "Career": p?`${p.name}`:`${name||"Not chosen yet"}`,
   "Skills": p?p.skills:"Choose a pathway and its core skills appear here.",
   "Subjects": eg?eg.admission:`Focus on the school subjects that overlap with ${name||"your chosen direction"}.`,
   "Degree options": eg?eg.degrees:(p?p.edu:"Degree options appear once a pathway is chosen."),
@@ -2563,7 +2736,7 @@ $("#feedback").onsubmit=e=>{
  const payload=Object.fromEntries(new FormData(e.target).entries());
  localStorage.setItem("yp_feedback_v3",JSON.stringify(payload));
  try{trackFeedback(payload);renderEvidenceReadout()}catch(err){}
- e.target.reset();toast("Feedback submitted. Thank you for helping improve Your Path!");
+ e.target.reset();toast("Feedback submitted. Thank you for helping improve YourPath.!");
 };
 
 $("#accept").onclick=()=>{localStorage.setItem(STORE.cookie,"accepted");$("#cookie").style.display="none";toast("Cookie preference saved.")};
@@ -2631,7 +2804,7 @@ async function startAISession(){
     const d=await aiApi('/api/ai/start',{profile:state.user});
     state.aiSession=d.sessionId;state.aiQuestion=d.question;state.qIndex=0;state.answers={};state.aiResult=null;saveAI();saveState();
     renderAIQuestion();updateAIJourney();setAIStatus('AI interviewer is active','ready');
-  }catch(e){setAIStatus('AI server not connected — demo questionnaire available','warning');toast(e.message);ensureSession();renderQuestion();}
+  }catch(e){toast(e.message);ensureSession();renderQuestion();}
 }
 function aiAnswerValue(q){
   if(q.type==='open')return $('#aiOpen')?.value||'';
@@ -2648,7 +2821,7 @@ function renderAIQuestion(){
   else if(q.type==='scale') body=`<div class="scale">${(q.scaleLabels||['Strongly disagree','Disagree','Neutral','Agree','Strongly agree']).map((x,i)=>`<label><input type="radio" name="aiAnswer" value="${i+1}">${i+1}<small>${escapeHtml(x)}</small></label>`).join('')}</div>`;
   else if(q.type==='rank') body=`<div class="rank" id="aiQuestionCard">${(q.options||[]).map(o=>`<div><span>${escapeHtml(o)}</span><select><option value="">Rank</option>${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div>`).join('')}</div>`;
   else body=`<div class="options">${(q.options||[]).map(o=>`<label class="option"><input type="${q.type==='multi'?'checkbox':'radio'}" name="aiAnswer" value="${escapeHtml(o)}"><span>${escapeHtml(o)}</span></label>`).join('')}</div>`;
-  $('#question').innerHTML=`<div class="question-card ai-question-card" id="aiQuestionCard"><div class="question-type">AI ADAPTIVE · ${escapeHtml(q.dimension||'Your Path')}</div><h3>${escapeHtml(q.question)}</h3>${body}<p class="muted">There is no socially correct answer. The AI will use your answer to decide what to explore next.</p><div class="ai-why">✦ ${escapeHtml(q.why||'This question helps the AI understand a part of your preferences.')}</div><div class="question-nav"><button class="btn soft" id="aiBack" ${n===1?'disabled':''}>← Back</button><button class="btn primary" id="aiNext">${n===20?'Finish & analyze':'Next →'}</button></div></div>`;
+  $('#question').innerHTML=`<div class="question-card ai-question-card" id="aiQuestionCard"><div class="question-type">AI ADAPTIVE · ${escapeHtml(q.dimension||'Your Path')}</div><h3>${escapeHtml(q.question)}</h3>${body}<p class="muted">There is no socially correct answer. The AI will use your answer to decide what to explore next.</p><div class="ai-why">${escapeHtml(q.why||'This question helps the AI understand a part of your preferences.')}</div><div class="question-nav"><button class="btn soft" id="aiBack" ${n===1?'disabled':''}>← Back</button><button class="btn primary" id="aiNext">${n===20?'Finish & analyze':'Next →'}</button></div></div>`;
   $$('#question input').forEach(x=>x.addEventListener('change',()=>{$$('.option').forEach(o=>{const inp=o.querySelector('input');if(inp)o.classList.toggle('selected',inp.checked)})}));
   $('#aiBack').onclick=()=>{toast('Adaptive back-navigation is intentionally limited so the AI can keep the interview sequence coherent.');};
   $('#aiNext').onclick=submitAIAnswer;
@@ -2671,18 +2844,18 @@ function renderAIResult(){
   const list=(x)=>Array.isArray(x)?x.map(v=>`<li>${escapeHtml(v)}</li>`).join(''):'';
   const pressure=(a.pressureSignals||[]).map(x=>`<div class="signal"><b>${escapeHtml(x.area)}</b><span>${escapeHtml(x.level)}</span><p>${escapeHtml(x.evidence)}</p></div>`).join('')||'<p class="muted">No strong signal identified from this short interview.</p>';
   const contradictions=(a.contradictions||[]).map(x=>`<div class="signal"><b>${escapeHtml(x.signal)}</b><p>${escapeHtml(x.evidence)}</p><small>Follow-up: ${escapeHtml(x.followUp)}</small></div>`).join('')||'<p class="muted">No major contradiction was identified in this session.</p>';
-  $('#analysis').innerHTML=`<div class="ai-banner"><span class="ai-orb">✦</span><div><b>AI-guided analysis</b><p>${escapeHtml(a.summary||'Analysis generated from your adaptive interview.')}</p></div></div><div class="analysis-grid"><div class="analysis-box"><h3>Interest signals</h3><div class="interest-ai-bars">${Object.entries(a.interestMap||{}).map(([k,v])=>`<div><span>${escapeHtml(k)}</span><i><em style="width:${Math.max(0,Math.min(100,Number(v)||0))}%"></em></i><b>${Math.round(Number(v)||0)}</b></div>`).join('')}</div></div><div class="analysis-box"><h3>Strength signals</h3><ul>${list(a.strengthSignals)||'<li>More evidence is needed.</li>'}</ul><h3>Areas to develop</h3><ul>${list(a.developmentAreas)||'<li>More evidence is needed.</li>'}</ul></div><div class="analysis-box"><h3>Working style hypothesis</h3><p>${escapeHtml(a.workingStyleHypothesis||'Not enough evidence yet.')}</p></div><div class="analysis-box"><h3>External-pressure reflection</h3>${pressure}<p class="muted">These are response-pattern indicators, not claims about what you think.</p></div><div class="analysis-box full"><h3>Contradictions worth exploring</h3>${contradictions}</div><div class="analysis-box full"><h3>Uncertainty</h3><ul>${list(a.uncertainty)||'<li>This is only one 20-question session.</li>'}</ul></div><div class="analysis-box full"><h3>AI next step</h3><p>Explore the pathways, choose a few experiments, then return later with new evidence. Your answers can change over time.</p><button class="btn primary" onclick="goTab('pathways')">Explore AI pathways →</button></div></div>`;
+  $('#analysis').innerHTML=`<div class="ai-banner"><span class="ai-orb">●</span><div><b>AI-guided analysis</b><p>${escapeHtml(a.summary||'Analysis generated from your adaptive interview.')}</p></div></div><div class="analysis-grid"><div class="analysis-box"><h3>Interest signals</h3><div class="interest-ai-bars">${Object.entries(a.interestMap||{}).map(([k,v])=>`<div><span>${escapeHtml(k)}</span><i><em style="width:${Math.max(0,Math.min(100,Number(v)||0))}%"></em></i><b>${Math.round(Number(v)||0)}</b></div>`).join('')}</div></div><div class="analysis-box"><h3>Strength signals</h3><ul>${list(a.strengthSignals)||'<li>More evidence is needed.</li>'}</ul><h3>Areas to develop</h3><ul>${list(a.developmentAreas)||'<li>More evidence is needed.</li>'}</ul></div><div class="analysis-box"><h3>Working style hypothesis</h3><p>${escapeHtml(a.workingStyleHypothesis||'Not enough evidence yet.')}</p></div><div class="analysis-box"><h3>External-pressure reflection</h3>${pressure}<p class="muted">These are response-pattern indicators, not claims about what you think.</p></div><div class="analysis-box full"><h3>Contradictions worth exploring</h3>${contradictions}</div><div class="analysis-box full"><h3>Uncertainty</h3><ul>${list(a.uncertainty)||'<li>This is only one 20-question session.</li>'}</ul></div><div class="analysis-box full"><h3>AI next step</h3><p>Explore the pathways, choose a few experiments, then return later with new evidence. Your answers can change over time.</p><button class="btn primary" onclick="goTab('pathways')">Explore AI pathways →</button></div></div>`;
 }
 function renderAIPatways(){
   const ps=state.aiResult?.pathways||[];if(!ps.length){renderPathways();return;}
-  $('#pathGrid').innerHTML=ps.map((p,i)=>`<article class="path-card ai-path"><span class="tag">AI pathway ${i+1}</span><h3>✦ ${escapeHtml(p.name)}</h3><p class="reason">${escapeHtml(p.why)}</p><p><b>Interests:</b> ${escapeHtml((p.interests||[]).join(', '))}</p><p><b>Skills:</b> ${escapeHtml((p.skills||[]).join(', '))}</p><p><b>Useful subjects:</b> ${escapeHtml((p.subjects||[]).join(', '))}</p><p><b>Education:</b> ${escapeHtml((p.education||[]).join(' · '))}</p><p><b>Work style:</b> ${escapeHtml(p.workStyle||'')}</p><p><b>Trade-offs:</b> ${escapeHtml((p.tradeoffs||[]).join(' · '))}</p><p><b>Related alternatives:</b> ${escapeHtml((p.alternatives||[]).join(', '))}</p><div class="path-actions"><button class="small-btn save" onclick="toggleAISave('${escapeHtml(p.name).replace(/'/g,"\\'")}')">♡ ${state.saved.includes(p.name)?'Saved':'Save'}</button><button class="small-btn" onclick="toast('AI says: ${escapeHtml(p.nextTest||'Test this pathway with a small project.').replace(/'/g,"\\'")}')">Test this path</button></div></article>`).join('');
+  $('#pathGrid').innerHTML=ps.map((p,i)=>`<article class="path-card ai-path"><span class="tag">AI pathway ${i+1}</span><h3>${escapeHtml(p.name)}</h3><p class="reason">${escapeHtml(p.why)}</p><p><b>Interests:</b> ${escapeHtml((p.interests||[]).join(', '))}</p><p><b>Skills:</b> ${escapeHtml((p.skills||[]).join(', '))}</p><p><b>Useful subjects:</b> ${escapeHtml((p.subjects||[]).join(', '))}</p><p><b>Education:</b> ${escapeHtml((p.education||[]).join(' · '))}</p><p><b>Work style:</b> ${escapeHtml(p.workStyle||'')}</p><p><b>Trade-offs:</b> ${escapeHtml((p.tradeoffs||[]).join(' · '))}</p><p><b>Related alternatives:</b> ${escapeHtml((p.alternatives||[]).join(', '))}</p><div class="path-actions"><button class="small-btn save" onclick="toggleAISave('${escapeHtml(p.name).replace(/'/g,"\\'")}')">${iconSvg('bookmark',12)} ${state.saved.includes(p.name)?'Saved':'Save'}</button><button class="small-btn" onclick="toast('AI says: ${escapeHtml(p.nextTest||'Test this pathway with a small project.').replace(/'/g,"\\'")}')">Test this path</button></div></article>`).join('');
 }
 function toggleAISave(name){state.saved=state.saved.includes(name)?state.saved.filter(x=>x!==name):[...state.saved,name];saveState();renderAIPatways();renderSaved();updateUI();toast(state.saved.includes(name)?'AI pathway saved.':'AI pathway removed.');}
 function renderAIRoadmap(){
   const r=state.aiResult?.roadmap;if(!r){renderRoadmap();return;}
   const box=(title,arr)=>`<div class="roadmap-card ai-roadmap"><span class="eyebrow">AI-GUIDED</span><h3>${title}</h3><ul>${(arr||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></div>`;
   $('#roadmapGrade').textContent=`AI-generated action plan adapted to ${state.user?.grade||'your current stage'}. Verify education and admissions details against current official sources.`;
-  $('#roadmap').innerHTML=box('Next 30 days',r.next30Days)+box('Next 6 months',r.next6Months)+box('Next 1–2 years',r.next1to2Years)+`<div class="ai-disclaimer">✦ The roadmap is a planning hypothesis. It should be updated as you gain real experience, grades, project evidence and current education information.</div>`;
+  $('#roadmap').innerHTML=box('Next 30 days',r.next30Days)+box('Next 6 months',r.next6Months)+box('Next 1–2 years',r.next1to2Years)+`<div class="ai-disclaimer">The roadmap is a planning hypothesis. It should be updated as you gain real experience, grades, project evidence and current education information.</div>`;
 }
 function renderInterestMapFromAI(){
  const m=state.aiResult?.interestMap;if(!m)return;
@@ -2799,7 +2972,7 @@ const staticRenderOverview=renderOverview;
 renderOverview=function(){
   const ps=state.aiResult?.pathways||[];
   if(ps.length){
-    $('#topPaths').innerHTML=ps.slice(0,4).map((p,i)=>`<div class="path-mini"><span class="path-icon">✦</span><span><b>${escapeHtml(p.name)}</b><small>AI pathway ${i+1} · ${escapeHtml(p.why||'Explore this direction')}</small></span></div>`).join('');
+    $('#topPaths').innerHTML=ps.slice(0,4).map((p,i)=>`<div class="path-mini"><span class="path-icon">●</span><span><b>${escapeHtml(p.name)}</b><small>AI pathway ${i+1} · ${escapeHtml(p.why||'Explore this direction')}</small></span></div>`).join('');
   } else staticRenderOverview();
   if(state.aiResult?.pressureSignals){
     const levels=state.aiResult.pressureSignals;
@@ -2867,7 +3040,7 @@ const LOCAL_AI={
     {name:'Biology',icon:'♧',dims:{Curiosity:.95,Learning:.9,Analytical:.65,People:.3},cats:['subjects','interests','learning'],skills:['Observation','research','lab methods','scientific writing'],subjects:['Biology','Chemistry','Science'],tradeoffs:['Large amount of content','Research can be repetitive'],alt:['Biotechnology','Medicine','Environmental Science'],test:'Choose a biological question and compare evidence from several credible sources.'},
     {name:'Environmental Science',icon:'♧',dims:{Curiosity:.9,Learning:.8,Analytical:.65,People:.35},cats:['subjects','values','interests'],skills:['Research','data','field methods','communication'],subjects:['Biology','Chemistry','Earth Science'],tradeoffs:['Field conditions','Complex systems'],alt:['Geoscience','Conservation','Sustainability'],test:'Choose a local environmental question and collect observations for a week.'},
     {name:'Geology / Earth Science',icon:'◇',dims:{Curiosity:.9,Learning:.8,Analytical:.7,People:.25},cats:['subjects','interests','problem'],skills:['Field observation','earth systems','mapping','analysis'],subjects:['Earth Science','Geography','Physics'],tradeoffs:['Fieldwork','Specialized locations may matter'],alt:['Environmental Science','Geography','Mining Engineering'],test:'Study the geology or landforms around your area using maps and credible references.'},
-    {name:'Astronomy / Astrophysics',icon:'✦',dims:{Curiosity:1,Analytical:.95,Learning:.95,Creative:.3},cats:['interests','subjects','learning'],skills:['Physics','mathematics','data analysis','research'],subjects:['Physics','Mathematics','Science'],tradeoffs:['Highly quantitative','Specialist careers often require advanced study'],alt:['Physics','Data Science','Space Science'],test:'Track an observable sky object or analyze public astronomy data.'},
+    {name:'Astronomy / Astrophysics',icon:'✧',dims:{Curiosity:1,Analytical:.95,Learning:.95,Creative:.3},cats:['interests','subjects','learning'],skills:['Physics','mathematics','data analysis','research'],subjects:['Physics','Mathematics','Science'],tradeoffs:['Highly quantitative','Specialist careers often require advanced study'],alt:['Physics','Data Science','Space Science'],test:'Track an observable sky object or analyze public astronomy data.'},
 
     // Health & life sciences
     {name:'Medicine',icon:'✚',dims:{People:.75,Learning:1,Curiosity:.8,Analytical:.7},cats:['subjects','communication','values'],skills:['Clinical reasoning','biology','communication','decision-making'],subjects:['Biology','Chemistry','Physics'],tradeoffs:['Long training','High responsibility and demanding schedules'],alt:['Nursing','Medical Technology','Public Health'],test:'Learn what a typical day looks like for several medical specialties and compare the actual tasks.'},
@@ -2879,7 +3052,7 @@ const LOCAL_AI={
     {name:'Occupational Therapy',icon:'◎',dims:{People:.9,Creative:.55,Learning:.75,Curiosity:.65},cats:['communication','values','creativity'],skills:['Rehabilitation','problem solving','communication','adaptation'],subjects:['Biology','Health','Psychology'],tradeoffs:['Patient-centered work','Requires patience and adaptation'],alt:['Physical Therapy','Psychology','Special Education'],test:'Explore how occupational therapists adapt activities to help people participate in daily life.'},
     {name:'Public Health',icon:'⊕',dims:{People:.8,Analytical:.65,Curiosity:.8,Learning:.8},cats:['values','communication','subjects'],skills:['Epidemiology','health education','data','community work'],subjects:['Biology','Statistics','Social Science'],tradeoffs:['Community-level rather than one-to-one impact','Complex public systems'],alt:['Medicine','Nursing','Health Administration'],test:'Investigate one local public-health issue using official statistics and propose a non-medical educational intervention.'},
     {name:'Nutrition & Dietetics',icon:'⌁',dims:{People:.75,Learning:.8,Analytical:.6,Curiosity:.7},cats:['subjects','communication','values'],skills:['Nutrition science','assessment','communication','research'],subjects:['Biology','Chemistry','Health'],tradeoffs:['Evidence changes with research','Client behavior can be complex'],alt:['Food Science','Public Health','Sports Science'],test:'Compare nutrition claims online with guidance from reputable health authorities.'},
-    {name:'Veterinary Medicine / Animal Science',icon:'🐾',dims:{People:.6,Curiosity:.9,Learning:.85,Analytical:.65},cats:['interests','subjects','values'],skills:['Animal biology','clinical reasoning','observation','communication'],subjects:['Biology','Chemistry','Animal Science'],tradeoffs:['Emotional cases','Practical and clinical work'],alt:['Animal Science','Biology','Agriculture'],test:'Compare veterinary clinical work with animal science, conservation and livestock-related careers.'},
+    {name:'Veterinary Medicine / Animal Science',icon:'♧',dims:{People:.6,Curiosity:.9,Learning:.85,Analytical:.65},cats:['interests','subjects','values'],skills:['Animal biology','clinical reasoning','observation','communication'],subjects:['Biology','Chemistry','Animal Science'],tradeoffs:['Emotional cases','Practical and clinical work'],alt:['Animal Science','Biology','Agriculture'],test:'Compare veterinary clinical work with animal science, conservation and livestock-related careers.'},
 
     // Psychology, education & social sciences
     {name:'Psychology',icon:'◉',dims:{People:1,Curiosity:.8,Learning:.75,Analytical:.35},cats:['communication','interests','learning'],skills:['Listening','research methods','writing','statistics'],subjects:['Psychology','Biology','Statistics'],tradeoffs:['People-focused work','Some specialist roles require further study'],alt:['Counseling','Human Resources','UX Research'],test:'Read one behavioral study and identify its question, method, evidence and limits.'},
@@ -2898,7 +3071,7 @@ const LOCAL_AI={
     {name:'Accounting',icon:'▤',dims:{Analytical:.9,Learning:.8,People:.45,Curiosity:.55},cats:['subjects','workstyle','problem'],skills:['Accounting','financial reporting','accuracy','analysis'],subjects:['Mathematics','Business','Economics'],tradeoffs:['Detail-heavy','Accuracy and deadlines matter'],alt:['Finance','Auditing','Management Accounting'],test:'Create a simple budget and reconcile the numbers carefully.'},
     {name:'Finance',icon:'₱',dims:{Analytical:.85,Learning:.75,People:.45,Curiosity:.65},cats:['subjects','problem','motivation'],skills:['Financial analysis','economics','risk','quantitative reasoning'],subjects:['Mathematics','Economics','Business'],tradeoffs:['High attention to uncertainty','Numbers and decisions are central'],alt:['Accounting','Economics','Actuarial Science'],test:'Learn how compound growth, inflation and risk affect a hypothetical long-term plan.'},
     {name:'Economics',icon:'∿',dims:{Analytical:.85,Curiosity:.85,Learning:.8,People:.5},cats:['problem','subjects','values'],skills:['Economic reasoning','statistics','research','writing'],subjects:['Mathematics','Economics','Social Studies'],tradeoffs:['Models simplify reality','Requires quantitative and conceptual thinking'],alt:['Finance','Public Policy','Business Analytics'],test:'Use a simple supply-and-demand example to explain a real-world price change.'},
-    {name:'Marketing',icon:'✦',dims:{Creative:.8,People:.8,Analytical:.5,Curiosity:.65},cats:['creativity','communication','motivation'],skills:['Research','branding','communication','analytics'],subjects:['Business','English','Art/Design'],tradeoffs:['Fast-changing trends','Results can be uncertain'],alt:['Advertising','Public Relations','Sales'],test:'Compare how two brands communicate to different audiences and identify the evidence.'},
+    {name:'Marketing',icon:'✧',dims:{Creative:.8,People:.8,Analytical:.5,Curiosity:.65},cats:['creativity','communication','motivation'],skills:['Research','branding','communication','analytics'],subjects:['Business','English','Art/Design'],tradeoffs:['Fast-changing trends','Results can be uncertain'],alt:['Advertising','Public Relations','Sales'],test:'Compare how two brands communicate to different audiences and identify the evidence.'},
     {name:'Entrepreneurship',icon:'↗',dims:{People:.8,Creative:.75,Curiosity:.65,Analytical:.55},cats:['motivation','communication','values'],skills:['Problem discovery','market research','finance','leadership'],subjects:['Business','Economics','Mathematics'],tradeoffs:['Uncertainty','Requires experimentation and resilience'],alt:['Business Administration','Marketing','Innovation Management'],test:'Interview three people about a real problem before proposing a solution.'},
     {name:'Human Resources',icon:'♧',dims:{People:1,Analytical:.45,Learning:.7,Creative:.4},cats:['communication','values','workstyle'],skills:['Recruitment','communication','organizational behavior','policy'],subjects:['Business','Psychology','Communication'],tradeoffs:['People conflicts can be difficult','Requires confidentiality and fairness'],alt:['Psychology','Management','Labor Relations'],test:'Study how organizations recruit, onboard and develop people.'},
     {name:'Law / Legal Studies',icon:'§',dims:{Analytical:.75,People:.7,Learning:.9,Curiosity:.8},cats:['communication','problem','subjects'],skills:['Reading','argument analysis','research','writing'],subjects:['English','History','Social Studies'],tradeoffs:['Heavy reading','Precision and competing arguments'],alt:['Political Science','Criminology','Compliance'],test:'Read a simple public legal case summary and identify the facts, issue, arguments and decision.'},
@@ -2908,9 +3081,9 @@ const LOCAL_AI={
     {name:'Public Relations',icon:'◉',dims:{People:.9,Creative:.75,Curiosity:.55,Analytical:.4},cats:['communication','creativity','motivation'],skills:['Writing','media relations','campaign planning','communication'],subjects:['Communication','English','Business'],tradeoffs:['Reputation-sensitive work','Fast deadlines'],alt:['Marketing','Journalism','Advertising'],test:'Draft a factual communication plan for a hypothetical school event and consider different audiences.'},
 
     // Arts, design & creative fields
-    {name:'Fine Arts',icon:'✦',dims:{Creative:1,Curiosity:.7,People:.35,Learning:.65},cats:['creativity','interests','values'],skills:['Visual practice','concept development','critique','portfolio building'],subjects:['Art','History','Design'],tradeoffs:['Portfolio development takes time','Income paths can vary'],alt:['Graphic Design','Illustration','Art Education'],test:'Make a small body of work around one theme and document how your idea changed.'},
+    {name:'Fine Arts',icon:'✧',dims:{Creative:1,Curiosity:.7,People:.35,Learning:.65},cats:['creativity','interests','values'],skills:['Visual practice','concept development','critique','portfolio building'],subjects:['Art','History','Design'],tradeoffs:['Portfolio development takes time','Income paths can vary'],alt:['Graphic Design','Illustration','Art Education'],test:'Make a small body of work around one theme and document how your idea changed.'},
     {name:'Graphic Design',icon:'◇',dims:{Creative:1,People:.55,Analytical:.4,Learning:.65},cats:['creativity','communication','interests'],skills:['Typography','layout','visual communication','design software'],subjects:['Art','Design','ICT'],tradeoffs:['Frequent critique','Client constraints'],alt:['UI Design','Illustration','Advertising'],test:'Redesign a poster for a specific audience and explain your design choices.'},
-    {name:'Animation / 3D / Visual Effects',icon:'✦',dims:{Creative:1,Analytical:.45,Learning:.75,Curiosity:.7},cats:['creativity','interests','learning'],skills:['Storyboarding','3D tools','animation','visual storytelling'],subjects:['Art','ICT','Media'],tradeoffs:['Long production cycles','Technical creative tools'],alt:['Film','Game Art','Graphic Design'],test:'Create a short storyboard or simple animation sequence with a clear visual idea.'},
+    {name:'Animation / 3D / Visual Effects',icon:'✧',dims:{Creative:1,Analytical:.45,Learning:.75,Curiosity:.7},cats:['creativity','interests','learning'],skills:['Storyboarding','3D tools','animation','visual storytelling'],subjects:['Art','ICT','Media'],tradeoffs:['Long production cycles','Technical creative tools'],alt:['Film','Game Art','Graphic Design'],test:'Create a short storyboard or simple animation sequence with a clear visual idea.'},
     {name:'Film / Broadcasting',icon:'▶',dims:{Creative:.9,People:.75,Curiosity:.65,Learning:.55},cats:['creativity','communication','interests'],skills:['Storytelling','camera/audio','editing','production'],subjects:['Media','English','Art'],tradeoffs:['Team-based production','Irregular project schedules'],alt:['Journalism','Communication','Digital Media'],test:'Produce a short factual video with a script, shots and source notes.'},
     {name:'Music / Performing Arts',icon:'♫',dims:{Creative:1,People:.7,Learning:.7,Curiosity:.65},cats:['creativity','communication','interests'],skills:['Performance','practice','composition','collaboration'],subjects:['Music','Arts','Languages'],tradeoffs:['High practice demands','Performance pressure can occur'],alt:['Music Education','Production','Arts Management'],test:'Learn or create a short piece and record what practice methods helped most.'},
     {name:'Interior Design',icon:'⌂',dims:{Creative:.95,People:.55,Analytical:.45,Learning:.65},cats:['creativity','values','workstyle'],skills:['Spatial design','materials','visualization','client communication'],subjects:['Art','Design','Mathematics'],tradeoffs:['Client constraints','Detailed revisions'],alt:['Architecture','Furniture Design','Visual Merchandising'],test:'Redesign a small room for a specific user, budget and functional need.'},
@@ -2923,7 +3096,7 @@ const LOCAL_AI={
     {name:'Forestry / Natural Resources',icon:'♧',dims:{Curiosity:.9,Learning:.8,People:.4,Analytical:.55},cats:['values','interests','subjects'],skills:['Ecology','field methods','resource management','mapping'],subjects:['Biology','Earth Science','Geography'],tradeoffs:['Outdoor work','Long-term environmental systems'],alt:['Environmental Science','Agriculture','Conservation'],test:'Study a local ecosystem and identify pressures, stakeholders and possible conservation actions.'},
 
     // Hospitality, tourism, maritime & services
-    {name:'Hospitality Management',icon:'✦',dims:{People:.95,Creative:.55,Learning:.6,Analytical:.35},cats:['communication','workstyle','motivation'],skills:['Guest service','operations','teamwork','event planning'],subjects:['Business','Communication','Home Economics'],tradeoffs:['Customer-facing work','Variable schedules'],alt:['Tourism','Restaurant Management','Events'],test:'Analyze the guest journey of a hotel or restaurant and identify points where service matters.'},
+    {name:'Hospitality Management',icon:'✧',dims:{People:.95,Creative:.55,Learning:.6,Analytical:.35},cats:['communication','workstyle','motivation'],skills:['Guest service','operations','teamwork','event planning'],subjects:['Business','Communication','Home Economics'],tradeoffs:['Customer-facing work','Variable schedules'],alt:['Tourism','Restaurant Management','Events'],test:'Analyze the guest journey of a hotel or restaurant and identify points where service matters.'},
     {name:'Tourism Management',icon:'⌖',dims:{People:.85,Curiosity:.8,Creative:.6,Learning:.6},cats:['communication','interests','values'],skills:['Tour planning','communication','destination research','marketing'],subjects:['Geography','Business','Communication'],tradeoffs:['Seasonal demand','Customer-facing schedules'],alt:['Hospitality','Travel Management','Events'],test:'Design a responsible local tourism itinerary with audience, budget and sustainability considerations.'},
     {name:'Culinary Arts / Culinary Management',icon:'♨',dims:{Creative:.8,People:.75,Learning:.65,Curiosity:.6},cats:['creativity','workstyle','interests'],skills:['Cooking','food safety','menu planning','operations'],subjects:['Home Economics','Science','Business'],tradeoffs:['Fast-paced work','Long or irregular hours can occur'],alt:['Food Science','Hospitality','Entrepreneurship'],test:'Plan and execute a simple meal while tracking preparation time, cost and quality.'},
     {name:'Maritime Studies / Marine Transportation',icon:'⚓',dims:{Analytical:.65,Learning:.8,Curiosity:.8,People:.55},cats:['values','subjects','workstyle'],skills:['Navigation','safety','operations','discipline'],subjects:['Physics','Mathematics','Geography'],tradeoffs:['Extended periods away from home may occur','Strict safety procedures'],alt:['Marine Engineering','Logistics','Port Management'],test:'Research the training, certification and actual onboard duties for maritime roles.'},
