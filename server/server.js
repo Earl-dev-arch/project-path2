@@ -8,13 +8,14 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ROOT_DIR = path.resolve(__dirname, '..');
+const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 
 // Enable CORS and JSON parsing
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// Serve static frontend assets from parent root directory
-app.use(express.static(ROOT_DIR));
+// Serve static frontend assets from the public/ directory
+app.use(express.static(PUBLIC_DIR));
 
 // PostgreSQL Connection Pool
 let pool = null;
@@ -38,6 +39,66 @@ if (connectionString) {
   });
 } else {
   console.warn('⚠️ No DATABASE_URL found in server/.env. Running with offline/local fallback.');
+}
+
+// Demo student account shipped with the prototype so the login flow can be
+// tried without registering. Credentials: YourPath@gmail.com / yourpath2026
+const DEMO_ACCOUNT = {
+  email: 'yourpath@gmail.com',
+  password: 'yourpath2026',
+  name: 'YourPath Demo Student',
+  phone: '',
+  country: 'Philippines (+63)',
+  grade: 'Grade 10',
+  age: '16',
+  school: 'YourPath. Demo School',
+  targetCountry: 'Domestic / Home Country',
+  budget: 'Full scholarship needed',
+  goals: 'Explore career pathways that fit my interests.',
+  role: 'student'
+};
+
+// Creates the demo account once, if it does not exist yet. Safe to run on every
+// boot: an existing row is left untouched so real progress is never overwritten.
+async function seedDemoAccount() {
+  if (!pool) return;
+  try {
+    const existing = await pool.query('SELECT id FROM users WHERE LOWER(email) = $1', [DEMO_ACCOUNT.email]);
+    if (existing.rows.length > 0) return;
+
+    const passwordHash = await bcrypt.hash(DEMO_ACCOUNT.password, 10);
+    const inserted = await pool.query(`
+      INSERT INTO users (
+        email, password_hash, name, phone, country, grade, age, school, target_country, budget, goals, role
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      ON CONFLICT (email) DO NOTHING
+      RETURNING id
+    `, [
+      DEMO_ACCOUNT.email,
+      passwordHash,
+      DEMO_ACCOUNT.name,
+      DEMO_ACCOUNT.phone,
+      DEMO_ACCOUNT.country,
+      DEMO_ACCOUNT.grade,
+      DEMO_ACCOUNT.age,
+      DEMO_ACCOUNT.school,
+      DEMO_ACCOUNT.targetCountry,
+      DEMO_ACCOUNT.budget,
+      DEMO_ACCOUNT.goals,
+      DEMO_ACCOUNT.role
+    ]);
+
+    if (inserted.rows.length > 0) {
+      await pool.query(`
+        INSERT INTO user_progress (user_id, answers, saved_pathways, saved_notes, experiments, session_data, q_index)
+        VALUES ($1, '{}'::jsonb, '[]'::jsonb, '{}'::jsonb, '{}'::jsonb, '{}'::jsonb, 0)
+        ON CONFLICT (user_id) DO NOTHING
+      `, [inserted.rows[0].id]);
+      console.log('✅ Demo student account ready (YourPath@gmail.com).');
+    }
+  } catch (err) {
+    console.error('❌ Error seeding demo account:', err.message);
+  }
 }
 
 // Auto-initialize PostgreSQL database tables
@@ -83,6 +144,9 @@ async function initDb() {
     } finally {
       client.release();
     }
+
+    // Tables exist by now, so the demo account can be seeded safely.
+    await seedDemoAccount();
   } catch (err) {
     console.error('❌ Error initializing PostgreSQL schema:', err.message);
   }
@@ -406,7 +470,7 @@ app.post('/api/user/profile', async (req, res) => {
 
 // Fallback for SPA routing - serve index.html for unknown routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(ROOT_DIR, 'index.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
 
 // Start Server
@@ -414,7 +478,7 @@ app.listen(PORT, () => {
   console.log(`====================================================`);
   console.log(`🚀 Your Path Server is running on port ${PORT}`);
   console.log(`🌐 Local URL: http://localhost:${PORT}`);
-  console.log(`📁 Serving frontend from: ${ROOT_DIR}`);
+  console.log(`📁 Serving frontend from: ${PUBLIC_DIR}`);
   console.log(`====================================================`);
 });
 

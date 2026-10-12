@@ -25,6 +25,11 @@ CREATE TABLE IF NOT EXISTS users (
 -- Index for instant email lookups during login
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
+-- Phone number must be unique when provided: two students cannot share a
+-- contact number. Blank values are allowed to repeat (partial unique index).
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_unique
+  ON users(phone) WHERE phone <> '';
+
 -- 2. User Progress Table (Tracks questionnaire progress, answers, saved pathways, experiments, and notes)
 CREATE TABLE IF NOT EXISTS user_progress (
   user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,

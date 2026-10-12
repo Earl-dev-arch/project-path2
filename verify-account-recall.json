@@ -1,0 +1,10 @@
+{
+  "checks": [
+    {
+      "name": "page loaded with app content",
+      "pass": false,
+      "detail": 0
+    }
+  ],
+  "loadError": "Error: app did not render\n    at file:///C:/Users/yuri/Documents/project-path2/tests/browser/verify-account-recall.mjs:102:20"
+}

@@ -8,7 +8,8 @@ import { fileURLToPath } from "node:url";
 // Tests live in tests/ but load the app from the project root, so they pass no
 // matter which directory they are run from. A bare app filename is resolved
 // against the root; an explicit path is left alone.
-const APP_ROOT = _resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const PROJECT_ROOT = _resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const APP_ROOT = _resolve(PROJECT_ROOT, "public");
 const APP_FILES = new Set([
   "index.html",
   "styles.css",
@@ -18,9 +19,16 @@ const APP_FILES = new Set([
   "favicon.ico",
   "favicon.png",
 ]);
+const _resolveAppFile = (p) => {
+  const candidates = [_resolve(APP_ROOT, p), _resolve(PROJECT_ROOT, p)];
+  for (const c of candidates) {
+    try { _readFileSync(c); return c; } catch {}
+  }
+  return candidates[0];
+};
 const readFileSync = (p, ...rest) =>
   _readFileSync(
-    typeof p === "string" && APP_FILES.has(p) ? _resolve(APP_ROOT, p) : p,
+    typeof p === "string" && APP_FILES.has(p) ? _resolveAppFile(p) : p,
     ...rest,
   );
 import vm from "node:vm";

@@ -9,9 +9,17 @@ import { dirname, resolve as _resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
-const APP_ROOT = _resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const PROJECT_ROOT = _resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const APP_ROOT = _resolve(PROJECT_ROOT, "public");
+const _resolveAppFile = (p) => {
+  const candidates = [_resolve(APP_ROOT, p), _resolve(PROJECT_ROOT, p)];
+  for (const c of candidates) {
+    try { _readFileSync(c); return c; } catch {}
+  }
+  return candidates[0];
+};
 const readFileSync = (p, ...r) =>
-  _readFileSync(typeof p === "string" ? _resolve(APP_ROOT, p) : p, ...r);
+  _readFileSync(typeof p === "string" ? _resolveAppFile(p) : p, ...r);
 
 const noop = () => {};
 
