@@ -2642,6 +2642,8 @@ footer {
   width: min(760px, 100%);
 }
 
+/* The modal close (×) buttons were removed from the markup, so this rule is
+   no longer used. Kept as a no-op in case a close button is re-added later. */
 .close {
   position: absolute;
   right: 18px;
@@ -2654,7 +2656,7 @@ footer {
   font-size: 22px;
   cursor: pointer;
   z-index: 10;
-  display: grid;
+  display: none;
   place-items: center;
   line-height: 1;
   color: var(--ink);

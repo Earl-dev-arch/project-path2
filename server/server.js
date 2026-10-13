@@ -3,28 +3,38 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ROOT_DIR = path.resolve(__dirname, '..');
+// The frontend (index.html, app_scratch.js, styles.css, ...) lives at the
+// repository root. A public/ directory is also used when present — if it
+// contains the site it is served first, otherwise we fall back to the root so
+// `npm start` always serves a working page. ROOT_DIR is also kept in the
+// static list as a safety net for deployments that build into public/.
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
+const PUBLIC_HAS_SITE = fs.existsSync(path.join(PUBLIC_DIR, 'index.html'));
 
 // Enable CORS and JSON parsing
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// Serve static frontend assets from the public/ directory
-app.use(express.static(PUBLIC_DIR));
+// Serve static frontend assets
+if (PUBLIC_HAS_SITE) {
+  app.use(express.static(PUBLIC_DIR));
+}
+app.use(express.static(ROOT_DIR));
 
 // PostgreSQL Connection Pool
 let pool = null;
 const connectionString = process.env.DATABASE_URL;
 
 if (connectionString) {
-  const isCloud = connectionString.includes('neon.tech') || 
-                  connectionString.includes('supabase.co') || 
-                  connectionString.includes('render.com') || 
+  const isCloud = connectionString.includes('neon.tech') ||
+                  connectionString.includes('supabase.co') ||
+                  connectionString.includes('render.com') ||
                   connectionString.includes('railway.app') ||
                   connectionString.includes('aivencloud.com') ||
                   process.env.PGSSL === 'true';
@@ -39,6 +49,61 @@ if (connectionString) {
   });
 } else {
   console.warn('⚠️ No DATABASE_URL found in server/.env. Running with offline/local fallback.');
+}
+
+// ----------------------------------------------------------------
+// Registration confirmation email
+// ----------------------------------------------------------------
+// A confirmation message is always prepared for the address that was used to
+// register. When SMTP is configured (server/.env) it is delivered for real
+// through nodemailer; without SMTP the prepared message is logged so the
+// behaviour stays visible in development. Account creation never depends on
+// the mail transport — a failed send must not break signup.
+let transporter = null;
+let mailer = null;
+try {
+  mailer = require('nodemailer');
+  if (process.env.SMTP_HOST) {
+    transporter = mailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: String(process.env.SMTP_SECURE) === 'true',
+      auth: process.env.SMTP_USER
+        ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+        : undefined
+    });
+  }
+} catch (err) {
+  console.warn('ℹ️ nodemailer not installed — registration emails will be logged only.');
+}
+
+const MAIL_FROM = process.env.MAIL_FROM || 'YourPath. <no-reply@yourpath.demo>';
+
+// Sends (or logs) the "your account was created" confirmation for the Gmail /
+// email address that was just registered. Never throws to the caller.
+async function sendRegistrationEmail(user) {
+  const to = user.email;
+  const subject = 'YourPath. account created';
+  const text =
+    `Hi ${user.name || 'Student'},\n\n` +
+    'Your YourPath. account was created successfully.\n\n' +
+    `Email used for this account: ${to}\n` +
+    'You can now log in on any device with this same email and password — ' +
+    'your progress is stored on the server and follows you.\n\n' +
+    'If you did not create this account, you can ignore this message.\n\n' +
+    '— YourPath.';
+
+  if (!transporter) {
+    console.log(`📧 [registration email not sent — no SMTP configured] to=${to} subject="${subject}"`);
+    return;
+  }
+
+  try {
+    await transporter.sendMail({ from: MAIL_FROM, to, subject, text });
+    console.log(`📧 Registration confirmation email sent to ${to}`);
+  } catch (err) {
+    console.warn(`⚠️ Could not send registration email to ${to}: ${err.message}`);
+  }
 }
 
 // Demo student account shipped with the prototype so the login flow can be
@@ -196,6 +261,9 @@ app.get('/api/health', async (req, res) => {
 });
 
 // 2. User Sign Up
+// Rejects a duplicate Gmail/email address with 409 so the website remembers
+// that the account is already registered. The same users row is then used by
+// the login endpoint on any other device.
 app.post('/api/auth/signup', async (req, res) => {
   if (!pool) {
     return res.status(503).json({ error: 'Database is not configured. Please set DATABASE_URL in server/.env.' });
@@ -254,6 +322,10 @@ app.post('/api/auth/signup', async (req, res) => {
     `, [newUser.id]);
 
     const sanitized = sanitizeUser(newUser);
+
+    // Notify the Gmail/email address that was just used to register. This runs
+    // in the background so signup responds immediately.
+    sendRegistrationEmail(newUser).catch(() => {});
 
     res.status(201).json({
       message: 'Account created successfully',
@@ -470,7 +542,8 @@ app.post('/api/user/profile', async (req, res) => {
 
 // Fallback for SPA routing - serve index.html for unknown routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+  const indexFile = path.join(PUBLIC_DIR, 'index.html');
+  res.sendFile(fs.existsSync(indexFile) ? indexFile : path.join(ROOT_DIR, 'index.html'));
 });
 
 // Start Server
@@ -478,7 +551,7 @@ app.listen(PORT, () => {
   console.log(`====================================================`);
   console.log(`🚀 Your Path Server is running on port ${PORT}`);
   console.log(`🌐 Local URL: http://localhost:${PORT}`);
-  console.log(`📁 Serving frontend from: ${PUBLIC_DIR}`);
+  console.log(`📁 Serving frontend from: ${PUBLIC_HAS_SITE ? PUBLIC_DIR : ROOT_DIR}`);
   console.log(`====================================================`);
 });
 

@@ -571,7 +571,19 @@ function openLogin(){
   closeModal("authModal");
   openModal("loginModal");
   const emailInput=$("#loginForm input[name='email']");
-  if(emailInput) setTimeout(()=>emailInput.focus(), 50);
+  // Remember the address used to register on this browser so the student
+  // only has to type the password when coming back to an existing account.
+  const remembered=lastSignupDetails();
+  if(emailInput){
+    if(remembered&&remembered.email&&!emailInput.value){
+      emailInput.value=remembered.email;
+      const pwInput=$("#loginForm input[name='password']");
+      if(pwInput) setTimeout(()=>pwInput.focus(), 50);
+      else setTimeout(()=>emailInput.focus(), 50);
+    } else {
+      setTimeout(()=>emailInput.focus(), 50);
+    }
+  }
 }
 function openSignup(){
   closeModal("loginModal");
@@ -860,8 +872,14 @@ $("#signupForm").onsubmit=async e=>{
    });
    const resData = await res.json();
    if (!res.ok) {
+     if (res.status === 409) {
+       // The website already remembers this address: guide the student to the
+       // login form (openLogin prefills the remembered email).
+       toast("This email is already registered. Please log in instead.");
+       openLogin();
+       return;
+     }
      toast(resData.error || "Failed to create account.");
-     if (res.status === 409) openLogin();
      return;
    }
    registeredUser = resData.user;
