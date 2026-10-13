@@ -3707,3 +3707,11 @@ footer {
   .exp-ring{align-self:flex-start}
   .exp-day-num{min-width:38px}
 }
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-width: none;
+}
