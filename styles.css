@@ -2326,6 +2326,49 @@ img {
 .about-list li {
   margin-bottom: 8px;
 }
+
+/* About socials */
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: #4d4e63;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.social-link svg {
+  flex: 0 0 auto;
+}
+.social-link:hover {
+  transform: translateY(-2px);
+  border-color: #6c5ce7;
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.18);
+}
+.social-link.social-discord:hover {
+  color: #5865f2;
+}
+.social-link.social-instagram:hover {
+  color: #e1306c;
+}
+.social-link.social-tiktok:hover {
+  color: #000000;
+}
+.about-socials {
+  grid-column: 1;
+}
 .about-list b {
   color: var(--ink, #0f172a);
 }

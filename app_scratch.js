@@ -2015,8 +2015,7 @@ function renderQuestion(){
  $("#qCount").textContent=`Question ${state.qIndex+1} of 20`;
  const pct=Math.round(((state.qIndex+1)/20)*100);
  const bar=$("#qProgressBar");if(bar) bar.style.width=`${pct}%`;
- const firstDraw=(q.weight/100).toFixed(2);
- $("#selectionInfo").innerHTML=`<b>${escapeHtml(q.categoryLabel)}</b><br><br>This question has a configured <strong>${firstDraw}% first-draw chance</strong> because its category weight is ${q.weight}/100 and there are 100 questions in each category.<br><br>The exact chance of appearing in the full 20-question session changes as questions are selected. This is an explainable selection mechanic, not a personality score.`;
+ const sel=$("#selectionInfo");if(sel) sel.innerHTML=`<b>${escapeHtml(q.categoryLabel)}</b><br><br>Questions are selected with a weighted, balanced mechanic so the session covers every dimension. This is an explainable selection mechanic, not a personality score.`;
  let body="";
  const val=state.answers[q.id];
  if(q.type==="scale"){
@@ -2899,7 +2898,6 @@ function aiAnswerValue(q){
 function renderAIQuestion(){
   const q=state.aiQuestion;if(!q)return;
   const n=(state.qIndex||0)+1;$('#qCount').textContent=`${n} / 20`;
-  $('#selectionInfo').innerHTML=`<b>AI adaptive selection</b><br><br>The AI chose this question from your previous responses and the information it still needs. It may change the next question when your answers reveal a new direction.<br><br><span class="muted">This is not a psychological score.</span>`;
   let body='';
   if(q.type==='open') body=`<textarea class="open" id="aiOpen" placeholder="Answer honestly. A few sentences are enough."></textarea>`;
   else if(q.type==='scale') body=`<div class="scale">${(q.scaleLabels||['Strongly disagree','Disagree','Neutral','Agree','Strongly agree']).map((x,i)=>`<label><input type="radio" name="aiAnswer" value="${i+1}">${i+1}<small>${escapeHtml(x)}</small></label>`).join('')}</div>`;
