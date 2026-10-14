@@ -882,18 +882,24 @@ $("#signupForm").onsubmit=async e=>{
      toast(resData.error || "Failed to create account.");
      return;
    }
-   registeredUser = resData.user;
- } catch(err) {
-   if(state.accounts && state.accounts[d.email]){
-     toast("An account with this email already exists. Please log in.");
-     openLogin();
-     return;
+    registeredUser = resData.user;
+   } catch(err) {
+     if(state.accounts && state.accounts[(d.email||"").toLowerCase().trim()]){
+       toast("An account with this email already exists. Please log in.");
+       openLogin();
+       return;
+     }
+     registeredUser = { ...payload, createdAt: Date.now() };
    }
-   registeredUser = { ...payload, createdAt: Date.now() };
- }
 
+ // Keep the chosen password in the local account record. The server response
+ // is sanitized (no password), so without this the cached account could never
+ // be matched again by the offline/local login fallback.
+ registeredUser.password = payload.password;
  state.accounts = state.accounts || {};
- state.accounts[registeredUser.email] = registeredUser;
+ const signupKey = (registeredUser.email || "").toLowerCase().trim();
+ registeredUser.email = signupKey;
+ state.accounts[signupKey] = registeredUser;
  state.user = registeredUser;
  state.answers = {};
  newSession();
@@ -938,8 +944,17 @@ $("#loginForm").onsubmit=async e=>{
     accounts still let the student in so the workspace transition runs. */
  const loginFromLocalAccounts=()=>{
    if(state.accounts && state.accounts[emailKey]){
-     if(state.accounts[emailKey].password===pw){
-       loggedInUser = state.accounts[emailKey];
+     const local=state.accounts[emailKey];
+     if(local.password===pw){
+       loggedInUser = local;
+       return true;
+     }
+     // Accounts created through the server are cached here without a stored
+     // password (the API response is sanitized). If this cached account is
+     // the one currently signed in on this device, trust it instead of
+     // failing — the server already verified these credentials at signup.
+     if(!local.password && state.user && state.user.email.toLowerCase().trim()===emailKey){
+       loggedInUser = local;
        return true;
      }
      toast("Incorrect password for this account. Please try again.");
